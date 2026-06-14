@@ -1,5 +1,5 @@
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { muiTheme } from "./muiTheme";
+import { muiTheme } from "./theme/muiTheme";
 import { AppProvider, useApp } from "./AppContext";
 import { Layout } from "./components/Layout";
 import { Auth } from "./pages/Auth";

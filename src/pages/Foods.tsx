@@ -9,7 +9,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
 import { useApp } from "../AppContext";
-import type { Food } from "../../types";
+import type { Food } from "../types";
 
 const CATEGORIES = ["All", "Protein", "Carbs", "Vegetables", "Fats", "Dairy", "Fruit", "Supplements", "Spices"];
 

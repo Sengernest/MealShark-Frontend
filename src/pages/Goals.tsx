@@ -6,7 +6,7 @@ import {
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useApp, calcNutritionGoal } from "../AppContext";
-import type { Gender, ActivityLevel, WeightGoal } from "../../types";
+import type { Gender, ActivityLevel, WeightGoal } from "../types";
 
 const ACTIVITY_LABELS: Record<ActivityLevel, string> = {
   sedentary: "Sedentary (little or no exercise)",

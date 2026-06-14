@@ -13,7 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PeopleIcon from "@mui/icons-material/People";
 import { useApp } from "../AppContext";
-import type { Recipe, RecipeIngredient } from "../../types";
+import type { Recipe, RecipeIngredient } from "../types";
 
 const CATEGORIES = ["All", "High Protein", "Breakfast", "Carbs", "Low Carb", "Vegetarian"];
 
