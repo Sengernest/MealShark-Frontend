@@ -5,7 +5,7 @@ import {
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
-import GrainIcon from "@mui/icons-material/Grain";
+import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import HistoryIcon from "@mui/icons-material/History";
@@ -13,7 +13,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
-import { useApp } from "./AppContext";
+import { useApp } from "../AppContext";
 
 const DRAWER_OPEN = 220;
 const DRAWER_CLOSED = 64;
@@ -21,7 +21,7 @@ const DRAWER_CLOSED = 64;
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: <DashboardIcon /> },
   { id: "goals", label: "My Goals", icon: <TrackChangesIcon /> },
-  { id: "foods", label: "Foods", icon: <GrainIcon /> },
+  { id: "foods", label: "Foods", icon: <LocalDiningIcon /> },
   { id: "recipes", label: "Recipes", icon: <MenuBookIcon /> },
   { id: "mealplans", label: "Meal Plans", icon: <CalendarMonthIcon /> },
   { id: "meallog", label: "Meal Log", icon: <HistoryIcon /> },
@@ -63,7 +63,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             minHeight: 72,
           }}
         >
-          <FitnessCenterIcon sx={{ color: "primary.main", fontSize: 28, flexShrink: 0 }} />
+          {/*<FitnessCenterIcon sx={{ color: "primary.main", fontSize: 28, flexShrink: 0 }} />*/}
           {open && (
             <Typography
               variant="h5"

@@ -10,8 +10,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TodayIcon from "@mui/icons-material/Today";
-import { useApp } from "./AppContext";
-import type { MealLogEntry, MealLogSlot, MealItem } from "./types";
+import { useApp } from "../AppContext";
+import type { MealLogEntry, MealLogSlot, MealItem } from "../../types";
 
 function addDays(dateStr: string, n: number): string {
   const d = new Date(dateStr + "T12:00:00");

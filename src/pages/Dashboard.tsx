@@ -7,7 +7,7 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import HistoryIcon from "@mui/icons-material/History";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
-import { useApp } from "./AppContext";
+import { useApp } from "../AppContext";
 
 const TODAY = "2026-06-14";
 
@@ -244,9 +244,9 @@ export function Dashboard() {
               <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
                 {[
                   { label: "Log a Meal", page: "meallog", color: "primary" },
-                  { label: "Create Recipe", page: "recipes", color: "inherit" },
-                  { label: "Browse Meal Plans", page: "mealplans", color: "inherit" },
-                  { label: "Update Goals", page: "goals", color: "inherit" },
+                  { label: "Create Recipe", page: "recipes", color: "primary" },
+                  { label: "Browse Meal Plans", page: "mealplans", color: "primary" },
+                  { label: "Update Goals", page: "goals", color: "primary" },
                 ].map(({ label, page: p, color }) => (
                   <Button
                     key={p}

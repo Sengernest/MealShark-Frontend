@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import type { UserProfile, Food, Recipe, MealPlan, MealLogEntry, NutritionGoal, ActivityLevel, WeightGoal } from "./types";
+import type { UserProfile, Food, Recipe, MealPlan, MealLogEntry, NutritionGoal, ActivityLevel, WeightGoal } from "../../types";
 import { FOODS, RECIPES, MEAL_PLANS } from "./mockData";
 
 type Page =

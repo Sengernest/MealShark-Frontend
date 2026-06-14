@@ -8,8 +8,8 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useApp } from "./AppContext";
-import type { MealPlan, DayPlan, MealSlot, MealItem } from "./types";
+import { useApp } from "../AppContext";
+import type { MealPlan, DayPlan, MealSlot, MealItem } from "../../types";
 
 const DAYS: DayPlan["day"][] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DAY_FULL: Record<string, string> = { Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday" };

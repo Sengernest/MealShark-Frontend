@@ -1,14 +1,14 @@
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { muiTheme } from "./components/muiTheme";
-import { AppProvider, useApp } from "./components/AppContext";
+import { muiTheme } from "./muiTheme";
+import { AppProvider, useApp } from "./AppContext";
 import { Layout } from "./components/Layout";
-import { Auth } from "./components/Auth";
-import { Dashboard } from "./components/Dashboard";
-import { Goals } from "./components/Goals";
-import { Foods } from "./components/Foods";
-import { Recipes } from "./components/Recipes";
-import { MealPlans } from "./components/MealPlans";
-import { MealLog } from "./components/MealLog";
+import { Auth } from "./pages/Auth";
+import { Dashboard } from "./pages/Dashboard";
+import { Goals } from "./pages/Goals";
+import { Foods } from "./pages/Foods";
+import { Recipes } from "./pages/Recipes";
+import { MealPlans } from "./pages/MealPlans";
+import { MealLog } from "./pages/MealLog";
 
 function AppContent() {
   const { page, user } = useApp();

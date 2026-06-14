@@ -1,4 +1,4 @@
-import type { Food, Recipe, MealPlan, MealItem } from "./types";
+import type { Food, Recipe, MealPlan, MealItem } from "../../types";
 
 export const FOODS: Food[] = [
   { id: "f1", name: "Chicken Breast", category: "Protein", caloriesPer100g: 165, proteinPer100g: 31, carbsPer100g: 0, fatPer100g: 3.6, isCustom: false },
@@ -78,7 +78,7 @@ export const RECIPES: Recipe[] = [
     instructions: [
       "Pat chicken dry and season generously with paprika, salt and pepper.",
       "Heat olive oil in a pan over medium-high heat.",
-      "Sear chicken 6–7 minutes per side until cooked through.",
+      "Sear chicken 6-7 minutes per side until cooked through.",
       "Rest 5 minutes before serving.",
     ],
     prepTime: 5,
