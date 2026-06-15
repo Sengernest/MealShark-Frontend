@@ -16,30 +16,36 @@ export const useGetMealLog = (mealLogId: number) => {
   });
 };
 
-export const useCreateMealLog = (data: MealLogPost) => {
+export const useCreateMealLog = () => {
   const queryClient = new QueryClient();
   return useMutation({
-    mutationFn: () => mealLogApi.createMealLog(data),
+    mutationFn: (data: MealLogPost) => mealLogApi.createMealLog(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meal-logs"] });
     },
   });
 };
 
-export const useUpdateMealLog = (meallogId: number, data: MealLogPost) => {
+export const useUpdateMealLog = () => {
   const queryClient = new QueryClient();
   return useMutation({
-    mutationFn: () => mealLogApi.updateMealLog(meallogId, data),
+    mutationFn: ({
+      mealLogId,
+      data,
+    }: {
+      mealLogId: number;
+      data: MealLogPost;
+    }) => mealLogApi.updateMealLog(mealLogId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meal-logs", meallogId] });
+      queryClient.invalidateQueries({ queryKey: ["meal-logs"] });
     },
   });
 };
 
-export const useDeleteMealLog = (meallogId: number) => {
+export const useDeleteMealLog = () => {
   const queryClient = new QueryClient();
   return useMutation({
-    mutationFn: () => mealLogApi.deleteMealLog(meallogId),
+    mutationFn: (mealLogId: number) => mealLogApi.deleteMealLog(mealLogId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meal-logs"] });
     },

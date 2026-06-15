@@ -1,6 +1,11 @@
 import { recipeApi } from "@/api/recipes";
 import { RecipePost } from "@/types";
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export const useGetRecipes = () => {
   return useQuery({
@@ -24,7 +29,7 @@ export const useGetRecipe = (recipeId: number) => {
 };
 
 export const useCreateRecipe = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: RecipePost) => recipeApi.createRecipe(data),
     onSuccess: () => {
@@ -33,20 +38,21 @@ export const useCreateRecipe = () => {
   });
 };
 
-export const useUpdateRecipe = (recipeId: number, data: RecipePost) => {
-  const queryClient = new QueryClient();
+export const useUpdateRecipe = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => recipeApi.updateRecipe(recipeId, data),
+    mutationFn: ({ recipeId, data }: { recipeId: number; data: RecipePost }) =>
+      recipeApi.updateRecipe(recipeId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["recipes", recipeId] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
     },
   });
 };
 
-export const useDeleteRecipe = (recipeId: number) => {
-  const queryClient = new QueryClient();
+export const useDeleteRecipe = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => recipeApi.deleteRecipe(recipeId),
+    mutationFn: (recipeId: number) => recipeApi.deleteRecipe(recipeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
     },

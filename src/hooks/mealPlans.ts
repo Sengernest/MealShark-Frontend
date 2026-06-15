@@ -1,6 +1,6 @@
 import { mealPlanApi } from "@/api/mealPlans";
 import { MealPlanPost } from "@/types";
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetSampleMealPlans = () => {
   return useQuery({
@@ -23,30 +23,36 @@ export const useGetMyMealPlan = (mealPlanId: number) => {
   });
 };
 
-export const useCreateMealPlan = (data: MealPlanPost) => {
-  const queryClient = new QueryClient();
+export const useCreateMealPlan = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => mealPlanApi.createMealPlan(data),
+    mutationFn: (data: MealPlanPost) => mealPlanApi.createMealPlan(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meal-plans"] });
     },
   });
 };
 
-export const useUpdateMealPlan = (mealplanId: number, data: MealPlanPost) => {
-  const queryClient = new QueryClient();
+export const useUpdateMealPlan = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => mealPlanApi.updateMealPlan(mealplanId, data),
+    mutationFn: ({
+      mealPlanId,
+      data,
+    }: {
+      mealPlanId: number;
+      data: MealPlanPost;
+    }) => mealPlanApi.updateMealPlan(mealPlanId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meal-plans", mealplanId] });
+      queryClient.invalidateQueries({ queryKey: ["meal-plans"] });
     },
   });
 };
 
-export const useDeleteMealPlan = (mealplanId: number) => {
-  const queryClient = new QueryClient();
+export const useDeleteMealPlan = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => mealPlanApi.deleteMealPlan(mealplanId),
+    mutationFn: (mealPlanId: number) => mealPlanApi.deleteMealPlan(mealPlanId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meal-plans"] });
     },
