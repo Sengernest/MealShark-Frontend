@@ -9,31 +9,42 @@ import { MealLog } from "./pages/MealLog";
 import { MealPlans } from "./pages/MealPlans";
 import { Recipes } from "./pages/Recipes";
 import { muiTheme } from "./theme/muiTheme";
+import { Auth } from "./pages/Auth";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: <Layout />,
+    children: [
+      {
+        path: "/",
+        element: <Dashboard />,
+      },
+      {
+        path: "/goals",
+        element: <Goals />,
+      },
+      {
+        path: "/foods",
+        element: <Foods />,
+      },
+      {
+        path: "/recipes",
+        element: <Recipes />,
+      },
+      {
+        path: "/meal-plans",
+        element: <MealPlans />,
+      },
+      {
+        path: "/meal-log",
+        element: <MealLog />,
+      },
+    ],
   },
   {
-    path: "/goals",
-    element: <Goals />,
-  },
-  {
-    path: "/foods",
-    element: <Foods />,
-  },
-  {
-    path: "/recipes",
-    element: <Recipes />,
-  },
-  {
-    path: "/meal-plans",
-    element: <MealPlans />,
-  },
-  {
-    path: "/meal-log",
-    element: <MealLog />,
+    path: "/auth",
+    element: <Auth />,
   },
 ]);
 
@@ -42,9 +53,7 @@ export default function App() {
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <AppProvider>
-        <Layout>
-          <RouterProvider router={router} />
-        </Layout>
+        <RouterProvider router={router} />
       </AppProvider>
     </ThemeProvider>
   );

@@ -1,18 +1,24 @@
-import { useState } from "react";
-import {
-  Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText,
-  Typography, Divider, Avatar, IconButton, Tooltip,
-} from "@mui/material";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import TrackChangesIcon from "@mui/icons-material/TrackChanges";
-import LocalDiningIcon from '@mui/icons-material/LocalDining';
-import MenuBookIcon from "@mui/icons-material/MenuBook";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import HistoryIcon from "@mui/icons-material/History";
-import LogoutIcon from "@mui/icons-material/Logout";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import HistoryIcon from "@mui/icons-material/History";
+import LocalDiningIcon from '@mui/icons-material/LocalDining';
+import LogoutIcon from "@mui/icons-material/Logout";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import TrackChangesIcon from "@mui/icons-material/TrackChanges";
+import {
+  Avatar,
+  Box,
+  Divider,
+  Drawer,
+  IconButton,
+  List, ListItemButton, ListItemIcon, ListItemText,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
+import { Outlet } from "react-router";
 import { useApp } from "../AppContext";
 
 const DRAWER_OPEN = 220;
@@ -27,7 +33,7 @@ const NAV_ITEMS = [
   { id: "meallog", label: "Meal Log", icon: <HistoryIcon /> },
 ] as const;
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout() {
   const { page, setPage, user, logout } = useApp();
   const [open, setOpen] = useState(true);
   const drawerWidth = open ? DRAWER_OPEN : DRAWER_CLOSED;
@@ -139,7 +145,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Main */}
       <Box component="main" sx={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-        {children}
+        <Outlet/>
       </Box>
     </Box>
   );
