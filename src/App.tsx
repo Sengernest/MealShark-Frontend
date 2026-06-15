@@ -10,6 +10,7 @@ import { MealPlans } from "./pages/MealPlans";
 import { Recipes } from "./pages/Recipes";
 import { muiTheme } from "./theme/muiTheme";
 import { Auth } from "./pages/Auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createBrowserRouter([
   {
@@ -49,12 +50,16 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
+  const queryClient = new QueryClient();
+
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
-      <AppProvider>
+      {/* <AppProvider>
+      </AppProvider> */}
+      <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-      </AppProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   );
 }
