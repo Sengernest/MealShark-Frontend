@@ -1,11 +1,6 @@
 import { MealLog, MealLogPost } from "@/types";
 import { api } from "./baseApi";
 
-async function getSampleMealLogs(): Promise<MealLog[]> {
-  const res = await api.get("/meal-logs/samples");
-  return res.data;
-}
-
 async function getMyMealLogs(): Promise<MealLog[]> {
   const res = await api.get("/me/meal-logs");
   return res.data;
@@ -35,7 +30,6 @@ async function deleteMealLog(mealLogId: number) {
 }
 
 export const mealLogApi = {
-  getSampleMealLogs,
   getMyMealLogs,
   getMealLog,
   createMealLog,
