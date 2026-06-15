@@ -10,7 +10,7 @@ async function createMacroGoal(data: MacroGoalsPost): Promise<MacroGoals> {
   return res.data;
 }
 
-async function updateMacroGoal(data: MacroGoals): Promise<MacroGoals> {
+async function updateMacroGoal(data: MacroGoalsPost): Promise<MacroGoals> {
   const res = await api.put("/me/macro-goals", data);
   return res.data;
 }
