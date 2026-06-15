@@ -23,10 +23,10 @@ export const useGetRecipe = (recipeId: number) => {
   });
 };
 
-export const useCreateRecipe = (data: RecipePost) => {
+export const useCreateRecipe = () => {
   const queryClient = new QueryClient();
   return useMutation({
-    mutationFn: () => recipeApi.createRecipe(data),
+    mutationFn: (data: RecipePost) => recipeApi.createRecipe(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
     },

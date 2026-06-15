@@ -12,23 +12,24 @@ import {
   Divider,
 } from "@mui/material";
 import { useApp } from "../AppContext";
+import { useLogoin, useSignup } from "@/hooks/auth";
 
 export function Auth() {
-  const { login } = useApp();
-
   const [tab, setTab] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const login = useLogoin();
+  const signup = useSignup();
+
   const handleLogin = () => {
     if (!email || !password) {
       setError("Please fill in all fields.");
       return;
     }
-
-    login(email.split("@")[0] || "User", email);
+    login.mutate({ email, password });
   };
 
   const handleRegister = () => {
@@ -41,8 +42,7 @@ export function Auth() {
       setError("Password must be at least 6 characters.");
       return;
     }
-
-    login(name, email);
+    signup.mutate({ name, email, password });
   };
 
   return (
@@ -105,8 +105,7 @@ export function Auth() {
               component="span"
               sx={{
                 color: "primary.main",
-                textShadow:
-                  "0 0 10px rgba(181,242,61,0.35)",
+                textShadow: "0 0 10px rgba(181,242,61,0.35)",
               }}
             >
               SHARK
@@ -154,9 +153,7 @@ export function Auth() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleLogin()
-                    }
+                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                     fullWidth
                   />
 
@@ -165,9 +162,7 @@ export function Auth() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleLogin()
-                    }
+                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                     fullWidth
                   />
 
@@ -181,19 +176,12 @@ export function Auth() {
                   </Button>
 
                   <Divider sx={{ my: 0.5 }}>
-                    <Typography variant="caption">
-                      or
-                    </Typography>
+                    <Typography variant="caption">or</Typography>
                   </Divider>
 
                   <Button
                     variant="outlined"
-                    onClick={() =>
-                      login(
-                        "Alex Chen",
-                        "alex@mealshark.io"
-                      )
-                    }
+                    onClick={() => login("Alex Chen", "alex@mealshark.io")}
                     sx={{
                       color: "text.secondary",
                       borderColor: "divider",
@@ -211,9 +199,7 @@ export function Auth() {
                   <TextField
                     label="Full Name"
                     value={name}
-                    onChange={(e) =>
-                      setName(e.target.value)
-                    }
+                    onChange={(e) => setName(e.target.value)}
                     fullWidth
                   />
 
@@ -221,9 +207,7 @@ export function Auth() {
                     label="Email"
                     type="email"
                     value={email}
-                    onChange={(e) =>
-                      setEmail(e.target.value)
-                    }
+                    onChange={(e) => setEmail(e.target.value)}
                     fullWidth
                   />
 
@@ -231,9 +215,7 @@ export function Auth() {
                     label="Password"
                     type="password"
                     value={password}
-                    onChange={(e) =>
-                      setPassword(e.target.value)
-                    }
+                    onChange={(e) => setPassword(e.target.value)}
                     fullWidth
                   />
 
