@@ -1,16 +1,15 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 import type {
-  UserProfile,
-  Food,
-  Recipe,
-  MealPlan,
-  MealLogEntry,
-  NutritionGoal,
   ActivityLevel,
+  Food,
+  MealLogEntry,
+  MealPlan,
+  NutritionGoal,
+  Recipe,
+  UserProfile,
   WeightGoal,
 } from "../../types";
-import { FOODS, RECIPES, MEAL_PLANS } from "./mock/mockData";
-import { useNavigate } from "react-router";
+import { FOODS, MEAL_PLANS, RECIPES } from "./mock/mockData";
 
 type AppState = {
   user: UserProfile | null;
@@ -127,18 +126,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
   ]);
 
-  const navigate = useNavigate();
-
   const login = (name: string, email: string) => {
     const profile: UserProfile = { ...DEFAULT_USER, name, email };
     profile.nutritionGoal = calcNutritionGoal(profile);
     setUser(profile);
-    navigate("/");
   };
 
   const logout = () => {
     setUser(null);
-    navigate("/auth");
   };
 
   const updateProfile = (partial: Partial<UserProfile>) => {
