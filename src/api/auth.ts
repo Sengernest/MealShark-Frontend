@@ -1,4 +1,4 @@
-import { SignupPost, User } from "@/types";
+import { LoginPost, SignupPost, User } from "@/types";
 import { api } from "./baseApi";
 
 async function signUp(data: SignupPost): Promise<User> {
@@ -6,8 +6,8 @@ async function signUp(data: SignupPost): Promise<User> {
   return res.data;
 }
 
-async function login() {
-  const res = await api.post("/login");
+async function login(data: LoginPost): Promise<User> {
+  const res = await api.post("/login", data);
   return res.data;
 }
 
