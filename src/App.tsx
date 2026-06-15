@@ -1,38 +1,50 @@
-import { ThemeProvider, CssBaseline } from "@mui/material";
-import { muiTheme } from "./theme/muiTheme";
-import { AppProvider, useApp } from "./AppContext";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { AppProvider } from "./AppContext";
 import { Layout } from "./components/Layout";
-import { Auth } from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
-import { Goals } from "./pages/Goals";
 import { Foods } from "./pages/Foods";
-import { Recipes } from "./pages/Recipes";
-import { MealPlans } from "./pages/MealPlans";
+import { Goals } from "./pages/Goals";
 import { MealLog } from "./pages/MealLog";
+import { MealPlans } from "./pages/MealPlans";
+import { Recipes } from "./pages/Recipes";
+import { muiTheme } from "./theme/muiTheme";
 
-function AppContent() {
-  const { page, user } = useApp();
-
-  if (!user || page === "auth") return <Auth />;
-
-  const pages: Record<string, JSX.Element> = {
-    dashboard: <Dashboard />,
-    goals: <Goals />,
-    foods: <Foods />,
-    recipes: <Recipes />,
-    mealplans: <MealPlans />,
-    meallog: <MealLog />,
-  };
-
-  return <Layout>{pages[page] ?? <Dashboard />}</Layout>;
-}
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Dashboard />,
+  },
+  {
+    path: "/goals",
+    element: <Goals />,
+  },
+  {
+    path: "/foods",
+    element: <Foods />,
+  },
+  {
+    path: "/recipes",
+    element: <Recipes />,
+  },
+  {
+    path: "/meal-plans",
+    element: <MealPlans />,
+  },
+  {
+    path: "/meal-log",
+    element: <MealLog />,
+  },
+]);
 
 export default function App() {
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <AppProvider>
-        <AppContent />
+        <Layout>
+          <RouterProvider router={router} />
+        </Layout>
       </AppProvider>
     </ThemeProvider>
   );
