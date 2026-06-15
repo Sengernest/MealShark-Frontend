@@ -1,7 +1,8 @@
+import { SignupPost, User } from "@/types";
 import { api } from "./baseApi";
 
-async function signUp() {
-  const res = await api.post("/signup");
+async function signUp(data: SignupPost): Promise<User> {
+  const res = await api.post("/signup", data);
   return res.data;
 }
 
