@@ -24,12 +24,31 @@ export const useGetRecipe = (recipeId: number) => {
 };
 
 export const useCreateRecipe = (data: RecipePost) => {
-  const queryClient = new QueryClient()
-
+  const queryClient = new QueryClient();
   return useMutation({
     mutationFn: () => recipeApi.createRecipe(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ["recipes"]})
-    }
-  })
-}
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+  });
+};
+
+export const useUpdateRecipe = (recipeId: number, data: RecipePost) => {
+  const queryClient = new QueryClient();
+  return useMutation({
+    mutationFn: () => recipeApi.updateRecipe(recipeId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recipes", recipeId] });
+    },
+  });
+};
+
+export const useDeleteRecipe = (recipeId: number) => {
+  const queryClient = new QueryClient();
+  return useMutation({
+    mutationFn: () => recipeApi.deleteRecipe(recipeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+  });
+};
