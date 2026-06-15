@@ -1,5 +1,6 @@
 import { recipeApi } from "@/api/recipes";
-import { useQuery } from "@tanstack/react-query";
+import { RecipePost } from "@/types";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useGetRecipes = () => {
   return useQuery({
@@ -21,3 +22,14 @@ export const useGetRecipe = (recipeId: number) => {
     queryFn: () => recipeApi.getRecipe(recipeId),
   });
 };
+
+export const useCreateRecipe = (data: RecipePost) => {
+  const queryClient = new QueryClient()
+
+  return useMutation({
+    mutationFn: () => recipeApi.createRecipe(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["recipes"]})
+    }
+  })
+}
