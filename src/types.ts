@@ -1,52 +1,88 @@
-export type Gender = "male" | "female";
+/* export type Gender = "male" | "female";
 export type ActivityLevel = "sedentary" | "light" | "moderate" | "active" | "very_active";
-export type WeightGoal = "lose_0.5" | "lose_0.25" | "maintain" | "gain_0.25" | "gain_0.5";
+export type WeightGoal = "lose_0.5" | "lose_0.25" | "maintain" | "gain_0.25" | "gain_0.5"; */
 
-export type NutritionGoal = {
+import { StringToBoolean } from "class-variance-authority/types";
+import { DateRange, WeekNumberLabel } from "react-day-picker";
+
+/* export type NutritionGoal = {
   tdee: number;
   dailyCalories: number;
   protein: number; // grams
   carbs: number;
   fat: number;
-};
+}; */
 
-export type UserProfile = {
+export type User = {
   id: string;
   name: string;
   email: string;
-  age: number;
+  password: string;
+  /* age: number;
   gender: Gender;
   height: number; // cm
   weight: number; // kg
   activityLevel: ActivityLevel;
   weightGoal: WeightGoal;
-  nutritionGoal: NutritionGoal | null;
+  nutritionGoal: NutritionGoal | null; */
+};
+
+export type MacroGoals = {
+  id: number;
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+  creatorId: number;
+  gender: string;
+  age: number;
+  height: number;
+  weight: number;
+  activityLevel: string;
+  goal: string;
 };
 
 export type Food = {
-  id: string;
+  id: number;
   name: string;
-  category: string;
+  defaultServingSize: number | null;
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+
+  /* category: string;
   caloriesPer100g: number;
   proteinPer100g: number;
   carbsPer100g: number;
   fatPer100g: number;
-  isCustom: boolean;
+  isCustom: boolean; */
 };
 
-export type RecipeIngredient = {
-  food: Food;
+export type Nutrition = {
+  calories: number;
+  macros: {
+    carbs: number;
+    protein: number;
+    fat: number;
+  };
+};
+
+export type RecipeFood = {
+  foodId: number;
+  recipeId: number;
   amount: number;
-  unit: string;
+  food: Food;
 };
 
 export type Recipe = {
   id: string;
   name: string;
-  description: string;
-  category: string;
-  ingredients: RecipeIngredient[];
-  instructions: string[];
+  //description: string;
+  //category: string;
+  creatorId: number | null;
+  ingredients: RecipeFood[];
+  /*instructions: string[];
   prepTime: number;
   cookTime: number;
   servings: number;
@@ -55,11 +91,15 @@ export type Recipe = {
   carbs: number;
   fat: number;
   isProvided: boolean;
-  isSaved: boolean;
-  createdBy: string | null;
+  isSaved: boolean;*/
 };
 
-export type MealItem = {
+export type RecipeWithNutrition = {
+  recipe: Recipe
+  nutrition: Nutrition;
+};
+
+/* export type MealItem = {
   id: string;
   type: "recipe" | "food";
   recipe?: Recipe;
@@ -77,9 +117,9 @@ export type MealSlot = {
 export type DayPlan = {
   day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
   slots: MealSlot[];
-};
+}; */
 
-export type MealPlan = {
+/* export type MealPlan = {
   id: string;
   name: string;
   description: string;
@@ -88,9 +128,132 @@ export type MealPlan = {
   isProvided: boolean;
   createdBy: string | null;
   createdAt: string;
+}; */
+
+export type MealRecipe = {
+  recipeId: number;
+  mealId: number;
+  servings: number;
+  recipe: Recipe;
 };
 
-export type MealLogSlot = {
+export type MealFood = {
+  foodId: number;
+  amount: number;
+  mealId: number;
+  food: Food;
+};
+
+export type Meal = {
+  id: number;
+  mealPlanId: number;
+  mealPlanIndex: number;
+  recipeItems: MealRecipe[];
+  foodItems: MealFood[];
+};
+
+export type MealWithNutrition = {
+  meal: Meal;
+  nutrition: Nutrition;
+};
+
+export type MealPlanWithNutrition = {
+  id: number;
+  name: string;
+  creatorId: number | null;
+  meals: MealWithNutrition[];
+  nutrition: Nutrition;
+};
+
+export type MealLogRecipe = {
+  recipeId: number;
+  servings: number;
+  mealLogId: number;
+  recipe: Recipe;
+};
+
+export type MealLogFood = {
+  foodId: number;
+  amount: number;
+  mealLogId: number;
+  food: Food;
+};
+
+export type MealLog = {
+  id: number;
+  mealId: number | null;
+  userId: number;
+  logDate: Date;
+  mealIndex: number;
+  recipeItems: MealLogRecipe[];
+  foodItems: MealLogFood[];
+};
+
+export type MealLogWithNutrition = {
+  mealLog: MealLog;
+  nutrition: Nutrition;
+};
+
+export type MealSummary = {
+  meals: MealLogWithNutrition[];
+  nutrition: Nutrition;
+};
+
+export type SignupPost = {
+  name: string;
+  email: string;
+  password: string;
+};
+
+export type LoginPost = {
+  email: string;
+  password: string;
+};
+
+export type MacroGoalsPost = {
+  age: number;
+  gender: string;
+  weight: number;
+  height: number;
+  activityLevel: "sendentary" | "light" | "moderate" | "active" | "very_active";
+  goal: "cutting" | "bulking" |  "maintenance"
+};
+
+export type RecipePost = {
+  recipeId: number;
+  servings: number;
+
+};
+
+export type FoodPost = {
+  foodId: number;
+  amount: number;
+};
+
+export type MealPost = {
+  mealPlanIndex: number;
+  recipeItems: RecipePost[];
+  foodItems: FoodPost[];
+};
+
+export type MealPlanPost = {
+  name: string;
+  meals: MealPost[];
+}
+
+export type MealLogPost = {
+  logDate: Date;
+  mealIndex: number;
+  mealId: number;
+  recipeItems: RecipePost[];
+  foodItems: FoodPost[];
+}
+
+export type MealLogQueryPost = {
+  logDate: Date; 
+}
+
+/* export type MealLogSlot = {
   id: string;
   label: string;
   items: MealItem[];
@@ -101,4 +264,4 @@ export type MealLogEntry = {
   date: string; // YYYY-MM-DD
   slots: MealLogSlot[];
   userId: string;
-};
+}; */
