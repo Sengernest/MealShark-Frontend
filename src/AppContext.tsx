@@ -1,19 +1,17 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import type { UserProfile, Food, Recipe, MealPlan, MealLogEntry, NutritionGoal, ActivityLevel, WeightGoal } from "../../types";
-import { FOODS, RECIPES, MEAL_PLANS } from "./mock/mockData";
-
-type Page =
-  | "auth"
-  | "dashboard"
-  | "goals"
-  | "foods"
-  | "recipes"
-  | "mealplans"
-  | "meallog";
+import { createContext, ReactNode, useContext, useState } from "react";
+import type {
+  ActivityLevel,
+  Food,
+  MealLogEntry,
+  MealPlan,
+  NutritionGoal,
+  Recipe,
+  UserProfile,
+  WeightGoal,
+} from "../../types";
+import { FOODS, MEAL_PLANS, RECIPES } from "./mock/mockData";
 
 type AppState = {
-  page: Page;
-  setPage: (p: Page) => void;
   user: UserProfile | null;
   login: (name: string, email: string) => void;
   logout: () => void;
@@ -51,9 +49,12 @@ const GOAL_ADJUSTMENTS: Record<WeightGoal, number> = {
   "gain_0.5": 550,
 };
 
-export function calcNutritionGoal(profile: Partial<UserProfile>): NutritionGoal | null {
+export function calcNutritionGoal(
+  profile: Partial<UserProfile>,
+): NutritionGoal | null {
   const { age, gender, height, weight, activityLevel, weightGoal } = profile;
-  if (!age || !gender || !height || !weight || !activityLevel || !weightGoal) return null;
+  if (!age || !gender || !height || !weight || !activityLevel || !weightGoal)
+    return null;
   // Mifflin-St Jeor BMR
   const bmr =
     gender === "male"
@@ -82,12 +83,13 @@ const DEFAULT_USER: UserProfile = {
 DEFAULT_USER.nutritionGoal = calcNutritionGoal(DEFAULT_USER);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [page, setPage] = useState<Page>("auth");
   const [user, setUser] = useState<UserProfile | null>(null);
   const [foods, setFoods] = useState<Food[]>(FOODS);
   const [recipes, setRecipes] = useState<Recipe[]>(RECIPES);
   const [mealPlans, setMealPlans] = useState<MealPlan[]>(MEAL_PLANS);
-  const [activePlanId, setActivePlanId] = useState<string | null>(MEAL_PLANS[0].id);
+  const [activePlanId, setActivePlanId] = useState<string | null>(
+    MEAL_PLANS[0].id,
+  );
   const [mealLog, setMealLog] = useState<MealLogEntry[]>([
     {
       id: "log_today",
@@ -97,12 +99,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
         {
           id: "ls1",
           label: "Meal 1",
-          items: [{ id: "li1", type: "recipe", recipe: RECIPES[3], amount: 1, unit: "serving" }],
+          items: [
+            {
+              id: "li1",
+              type: "recipe",
+              recipe: RECIPES[3],
+              amount: 1,
+              unit: "serving",
+            },
+          ],
         },
         {
           id: "ls2",
           label: "Meal 2",
-          items: [{ id: "li2", type: "recipe", recipe: RECIPES[2], amount: 1, unit: "serving" }],
+          items: [
+            {
+              id: "li2",
+              type: "recipe",
+              recipe: RECIPES[2],
+              amount: 1,
+              unit: "serving",
+            },
+          ],
         },
       ],
     },
@@ -112,10 +130,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const profile: UserProfile = { ...DEFAULT_USER, name, email };
     profile.nutritionGoal = calcNutritionGoal(profile);
     setUser(profile);
-    setPage("dashboard");
   };
 
-  const logout = () => { setUser(null); setPage("auth"); };
+  const logout = () => {
+    setUser(null);
+  };
 
   const updateProfile = (partial: Partial<UserProfile>) => {
     setUser((prev) => {
@@ -129,13 +148,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addFood = (f: Food) => setFoods((prev) => [...prev, f]);
   const addRecipe = (r: Recipe) => setRecipes((prev) => [...prev, r]);
   const toggleSaveRecipe = (id: string) =>
-    setRecipes((prev) => prev.map((r) => (r.id === id ? { ...r, isSaved: !r.isSaved } : r)));
+    setRecipes((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, isSaved: !r.isSaved } : r)),
+    );
   const addMealPlan = (mp: MealPlan) => setMealPlans((prev) => [...prev, mp]);
   const setActivePlan = (id: string) => setActivePlanId(id);
   const upsertLogEntry = (entry: MealLogEntry) =>
     setMealLog((prev) => {
       const idx = prev.findIndex((e) => e.date === entry.date);
-      if (idx >= 0) { const next = [...prev]; next[idx] = entry; return next; }
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = entry;
+        return next;
+      }
       return [...prev, entry];
     });
   const getLogEntry = (date: string) => mealLog.find((e) => e.date === date);
@@ -143,12 +168,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider
       value={{
-        page, setPage,
-        user, login, logout, updateProfile,
-        foods, addFood,
-        recipes, addRecipe, toggleSaveRecipe,
-        mealPlans, addMealPlan, setActivePlan, activePlanId,
-        mealLog, upsertLogEntry, getLogEntry,
+        user,
+        login,
+        logout,
+        updateProfile,
+        foods,
+        addFood,
+        recipes,
+        addRecipe,
+        toggleSaveRecipe,
+        mealPlans,
+        addMealPlan,
+        setActivePlan,
+        activePlanId,
+        mealLog,
+        upsertLogEntry,
+        getLogEntry,
       }}
     >
       {children}
