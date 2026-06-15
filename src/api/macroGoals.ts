@@ -1,16 +1,17 @@
+import { MacroGoals, MacroGoalsPost } from "@/types";
 import { api } from "./baseApi";
 
-async function getMyMacroGoal() {
+async function getMyMacroGoal(): Promise<MacroGoals> {
   const res = await api.get("/me/macro-goals");
   return res.data;
 }
-async function createMacroGoal() {
-  const res = await api.post("/me/macro-goals");
+async function createMacroGoal(data: MacroGoalsPost): Promise<MacroGoals> {
+  const res = await api.post("/me/macro-goals", data);
   return res.data;
 }
 
-async function updateMacroGoal() {
-  const res = await api.put("/me/macro-goals");
+async function updateMacroGoal(data: MacroGoals): Promise<MacroGoals> {
+  const res = await api.put("/me/macro-goals", data);
   return res.data;
 }
 
