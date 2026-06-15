@@ -11,8 +11,7 @@ import {
   Alert,
   Divider,
 } from "@mui/material";
-import { useApp } from "../AppContext";
-import { useLogoin, useSignup } from "@/hooks/auth";
+import { useLogin, useSignup } from "@/hooks/auth";
 
 export function Auth() {
   const [tab, setTab] = useState(0);
@@ -21,7 +20,7 @@ export function Auth() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const login = useLogoin();
+  const login = useLogin();
   const signup = useSignup();
 
   const handleLogin = () => {
@@ -178,17 +177,7 @@ export function Auth() {
                   <Divider sx={{ my: 0.5 }}>
                     <Typography variant="caption">or</Typography>
                   </Divider>
-
-                  <Button
-                    variant="outlined"
-                    onClick={() => login("Alex Chen", "alex@mealshark.io")}
-                    sx={{
-                      color: "text.secondary",
-                      borderColor: "divider",
-                    }}
-                  >
-                    Continue as Demo User
-                  </Button>
+                  
                 </>
               ) : (
                 <>

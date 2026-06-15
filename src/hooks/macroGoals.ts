@@ -1,6 +1,7 @@
 import { macroGoalApi } from "@/api/macroGoals";
 import { MacroGoalsPost } from "@/types";
-import { QueryClient, useQuery, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
+import { use } from "react";
 
 const useGetMacroGoals = () => {
   return useQuery({
@@ -9,27 +10,37 @@ const useGetMacroGoals = () => {
   });
 };
 
-export const useCreateMacroGoals = (data: MacroGoalsPost) => {
-  const queryClient = new QueryClient();
+export const useCreateMacroGoals = () => {
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => macroGoalApi.createMacroGoal(data),
+    mutationFn: (data: MacroGoalsPost) => macroGoalApi.createMacroGoal(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["macroGoals"] });
     },
   });
 };
 
-export const useUpdateMacroGoals = (data: MacroGoalsPost) => {
-  const queryClient = new QueryClient();
+export const useUpdateMacroGoals = () => {
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => macroGoalApi.updateMacroGoal(data),
+    mutationFn: (data: MacroGoalsPost) => macroGoalApi.updateMacroGoal(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["macroGoals"] });
     },
   });
 };
 
+export const useDeleteMacroGoals = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => macroGoalApi.deleteMacroGoal(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["macroGoals"] });
+    },
+  });
+};
 
 

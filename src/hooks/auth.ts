@@ -1,9 +1,9 @@
 import { authApi } from "@/api/auth";
 import { LoginPost, SignupPost } from "@/types";
-import { QueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 
 export const useSignup = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: SignupPost) => authApi.signUp(data),
@@ -13,8 +13,8 @@ export const useSignup = () => {
   });
 };
 
-export const useLogoin = () => {
-  const queryClient = new QueryClient();
+export const useLogin = () => {
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: LoginPost) => authApi.login(data),
