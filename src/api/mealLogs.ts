@@ -1,27 +1,31 @@
+import { MealLog, MealLogPost } from "@/types";
 import { api } from "./baseApi";
 
-async function getSampleMealLogs() {
+async function getSampleMealLogs(): Promise<MealLog[]> {
   const res = await api.get("/meal-logs/samples");
   return res.data;
 }
 
-async function getMyMealLogs() {
+async function getMyMealLogs(): Promise<MealLog[]> {
   const res = await api.get("/me/meal-logs");
   return res.data;
 }
 
-async function getMealLog(mealLogId: number) {
+async function getMealLog(mealLogId: number): Promise<MealLog> {
   const res = await api.get(`/meal-logs/${mealLogId}`);
   return res.data;
 }
 
-async function createMealLog() {
-  const res = await api.post("/meal-logs");
+async function createMealLog(data: MealLogPost): Promise<MealLog> {
+  const res = await api.post("/meal-logs", data);
   return res.data;
 }
 
-async function updateMealLog(mealLogId: number) {
-  const res = await api.put(`/meal-logs/${mealLogId}`);
+async function updateMealLog(
+  mealLogId: number,
+  data: MealLogPost,
+): Promise<MealLog> {
+  const res = await api.put(`/meal-logs/${mealLogId}`, data);
   return res.data;
 }
 
