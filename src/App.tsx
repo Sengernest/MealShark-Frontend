@@ -1,7 +1,8 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { AppProvider } from "./AppContext";
 import { Layout } from "./components/Layout";
+import { Auth } from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import { Foods } from "./pages/Foods";
 import { Goals } from "./pages/Goals";
@@ -9,8 +10,6 @@ import { MealLog } from "./pages/MealLog";
 import { MealPlans } from "./pages/MealPlans";
 import { Recipes } from "./pages/Recipes";
 import { muiTheme } from "./theme/muiTheme";
-import { Auth } from "./pages/Auth";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createBrowserRouter([
   {

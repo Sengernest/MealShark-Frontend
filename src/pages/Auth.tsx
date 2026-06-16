@@ -12,6 +12,7 @@ import {
   Divider,
 } from "@mui/material";
 import { useLogin, useSignup } from "@/hooks/auth";
+import { useNavigate } from "react-router";
 
 export function Auth() {
   const [tab, setTab] = useState(0);
@@ -19,7 +20,7 @@ export function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();
   const login = useLogin();
   const signup = useSignup();
 
@@ -28,7 +29,7 @@ export function Auth() {
       setError("Please fill in all fields.");
       return;
     }
-    login.mutate({ email, password });
+    login.mutate({ email, password }, { onSuccess: () => navigate("/") });
   };
 
   const handleRegister = () => {
@@ -41,7 +42,10 @@ export function Auth() {
       setError("Password must be at least 6 characters.");
       return;
     }
-    signup.mutate({ name, email, password });
+    signup.mutate(
+      { name, email, password },
+      { onSuccess: () => navigate("/") },
+    );
   };
 
   return (
@@ -177,7 +181,6 @@ export function Auth() {
                   <Divider sx={{ my: 0.5 }}>
                     <Typography variant="caption">or</Typography>
                   </Divider>
-                  
                 </>
               ) : (
                 <>

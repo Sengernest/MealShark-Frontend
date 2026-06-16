@@ -21,7 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { useApp } from "../AppContext";
 import { useCurrentUser, useLogout } from "@/hooks/auth";
 
@@ -42,7 +42,12 @@ export function Layout() {
   const drawerWidth = open ? DRAWER_OPEN : DRAWER_CLOSED;
   const page = useLocation().pathname
   const { data: user } = useCurrentUser();
+  const navigate = useNavigate()
   const logout = useLogout()
+  const handleLogout = async () => {
+    await logout.mutateAsync()
+    navigate("/auth")
+  }
 
   return (
     <Box
@@ -183,7 +188,7 @@ export function Layout() {
               <Tooltip title="Logout">
                 <IconButton
                   size="small"
-                  onClick={() => logout.mutate()}
+                  onClick={handleLogout}
                   sx={{ color: "text.secondary" }}
                 >
                   <LogoutIcon fontSize="small" />
