@@ -61,7 +61,7 @@ function NutritionRow({
     <Box sx={{ display: "flex", gap: 2.5, mt: 1.5 }}>
       {[
         { label: "KCAL", value: cal, color: "#60c8f5" },
-        { label: "PRO", value: `${Math.round(prot)}g`, color: "#3df2a8" },
+        { label: "PROTEIN", value: `${Math.round(prot)}g`, color: "#3df2a8" },
         { label: "CARB", value: `${Math.round(carbs)}g`, color: "#3db5f2" },
         { label: "FAT", value: `${Math.round(fat)}g`, color: "#f2c93d" },
       ].map(({ label, value, color }) => (
@@ -124,7 +124,7 @@ function RecipeCard({
           }}
         >
           <Chip
-            label={recipe.category}
+            label={recipe.category ?? "No category"}
             size="small"
             variant="outlined"
             sx={{ fontSize: 11 }}
@@ -174,8 +174,7 @@ function RecipeCard({
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <PeopleIcon sx={{ fontSize: 13 }} />
             <Typography variant="caption">
-              {recipe.servings ?? 1} serving
-              {(recipe.servings ?? 1) > 1 ? "s" : ""}
+              {recipe.servings ?? 1} serving(s)
             </Typography>
           </Box>
         </Box>
@@ -256,7 +255,7 @@ function RecipeDetailDialog({
             <Typography variant="caption" sx={{ color: "text.disabled" }}>
               Servings
             </Typography>
-            <Typography variant="body2">{recipe.servings}</Typography>
+            <Typography variant="body2">{recipe.servings ?? 1}</Typography>
           </Box>
         </Box>
 
