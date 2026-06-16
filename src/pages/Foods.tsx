@@ -206,7 +206,7 @@ export function Foods() {
                   align="center"
                   sx={{ py: 6, color: "text.disabled" }}
                 >
-                  No foods found
+                  {isLoading ? "Loading..." : "No foods found"}
                 </TableCell>
               </TableRow>
             )}
