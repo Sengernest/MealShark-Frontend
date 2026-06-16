@@ -23,6 +23,7 @@ import {
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { useApp } from "../AppContext";
+import { useCurrentUser, useLogout } from "@/hooks/auth";
 
 const DRAWER_OPEN = 220;
 const DRAWER_CLOSED = 64;
@@ -37,12 +38,11 @@ const NAV_ITEMS = [
 ] as const;
 
 export function Layout() {
-  const { user, logout } = useApp();
   const [open, setOpen] = useState(true);
   const drawerWidth = open ? DRAWER_OPEN : DRAWER_CLOSED;
-  const page = useLocation().pathname;
-
-  console.log(page);
+  const page = useLocation().pathname
+  const { data: user } = useCurrentUser();
+  const logout = useLogout()
 
   return (
     <Box
@@ -183,7 +183,7 @@ export function Layout() {
               <Tooltip title="Logout">
                 <IconButton
                   size="small"
-                  onClick={logout}
+                  onClick={() => logout.mutate()}
                   sx={{ color: "text.secondary" }}
                 >
                   <LogoutIcon fontSize="small" />

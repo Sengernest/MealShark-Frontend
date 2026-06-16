@@ -1,6 +1,11 @@
 import { authApi } from "@/api/auth";
 import { LoginPost, SignupPost } from "@/types";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import {
+  useQueryClient,
+  useMutation,
+  QueryClient,
+  useQuery,
+} from "@tanstack/react-query";
 
 export const useSignup = () => {
   const queryClient = useQueryClient();
@@ -8,7 +13,7 @@ export const useSignup = () => {
   return useMutation({
     mutationFn: (data: SignupPost) => authApi.signUp(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 };
@@ -19,9 +24,27 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (data: LoginPost) => authApi.login(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 };
 
+export const useLogout = () => {
+  const queryClient = useQueryClient();
 
+  return useMutation({
+    mutationFn: () => authApi.logout(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+};
+
+export const useCurrentUser = () => {
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: ["user"],
+    queryFn: authApi.getCurrentUser,
+  });
+};

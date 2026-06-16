@@ -16,8 +16,14 @@ async function logout() {
   return res.data;
 }
 
+async function getCurrentUser(): Promise<User> {
+  const res = await api.get("/me")
+  return res.data
+}
+
 export const authApi = {
   signUp,
   login,
   logout,
+  getCurrentUser
 };
