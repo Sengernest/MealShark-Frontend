@@ -1,33 +1,25 @@
-import { useState } from "react";
+import { useSearchFoods } from "@/hooks/foods";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
-  Typography,
   Card,
   CardContent,
-  TextField,
-  Select,
-  MenuItem,
+  Chip,
   FormControl,
   InputLabel,
-  Button,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  TextField,
+  Typography,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
 import InputAdornment from "@mui/material/InputAdornment";
-import { useApp } from "../AppContext";
-import type { Food } from "../types";
-import { useGetFoods, useSearchFoods } from "@/hooks/foods";
+import { useState } from "react";
 
 const CATEGORIES = [
   "All",
@@ -67,13 +59,6 @@ export function Foods() {
             FOODS
           </Typography>
         </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setAddOpen(true)}
-        >
-          Add Food
-        </Button>
       </Box>
 
       {/* Filters */}
@@ -153,12 +138,16 @@ export function Foods() {
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Chip
-                    label={food.category}
-                    size="small"
-                    variant="outlined"
-                    sx={{ fontSize: 11 }}
-                  />
+                  {food.category ? (
+                    <Chip
+                      label={food.category}
+                      size="small"
+                      variant="outlined"
+                      sx={{ fontSize: 11 }}
+                    />
+                  ) : (
+                    "-"
+                  )}
                 </TableCell>
                 <TableCell align="right">
                   <Typography

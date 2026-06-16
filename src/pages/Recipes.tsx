@@ -34,7 +34,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PeopleIcon from "@mui/icons-material/People";
 import { useApp } from "../AppContext";
-import type { Recipe, RecipeIngredient } from "../types";
+import type { RecipeFood, Recipe, RecipePost } from "../types";
+import { useGetRecipes } from "@/hooks/recipes";
+import { useSearchParams } from "react-router";
 
 const CATEGORIES = [
   "All",
@@ -60,7 +62,7 @@ function NutritionRow({
     <Box sx={{ display: "flex", gap: 2.5, mt: 1.5 }}>
       {[
         { label: "KCAL", value: cal, color: "#60c8f5" },
-        { label: "PRO", value: `${Math.round(prot)}g`, color: "#3df2a8" },
+        { label: "PROTEIN", value: `${Math.round(prot)}g`, color: "#3df2a8" },
         { label: "CARB", value: `${Math.round(carbs)}g`, color: "#3db5f2" },
         { label: "FAT", value: `${Math.round(fat)}g`, color: "#f2c93d" },
       ].map(({ label, value, color }) => (
@@ -99,7 +101,10 @@ function RecipeCard({
   recipe: Recipe;
   onView: () => void;
 }) {
-  const { toggleSaveRecipe } = useApp();
+  const toggleSaveRecipe = (recipeId: number) => {
+    // TODO:
+  };
+
   return (
     <Card
       sx={{
@@ -119,7 +124,7 @@ function RecipeCard({
           }}
         >
           <Chip
-            label={recipe.category}
+            label={recipe.category ?? "No category"}
             size="small"
             variant="outlined"
             sx={{ fontSize: 11 }}
@@ -160,21 +165,24 @@ function RecipeCard({
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <AccessTimeIcon sx={{ fontSize: 13 }} />
             <Typography variant="caption">
-              {recipe.prepTime + recipe.cookTime}m
+              {recipe.prepTime && recipe.cookTime
+                ? recipe.prepTime + recipe.cookTime
+                : "-"}
+              m
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <PeopleIcon sx={{ fontSize: 13 }} />
             <Typography variant="caption">
-              {recipe.servings} serving{recipe.servings > 1 ? "s" : ""}
+              {recipe.servings ?? 1} serving(s)
             </Typography>
           </Box>
         </Box>
         <NutritionRow
-          cal={recipe.calories}
-          prot={recipe.protein}
-          carbs={recipe.carbs}
-          fat={recipe.fat}
+          cal={recipe.nutrition.calories}
+          prot={recipe.nutrition.macros.protein}
+          carbs={recipe.nutrition.macros.carbs}
+          fat={recipe.nutrition.macros.fat}
         />
       </CardContent>
       <CardActions sx={{ pt: 0, px: 2, pb: 2 }}>
@@ -193,7 +201,9 @@ function RecipeDetailDialog({
   recipe: Recipe;
   onClose: () => void;
 }) {
-  const { toggleSaveRecipe } = useApp();
+  const toggleSaveRecipe = (recipeId: number) => {
+    // TODO:
+  };
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
@@ -206,7 +216,7 @@ function RecipeDetailDialog({
         >
           <Box>
             <Chip
-              label={recipe.category}
+              label={recipe.category ?? "No category"}
               size="small"
               variant="outlined"
               sx={{ mb: 1 }}
@@ -245,15 +255,15 @@ function RecipeDetailDialog({
             <Typography variant="caption" sx={{ color: "text.disabled" }}>
               Servings
             </Typography>
-            <Typography variant="body2">{recipe.servings}</Typography>
+            <Typography variant="body2">{recipe.servings ?? 1}</Typography>
           </Box>
         </Box>
 
         <NutritionRow
-          cal={recipe.calories}
-          prot={recipe.protein}
-          carbs={recipe.carbs}
-          fat={recipe.fat}
+          cal={recipe.nutrition.calories}
+          prot={recipe.nutrition.macros.protein}
+          carbs={recipe.nutrition.macros.carbs}
+          fat={recipe.nutrition.macros.fat}
         />
         <Divider sx={{ my: 2.5 }} />
 
@@ -261,7 +271,7 @@ function RecipeDetailDialog({
           INGREDIENTS
         </Typography>
         <List dense disablePadding>
-          {recipe.ingredients.map((ing, i) => (
+          {recipe.ingredients.map((ingredient, i) => (
             <ListItem
               key={i}
               disablePadding
@@ -272,8 +282,8 @@ function RecipeDetailDialog({
               }}
             >
               <ListItemText
-                primary={ing.food.name}
-                secondary={`${ing.amount} ${ing.unit} — ${Math.round((ing.food.calories * (ing.unit === "tbsp" ? ing.amount * 15 : ing.amount)) / 100)} kcal`}
+                primary={ingredient.food.name}
+                secondary={`${ingredient.amount} ${ingredient.unit}`}
                 primaryTypographyProps={{
                   variant: "body2",
                   color: "text.primary",
@@ -284,7 +294,7 @@ function RecipeDetailDialog({
           ))}
         </List>
 
-        {recipe.instructions.length > 0 && (
+        {recipe.instructions && recipe.instructions.length > 0 && (
           <>
             <Divider sx={{ my: 2.5 }} />
             <Typography variant="h6" sx={{ mb: 1.5 }}>
@@ -349,7 +359,7 @@ function CreateRecipeDialog({
   const [cookTime, setCookTime] = useState("20");
   const [servings, setServings] = useState("1");
   const [instructions, setInstructions] = useState("");
-  const [ingredients, setIngredients] = useState<RecipeIngredient[]>([]);
+  const [ingredients, setIngredients] = useState<RecipeFood[]>([]);
   const [selFood, setSelFood] = useState(foods[0]?.id ?? "");
   const [amount, setAmount] = useState("100");
   const [unit, setUnit] = useState("g");
@@ -377,8 +387,7 @@ function CreateRecipeDialog({
 
   const handleCreate = () => {
     if (!name || ingredients.length === 0) return;
-    const recipe: Recipe = {
-      id: `r_${Date.now()}`,
+    const recipe: RecipePost = {
       name,
       description,
       category,
@@ -577,24 +586,16 @@ function CreateRecipeDialog({
 }
 
 export function Recipes() {
-  const { recipes } = useApp();
-  const [tabVal, setTabVal] = useState(0);
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams({tab: "all"})
+  const tab = urlSearchParams.get("tab")
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [viewRecipe, setViewRecipe] = useState<Recipe | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
-  const filtered = recipes.filter((r) => {
-    const matchSearch =
-      r.name.toLowerCase().includes(search.toLowerCase()) ||
-      r.description.toLowerCase().includes(search.toLowerCase());
-    const matchCat = category === "All" || r.category === category;
-    const matchTab =
-      tabVal === 0 ||
-      (tabVal === 1 && r.createdBy === "user") ||
-      (tabVal === 2 && r.isSaved);
-    return matchSearch && matchCat && matchTab;
-  });
+  const { data } = useGetRecipes();
+  const recipes = data ?? [];
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
@@ -623,10 +624,10 @@ export function Recipes() {
         </Button>
       </Box>
 
-      <Tabs value={tabVal} onChange={(_, v) => setTabVal(v)} sx={{ mb: 2.5 }}>
-        <Tab label={`All (${recipes.length})`} />
-        <Tab label="My Recipes" />
-        <Tab label="Saved" />
+      <Tabs value={tab} onChange={(_, v) => setUrlSearchParams({tab: v})} sx={{ mb: 2.5 }}>
+        <Tab label={`All (${recipes.length})`} value={"all"}/>
+        <Tab label="My Recipes" value={"me"}/>
+        <Tab label="Saved" value={"saved"}/>
       </Tabs>
 
       <Card sx={{ mb: 2.5 }}>
@@ -667,7 +668,7 @@ export function Recipes() {
             </Select>
           </FormControl>
           <Typography variant="caption" sx={{ ml: "auto" }}>
-            {filtered.length} recipes
+            {recipes.length} recipes
           </Typography>
         </CardContent>
       </Card>
@@ -679,10 +680,10 @@ export function Recipes() {
           gap: 2,
         }}
       >
-        {filtered.map((r) => (
+        {recipes.map((r) => (
           <RecipeCard key={r.id} recipe={r} onView={() => setViewRecipe(r)} />
         ))}
-        {filtered.length === 0 && (
+        {recipes.length === 0 && (
           <Box sx={{ gridColumn: "1/-1", textAlign: "center", py: 8 }}>
             <Typography variant="body1" sx={{ color: "text.disabled" }}>
               No recipes found.
