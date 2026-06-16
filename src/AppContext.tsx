@@ -5,7 +5,7 @@ import type {
   MealLogEntry,
   MealPlan,
   NutritionGoal,
-  Recipe,
+  RecipeBase,
   UserProfile,
   WeightGoal,
 } from "./types";
@@ -18,8 +18,8 @@ type AppState = {
   updateProfile: (profile: Partial<UserProfile>) => void;
   foods: Food[];
   addFood: (f: Food) => void;
-  recipes: Recipe[];
-  addRecipe: (r: Recipe) => void;
+  recipes: RecipeBase[];
+  addRecipe: (r: RecipeBase) => void;
   toggleSaveRecipe: (id: string) => void;
   mealPlans: MealPlan[];
   addMealPlan: (mp: MealPlan) => void;
@@ -85,7 +85,7 @@ DEFAULT_USER.nutritionGoal = calcNutritionGoal(DEFAULT_USER);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [foods, setFoods] = useState<Food[]>(FOODS);
-  const [recipes, setRecipes] = useState<Recipe[]>(RECIPES);
+  const [recipes, setRecipes] = useState<RecipeBase[]>(RECIPES);
   const [mealPlans, setMealPlans] = useState<MealPlan[]>(MEAL_PLANS);
   const [activePlanId, setActivePlanId] = useState<string | null>(
     MEAL_PLANS[0].id,
@@ -146,7 +146,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addFood = (f: Food) => setFoods((prev) => [...prev, f]);
-  const addRecipe = (r: Recipe) => setRecipes((prev) => [...prev, r]);
+  const addRecipe = (r: RecipeBase) => setRecipes((prev) => [...prev, r]);
   const toggleSaveRecipe = (id: string) =>
     setRecipes((prev) =>
       prev.map((r) => (r.id === id ? { ...r, isSaved: !r.isSaved } : r)),

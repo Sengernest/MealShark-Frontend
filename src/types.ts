@@ -66,30 +66,26 @@ export type RecipeFood = {
   foodId: number;
   recipeId: number;
   amount: number;
+  unit?: "g" | "ml";
   food: Food;
 };
 
-export type Recipe = {
-  id: string;
+type RecipeBase = {
+  id: number;
   name: string;
-  //description: string;
-  //category: string;
   creatorId: number | null;
   ingredients: RecipeFood[];
-  /*instructions: string[];
-  prepTime: number;
-  cookTime: number;
-  servings: number;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  isProvided: boolean;
-  isSaved: boolean;*/
+  category?: string;
+  description?: string;
+  instructions?: string[];
+  prepTime?: number;
+  cookTime?: number;
+  servings?: number;
+  isProvided?: boolean;
+  isSaved?: boolean;
 };
 
-export type RecipeWithNutrition = {
-  recipe: Recipe;
+export type Recipe = RecipeBase & {
   nutrition: Nutrition;
 };
 
@@ -128,7 +124,7 @@ export type MealRecipe = {
   recipeId: number;
   mealId: number;
   servings: number;
-  recipe: Recipe;
+  recipe: RecipeBase;
 };
 
 export type MealFood = {
@@ -163,7 +159,7 @@ export type MealLogRecipe = {
   recipeId: number;
   servings: number;
   mealLogId: number;
-  recipe: Recipe;
+  recipe: RecipeBase;
 };
 
 export type MealLogFood = {
