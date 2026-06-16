@@ -36,6 +36,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import { useApp } from "../AppContext";
 import type { RecipeFood, Recipe, RecipePost } from "../types";
 import { useGetRecipes } from "@/hooks/recipes";
+import { useSearchParams } from "react-router";
 
 const CATEGORIES = [
   "All",
@@ -100,10 +101,9 @@ function RecipeCard({
   recipe: Recipe;
   onView: () => void;
 }) {
-  
   const toggleSaveRecipe = (recipeId: number) => {
     // TODO:
-  }
+  };
 
   return (
     <Card
@@ -203,7 +203,7 @@ function RecipeDetailDialog({
 }) {
   const toggleSaveRecipe = (recipeId: number) => {
     // TODO:
-  }
+  };
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
@@ -216,7 +216,7 @@ function RecipeDetailDialog({
         >
           <Box>
             <Chip
-              label={recipe.category}
+              label={recipe.category ?? "No category"}
               size="small"
               variant="outlined"
               sx={{ mb: 1 }}
@@ -586,7 +586,9 @@ function CreateRecipeDialog({
 }
 
 export function Recipes() {
-  const [tabVal, setTabVal] = useState(0);
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams({tab: "all"})
+  const tab = urlSearchParams.get("tab")
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [viewRecipe, setViewRecipe] = useState<Recipe | null>(null);
@@ -622,10 +624,10 @@ export function Recipes() {
         </Button>
       </Box>
 
-      <Tabs value={tabVal} onChange={(_, v) => setTabVal(v)} sx={{ mb: 2.5 }}>
-        <Tab label={`All (${recipes.length})`} />
-        <Tab label="My Recipes" />
-        <Tab label="Saved" />
+      <Tabs value={tab} onChange={(_, v) => setUrlSearchParams({tab: v})} sx={{ mb: 2.5 }}>
+        <Tab label={`All (${recipes.length})`} value={"all"}/>
+        <Tab label="My Recipes" value={"me"}/>
+        <Tab label="Saved" value={"saved"}/>
       </Tabs>
 
       <Card sx={{ mb: 2.5 }}>
