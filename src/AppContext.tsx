@@ -8,7 +8,7 @@ import type {
   Recipe,
   UserProfile,
   WeightGoal,
-} from "../../types";
+} from "./types";
 import { FOODS, MEAL_PLANS, RECIPES } from "./mock/mockData";
 
 type AppState = {

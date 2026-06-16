@@ -8,7 +8,7 @@ export const useGetFoods = () => {
   })
 }
 
-export const useSearchFoods = (query: string, limit: number) => {
+export const useSearchFoods = (query: string, limit?: number) => {
   return useQuery({
     queryKey: ["foods", query, limit],
     queryFn: () => foodApi.searchFoods(query, limit),

@@ -45,18 +45,12 @@ export type MacroGoals = {
 export type Food = {
   id: number;
   name: string;
-  defaultServingSize: number | null;
+  defaultServingSize?: number | null;
+  category?: string;
   calories: number;
   protein: number;
-  fat: number;
   carbs: number;
-
-  /* category: string;
-  caloriesPer100g: number;
-  proteinPer100g: number;
-  carbsPer100g: number;
-  fatPer100g: number;
-  isCustom: boolean; */
+  fat: number;
 };
 
 export type Nutrition = {
@@ -95,7 +89,7 @@ export type Recipe = {
 };
 
 export type RecipeWithNutrition = {
-  recipe: Recipe
+  recipe: Recipe;
   nutrition: Nutrition;
 };
 
@@ -157,7 +151,7 @@ export type MealWithNutrition = {
   nutrition: Nutrition;
 };
 
-export type MealPlanWithNutrition = {
+export type MealPlan = {
   id: number;
   name: string;
   creatorId: number | null;
@@ -216,13 +210,12 @@ export type MacroGoalsPost = {
   weight: number;
   height: number;
   activityLevel: "sendentary" | "light" | "moderate" | "active" | "very_active";
-  goal: "cutting" | "bulking" |  "maintenance"
+  goal: "cutting" | "bulking" | "maintenance";
 };
 
 export type RecipePost = {
   recipeId: number;
   servings: number;
-
 };
 
 export type FoodPost = {
@@ -239,7 +232,7 @@ export type MealPost = {
 export type MealPlanPost = {
   name: string;
   meals: MealPost[];
-}
+};
 
 export type MealLogPost = {
   logDate: Date;
@@ -247,11 +240,11 @@ export type MealLogPost = {
   mealId: number;
   recipeItems: RecipePost[];
   foodItems: FoodPost[];
-}
+};
 
 export type MealLogQueryPost = {
-  logDate: Date; 
-}
+  logDate: Date;
+};
 
 /* export type MealLogSlot = {
   id: string;
