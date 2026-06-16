@@ -16,6 +16,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { useApp } from "../AppContext";
 import { Link } from "react-router";
+import { useCurrentUser } from "@/hooks/auth";
 
 const TODAY = "2026-06-14";
 
@@ -118,10 +119,11 @@ function StatCard({
 }
 
 export function Dashboard() {
-  const { user, getLogEntry, mealPlans, activePlanId } = useApp();
+  //const { user, getLogEntry, mealPlans, activePlanId } = useApp();
+  const user = useCurrentUser();
   const goal = user?.nutritionGoal;
-  const todayLog = getLogEntry(TODAY);
-  const activePlan = mealPlans.find((p) => p.id === activePlanId);
+ // const todayLog = getLogEntry(TODAY);
+ // const activePlan = mealPlans.find((p) => p.id === activePlanId);
 
   // Sum today's logged nutrition
   let logCal = 0,
