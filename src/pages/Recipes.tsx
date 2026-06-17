@@ -46,7 +46,7 @@ import type {
 import { useCreateRecipe, useGetRecipes } from "@/hooks/recipes";
 import { useSearchParams } from "react-router";
 import { useGetFoods, useSearchFoods } from "@/hooks/foods";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 
 const CATEGORIES = [
   "All",
@@ -369,43 +369,37 @@ function CreateRecipeDialog({
   const {
     register,
     handleSubmit,
-    getValues,
     formState: { errors },
+    control,
   } = useForm<RecipePost>();
 
-  const [ingredients, setIngredients] = useState<RecipeFoodPost[]>([]);
+  const ingredientsFieldArray = useFieldArray<RecipePost>({
+    control,
+    name: "ingredients",
+  });
+
   const [selectedFood, setSelectedFood] = useState(foods[0]?.id ?? "");
   const [amount, setAmount] = useState("100");
   const [unit, setUnit] = useState<FoodUnit>("g");
 
   const addIngredient = () => {
-    const food = foods.find((f) => f.id === selectedFood);
-    if (!food) return;
-    setIngredients((prev) => [
-      ...prev,
-      { foodId: food.id, amount: +amount, unit },
-    ]);
+    ingredientsFieldArray.append({
+      foodId: selectedFood,
+      amount: +amount,
+      unit,
+    });
   };
 
-  const removeIngredient = (i: number) =>
-    setIngredients((prev) => prev.filter((_, j) => j !== i));
-
-  let totCal = 0,
-    totProt = 0,
-    totCarbs = 0,
-    totFat = 0;
-  // ingredients.forEach((ing) => {
-  //   const g = ing.amount;
-  //   totCal += (ing.food.calories * g) / 100;
-  //   totProt += (ing.food.protein * g) / 100;
-  //   totCarbs += (ing.food.carbs * g) / 100;
-  //   totFat += (ing.food.fat * g) / 100;
-  // });
+  const removeIngredient = (i: number) => {
+    ingredientsFieldArray.remove(i);
+  };
 
   const onSubmit: SubmitHandler<RecipePost> = async (data) => {
     await createRecipe.mutateAsync(data);
     onClose();
   };
+
+  console.log(ingredientsFieldArray.fields);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -415,14 +409,11 @@ function CreateRecipeDialog({
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
-          >
+        >
           <Stack gap={1}>
-
-          {Object.entries(errors).map(([field, error]) => (
-            <Alert severity="error">
-              {error.message}
-            </Alert>
-          ))}
+            {Object.entries(errors).map(([field, error]) => (
+              <Alert severity="error">{error.message}</Alert>
+            ))}
           </Stack>
 
           <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
@@ -455,7 +446,7 @@ function CreateRecipeDialog({
               {...register("servings", {
                 required: "Servings is required",
                 min: { value: 1, message: "Servings must be at least 1" },
-                valueAsNumber: true
+                valueAsNumber: true,
               })}
               type="number"
               inputMode="numeric"
@@ -522,9 +513,9 @@ function CreateRecipeDialog({
             </Button>
           </Box>
 
-          {ingredients.length > 0 && (
+          {ingredientsFieldArray.fields.length > 0 && (
             <List dense disablePadding>
-              {ingredients.map((ing, i) => (
+              {ingredientsFieldArray.fields.map((ingredient, i) => (
                 <ListItem
                   key={i}
                   disablePadding
@@ -544,8 +535,11 @@ function CreateRecipeDialog({
                   }}
                 >
                   <ListItemText
-                    primary={ing.food.name}
-                    secondary={`${ing.amount} ${ing.unit}`}
+                    primary={
+                      foods.find((food) => food.id === ingredient.foodId)
+                        ?.name ?? ""
+                    }
+                    secondary={`${ingredient.amount} ${ingredient.unit}`}
                     primaryTypographyProps={{
                       variant: "body2",
                       color: "text.primary",
@@ -555,12 +549,12 @@ function CreateRecipeDialog({
                 </ListItem>
               ))}
               <Box sx={{ pt: 1 }}>
-                <NutritionRow
+                {/* <NutritionRow
                   cal={Math.round(totCal)}
                   prot={totProt}
                   carbs={totCarbs}
                   fat={totFat}
-                />
+                /> */}
               </Box>
             </List>
           )}
