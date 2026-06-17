@@ -35,8 +35,9 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PeopleIcon from "@mui/icons-material/People";
 import { useApp } from "../AppContext";
 import type { RecipeFood, Recipe, RecipePost } from "../types";
-import { useGetRecipes } from "@/hooks/recipes";
+import { useCreateRecipe, useGetRecipes } from "@/hooks/recipes";
 import { useSearchParams } from "react-router";
+import { useGetFoods, useSearchFoods } from "@/hooks/foods";
 
 const CATEGORIES = [
   "All",
@@ -351,7 +352,11 @@ function CreateRecipeDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const { foods, addRecipe } = useApp();
+  const { data } = useGetFoods()
+  const foods = data ?? []
+
+  const createRecipe = useCreateRecipe()
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("High Protein");
@@ -367,7 +372,7 @@ function CreateRecipeDialog({
   const addIngredient = () => {
     const food = foods.find((f) => f.id === selFood);
     if (!food) return;
-    setIngredients((prev) => [...prev, { food, amount: +amount, unit }]);
+    // setIngredients((prev) => [...prev, { food, amount: +amount, unit }]);
   };
 
   const removeIngredient = (i: number) =>
@@ -378,14 +383,14 @@ function CreateRecipeDialog({
     totCarbs = 0,
     totFat = 0;
   ingredients.forEach((ing) => {
-    const g = ing.unit === "tbsp" ? ing.amount * 15 : ing.amount;
-    totCal += (ing.food.caloriesPer100g * g) / 100;
-    totProt += (ing.food.proteinPer100g * g) / 100;
-    totCarbs += (ing.food.carbsPer100g * g) / 100;
-    totFat += (ing.food.fatPer100g * g) / 100;
+    const g = ing.amount;
+    totCal += (ing.food.calories * g) / 100;
+    totProt += (ing.food.protein * g) / 100;
+    totCarbs += (ing.food.carbs * g) / 100;
+    totFat += (ing.food.fat * g) / 100;
   });
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!name || ingredients.length === 0) return;
     const recipe: RecipePost = {
       name,
@@ -396,15 +401,8 @@ function CreateRecipeDialog({
       servings: +servings,
       ingredients,
       instructions: instructions.split("\n").filter(Boolean),
-      calories: Math.round(totCal),
-      protein: Math.round(totProt * 10) / 10,
-      carbs: Math.round(totCarbs * 10) / 10,
-      fat: Math.round(totFat * 10) / 10,
-      isProvided: false,
-      isSaved: false,
-      createdBy: "user",
     };
-    addRecipe(recipe);
+    await createRecipe.mutateAsync(recipe);
     onClose();
   };
 
@@ -586,8 +584,8 @@ function CreateRecipeDialog({
 }
 
 export function Recipes() {
-  const [urlSearchParams, setUrlSearchParams] = useSearchParams({tab: "all"})
-  const tab = urlSearchParams.get("tab")
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
+  const tab = urlSearchParams.get("tab");
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -624,10 +622,14 @@ export function Recipes() {
         </Button>
       </Box>
 
-      <Tabs value={tab} onChange={(_, v) => setUrlSearchParams({tab: v})} sx={{ mb: 2.5 }}>
-        <Tab label={`All (${recipes.length})`} value={"all"}/>
-        <Tab label="My Recipes" value={"me"}/>
-        <Tab label="Saved" value={"saved"}/>
+      <Tabs
+        value={tab}
+        onChange={(_, v) => setUrlSearchParams({ tab: v })}
+        sx={{ mb: 2.5 }}
+      >
+        <Tab label={`All (${recipes.length})`} value={"all"} />
+        <Tab label="My Recipes" value={"me"} />
+        <Tab label="Saved" value={"saved"} />
       </Tabs>
 
       <Card sx={{ mb: 2.5 }}>

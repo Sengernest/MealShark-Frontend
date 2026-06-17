@@ -75,6 +75,7 @@ type RecipeBase = {
   name: string;
   creatorId: number | null;
   ingredients: RecipeFood[];
+
   category?: string;
   description?: string;
   instructions?: string[];
@@ -87,6 +88,17 @@ type RecipeBase = {
 
 export type Recipe = RecipeBase & {
   nutrition: Nutrition;
+};
+
+export type RecipePost = {
+  name: string;
+  ingredients: RecipeFood[];
+  category?: string;
+  description?: string;
+  instructions?: string[];
+  prepTime?: number;
+  cookTime?: number;
+  servings?: number;
 };
 
 /* export type MealItem = {
@@ -133,6 +145,7 @@ export type MealFood = {
   mealId: number;
   food: Food;
 };
+
 
 export type Meal = {
   id: number;
@@ -209,20 +222,21 @@ export type MacroGoalsPost = {
   goal: "cutting" | "bulking" | "maintenance";
 };
 
-export type RecipePost = {
+
+type MealRecipePost = {
   recipeId: number;
   servings: number;
-};
+}
 
-export type FoodPost = {
+type MealFoodPost = {
   foodId: number;
   amount: number;
-};
+}
 
 export type MealPost = {
   mealPlanIndex: number;
-  recipeItems: RecipePost[];
-  foodItems: FoodPost[];
+  recipeItems: MealRecipePost[];
+  foodItems: MealFoodPost[];
 };
 
 export type MealPlanPost = {
@@ -234,8 +248,8 @@ export type MealLogPost = {
   logDate: Date;
   mealIndex: number;
   mealId: number;
-  recipeItems: RecipePost[];
-  foodItems: FoodPost[];
+  recipeItems: MealRecipePost[];
+  foodItems: MealFoodPost[];
 };
 
 export type MealLogQueryPost = {

@@ -36,7 +36,6 @@ const CATEGORIES = [
 export function Foods() {
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("All");
-  const [addOpen, setAddOpen] = useState(false);
   const PAGE_LIMIT = 20;
   const { data, isLoading, isError } = useSearchFoods(searchQuery, PAGE_LIMIT);
   const foods = data ?? [];
