@@ -46,7 +46,12 @@ import type {
 import { useCreateRecipe, useGetRecipes } from "@/hooks/recipes";
 import { useSearchParams } from "react-router";
 import { useGetFoods, useSearchFoods } from "@/hooks/foods";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  Controller,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 
 const CATEGORIES = [
   "All",
@@ -354,6 +359,10 @@ function RecipeDetailDialog({
   );
 }
 
+type CreateRecipeFormData = RecipePost & {
+  currentIngredient: RecipeFoodPost;
+};
+
 function CreateRecipeDialog({
   open,
   onClose,
@@ -371,35 +380,35 @@ function CreateRecipeDialog({
     handleSubmit,
     formState: { errors },
     control,
-  } = useForm<RecipePost>();
+    getValues,
+  } = useForm<CreateRecipeFormData>({
+    defaultValues: {
+      currentIngredient: {
+        foodId: 0,
+        amount: 0,
+        unit: "g",
+      },
+    },
+  });
 
-  const ingredientsFieldArray = useFieldArray<RecipePost>({
+  const ingredientsFieldArray = useFieldArray<CreateRecipeFormData>({
     control,
     name: "ingredients",
   });
 
-  const [selectedFood, setSelectedFood] = useState(foods[0]?.id ?? "");
-  const [amount, setAmount] = useState("100");
-  const [unit, setUnit] = useState<FoodUnit>("g");
-
   const addIngredient = () => {
-    ingredientsFieldArray.append({
-      foodId: selectedFood,
-      amount: +amount,
-      unit,
-    });
+    const currentIngredient = getValues("currentIngredient");
+    ingredientsFieldArray.append(currentIngredient);
   };
 
   const removeIngredient = (i: number) => {
     ingredientsFieldArray.remove(i);
   };
 
-  const onSubmit: SubmitHandler<RecipePost> = async (data) => {
+  const onSubmit: SubmitHandler<CreateRecipeFormData> = async (data) => {
     await createRecipe.mutateAsync(data);
     onClose();
   };
-
-  console.log(ingredientsFieldArray.fields);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -411,8 +420,8 @@ function CreateRecipeDialog({
           sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
         >
           <Stack gap={1}>
-            {Object.entries(errors).map(([field, error]) => (
-              <Alert severity="error">{error.message}</Alert>
+            {Object.entries(errors).map(([field, error], i) => (
+              <Alert key={i} severity="error">{error.message}</Alert>
             ))}
           </Stack>
 
@@ -477,31 +486,33 @@ function CreateRecipeDialog({
               alignItems: "center",
             }}
           >
-            <FormControl size="small">
-              <InputLabel>Food</InputLabel>
-              <Select
-                value={selectedFood}
-                label="Food"
-                onChange={(e) => setSelectedFood(e.target.value)}
-              >
-                {foods.map((f) => (
-                  <MenuItem key={f.id} value={f.id}>
-                    {f.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Controller
+              name="currentIngredient.foodId"
+              control={control}
+              render={({ field }) => (
+                <Select {...field} label="Food">
+                  {foods.map((f) => (
+                    <MenuItem key={f.id} value={f.id}>
+                      {f.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              )}
+            />
             <TextField
               label="Amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              {...register("currentIngredient.amount", {
+                required: "Ingredient amount is required",
+                valueAsNumber: true,
+              })}
               type="number"
               size="small"
             />
             <TextField
               label="Unit"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value as FoodUnit)}
+              {...register("currentIngredient.unit", {
+                required: "Ingredient unit is required",
+              })}
               size="small"
             />
             <Button
@@ -539,12 +550,7 @@ function CreateRecipeDialog({
                       foods.find((food) => food.id === ingredient.foodId)
                         ?.name ?? ""
                     }
-                    secondary={`${ingredient.amount} ${ingredient.unit}`}
-                    primaryTypographyProps={{
-                      variant: "body2",
-                      color: "text.primary",
-                    }}
-                    secondaryTypographyProps={{ variant: "caption" }}
+                    secondary={`${ingredient.amount} ${ingredient.unit || ""}`}
                   />
                 </ListItem>
               ))}
