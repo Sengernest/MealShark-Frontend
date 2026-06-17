@@ -562,27 +562,19 @@ function CreateRecipeDialog({
                   />
                 </ListItem>
               ))}
-              <Box sx={{ pt: 1 }}>
-                {/* <NutritionRow
-                  cal={Math.round(totCal)}
-                  prot={totProt}
-                  carbs={totCarbs}
-                  fat={totFat}
-                /> */}
-              </Box>
             </List>
           )}
+          <Box sx={{ pt: 1 }}>
+            <NutritionRow cal={900} prot={40} carbs={30} fat={30} />
+          </Box>
 
           <Divider />
           <TextField
-            label="Instructions (one step per line)"
+            label="Instructions"
             {...register("instructions", { maxLength: 2000 })}
             multiline
             rows={4}
             fullWidth
-            placeholder={
-              "Season chicken with salt and pepper.\nHeat oil in a pan over medium heat.\nCook 6 minutes per side."
-            }
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
