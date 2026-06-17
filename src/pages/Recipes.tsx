@@ -27,6 +27,7 @@ import {
   Tooltip,
   Alert,
   Stack,
+  Autocomplete,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
@@ -370,7 +371,8 @@ function CreateRecipeDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const { data } = useGetFoods();
+  const [foodSearch, setFoodSearch] = useState("");
+  const { data } = useSearchFoods(foodSearch, 20);
   const foods = data ?? [];
 
   const createRecipe = useCreateRecipe();
@@ -421,7 +423,9 @@ function CreateRecipeDialog({
         >
           <Stack gap={1}>
             {Object.entries(errors).map(([field, error], i) => (
-              <Alert key={i} severity="error">{error.message}</Alert>
+              <Alert key={i} severity="error">
+                {error.message}
+              </Alert>
             ))}
           </Stack>
 
@@ -475,7 +479,6 @@ function CreateRecipeDialog({
               type="number"
             />
           </Box>
-
           <Divider />
           <Typography variant="h6">INGREDIENTS</Typography>
           <Box
@@ -490,13 +493,18 @@ function CreateRecipeDialog({
               name="currentIngredient.foodId"
               control={control}
               render={({ field }) => (
-                <Select {...field} label="Food">
-                  {foods.map((f) => (
-                    <MenuItem key={f.id} value={f.id}>
-                      {f.name}
-                    </MenuItem>
-                  ))}
-                </Select>
+                <Autocomplete
+                  options={foods}
+                  getOptionLabel={(food) => food.name}
+                  value={foods.find((f) => f.id === field.value) ?? null}
+                  onChange={(_, food) => field.onChange(food?.id ?? 0)}
+                  inputValue={foodSearch}
+                  onInputChange={(_, value) => setFoodSearch(value)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Food" size="small" />
+                  )}
+                  filterOptions={(x) => x}
+                />
               )}
             />
             <TextField
