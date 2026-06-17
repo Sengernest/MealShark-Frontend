@@ -29,7 +29,7 @@ const DRAWER_CLOSED = 64;
 
 const NAV_ITEMS = [
   { id: "/", label: "Dashboard", icon: <DashboardIcon /> },
-  { id: "/goals", label: "My Goals", icon: <TrackChangesIcon /> },
+  { id: "/goals", label: "Macro Goals", icon: <TrackChangesIcon /> },
   { id: "/foods", label: "Foods", icon: <LocalDiningIcon /> },
   { id: "/recipes", label: "Recipes", icon: <MenuBookIcon /> },
   { id: "/meal-plans", label: "Meal Plans", icon: <CalendarMonthIcon /> },

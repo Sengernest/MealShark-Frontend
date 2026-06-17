@@ -226,7 +226,7 @@ export type MacroGoalsPost = {
   gender: string;
   weight: number;
   height: number;
-  activityLevel: "sendentary" | "light" | "moderate" | "active" | "very_active";
+  activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
   goal: "cutting" | "bulking" | "maintenance";
 };
 
