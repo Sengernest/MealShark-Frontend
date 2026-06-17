@@ -35,16 +35,16 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: () => authApi.logout(),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.setQueryData(["user"], null);
     },
   });
 };
 
 export const useCurrentUser = () => {
-  const queryClient = useQueryClient();
-
   return useQuery({
     queryKey: ["user"],
     queryFn: authApi.getCurrentUser,
+    retry: false,
+    staleTime: Infinity,
   });
 };

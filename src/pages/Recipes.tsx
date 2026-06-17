@@ -34,7 +34,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PeopleIcon from "@mui/icons-material/People";
 import { useApp } from "../AppContext";
-import type { RecipeFood, Recipe, RecipePost } from "../types";
+import type { RecipeFood, Recipe, RecipePost, RecipeFoodPost, FoodUnit } from "../types";
 import { useCreateRecipe, useGetRecipes } from "@/hooks/recipes";
 import { useSearchParams } from "react-router";
 import { useGetFoods, useSearchFoods } from "@/hooks/foods";
@@ -364,15 +364,15 @@ function CreateRecipeDialog({
   const [cookTime, setCookTime] = useState("20");
   const [servings, setServings] = useState("1");
   const [instructions, setInstructions] = useState("");
-  const [ingredients, setIngredients] = useState<RecipeFood[]>([]);
-  const [selFood, setSelFood] = useState(foods[0]?.id ?? "");
+  const [ingredients, setIngredients] = useState<RecipeFoodPost[]>([]);
+  const [selectedFood, setSelectedFood] = useState(foods[0]?.id ?? "");
   const [amount, setAmount] = useState("100");
-  const [unit, setUnit] = useState("g");
+  const [unit, setUnit] = useState<FoodUnit>("g");
 
   const addIngredient = () => {
-    const food = foods.find((f) => f.id === selFood);
+    const food = foods.find((f) => f.id === selectedFood);
     if (!food) return;
-    // setIngredients((prev) => [...prev, { food, amount: +amount, unit }]);
+    setIngredients((prev) => [...prev, { foodId: food.id, amount: +amount, unit }]);
   };
 
   const removeIngredient = (i: number) =>
@@ -382,13 +382,13 @@ function CreateRecipeDialog({
     totProt = 0,
     totCarbs = 0,
     totFat = 0;
-  ingredients.forEach((ing) => {
-    const g = ing.amount;
-    totCal += (ing.food.calories * g) / 100;
-    totProt += (ing.food.protein * g) / 100;
-    totCarbs += (ing.food.carbs * g) / 100;
-    totFat += (ing.food.fat * g) / 100;
-  });
+  // ingredients.forEach((ing) => {
+  //   const g = ing.amount;
+  //   totCal += (ing.food.calories * g) / 100;
+  //   totProt += (ing.food.protein * g) / 100;
+  //   totCarbs += (ing.food.carbs * g) / 100;
+  //   totFat += (ing.food.fat * g) / 100;
+  // });
 
   const handleCreate = async () => {
     if (!name || ingredients.length === 0) return;
@@ -478,9 +478,9 @@ function CreateRecipeDialog({
           <FormControl size="small">
             <InputLabel>Food</InputLabel>
             <Select
-              value={selFood}
+              value={selectedFood}
               label="Food"
-              onChange={(e) => setSelFood(e.target.value)}
+              onChange={(e) => setSelectedFood(e.target.value)}
             >
               {foods.map((f) => (
                 <MenuItem key={f.id} value={f.id}>

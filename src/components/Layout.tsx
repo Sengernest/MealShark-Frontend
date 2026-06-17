@@ -1,3 +1,4 @@
+import { useCurrentUser, useLogout } from "@/hooks/auth";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -20,10 +21,8 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router";
-import { useApp } from "../AppContext";
-import { useCurrentUser, useLogout } from "@/hooks/auth";
+import { useEffect, useState } from "react";
+import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router";
 
 const DRAWER_OPEN = 220;
 const DRAWER_CLOSED = 64;
@@ -40,13 +39,21 @@ const NAV_ITEMS = [
 export function Layout() {
   const [open, setOpen] = useState(true);
   const drawerWidth = open ? DRAWER_OPEN : DRAWER_CLOSED;
-  const page = useLocation().pathname
-  const { data: user } = useCurrentUser();
-  const navigate = useNavigate()
-  const logout = useLogout()
+  const page = useLocation().pathname;
+  const { data: user, isLoading: isLoadingUser } = useCurrentUser();
+  const navigate = useNavigate();
+  const logout = useLogout();
   const handleLogout = async () => {
-    await logout.mutateAsync()
-    navigate("/auth")
+    await logout.mutateAsync();
+    navigate("/auth");
+  };
+
+  if (isLoadingUser) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to={"/auth"} replace />;
   }
 
   return (
