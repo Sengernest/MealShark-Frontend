@@ -5,6 +5,7 @@ async function getMyMacroGoal(): Promise<MacroGoals> {
   const res = await api.get("/me/macro-goals");
   return res.data;
 }
+
 async function createMacroGoal(data: MacroGoalsPost): Promise<MacroGoals> {
   const res = await api.post("/me/macro-goals", data);
   return res.data;

@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Box, Typography, Card, CardContent, TextField, Select, MenuItem,
-  FormControl, InputLabel, Button, Divider, Grid, Alert, Chip,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  Divider,
+  Grid,
+  Alert,
+  Chip,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { calcNutritionGoal } from "../AppContext";
-import { useCurrentUser } from "@/hooks/auth";
-import { useCreateMacroGoals } from "@/hooks/macroGoals";
+import {
+  useCreateMacroGoals,
+  useDeleteMacroGoals,
+  useGetMacroGoals,
+  useUpdateMacroGoals,
+} from "@/hooks/macroGoals";
 
 const ACTIVITY_LABELS = {
   sedentary: "Sedentary (little or no exercise)",
@@ -36,14 +51,19 @@ function MacroCard({
 }) {
   return (
     <Card variant="outlined" sx={{ flex: 1, borderColor: `${color}40` }}>
-      <CardContent sx={{ textAlign: "center", py: 2, "&:last-child": { pb: 2 } }}>
+      <CardContent
+        sx={{ textAlign: "center", py: 2, "&:last-child": { pb: 2 } }}
+      >
         <Typography variant="h3" sx={{ color, lineHeight: 1 }}>
           {value}
         </Typography>
         <Typography variant="caption" sx={{ display: "block" }}>
           {unit}
         </Typography>
-        <Typography variant="overline" sx={{ fontSize: 11, color: "text.secondary" }}>
+        <Typography
+          variant="overline"
+          sx={{ fontSize: 11, color: "text.secondary" }}
+        >
           {label}
         </Typography>
       </CardContent>
@@ -52,48 +72,52 @@ function MacroCard({
 }
 
 export function Goals() {
-  const user = useCurrentUser();
-
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
-
   const [activity, setActivity] = useState<
     "sedentary" | "light" | "moderate" | "active" | "very_active"
   >("moderate");
-
-  const [goal, setGoal] = useState<
-    "cutting" | "bulking" | "maintenance"
-  >("bulking");
-
+  const [goal, setGoal] = useState<"cutting" | "bulking" | "maintenance">(
+    "maintenance",
+  );
   const [saved, setSaved] = useState(false);
+  const [deleted, setDeleted] = useState(false);
+  const [edited, setEdited] = useState(false);
   const [error, setError] = useState("");
-
   const createMacroGoals = useCreateMacroGoals();
 
-  const preview = calcNutritionGoal({
-    age: +age,
-    gender,
-    height: +height,
-    weight: +weight,
-    activityLevel: activity,
-    weightGoal: goal,
-  });
+  /* const Preview = calcNutritionGoal({
+      age: +age,
+      gender,
+      height: +height,
+      weight: +weight,
+      activityLevel: activity,
+      weightGoal: goal,
+    }); */
+
+  const { data: goals, isLoading } = useGetMacroGoals();
+  const hasGoals = !!goals;
+  const deleteMacroGoals = useDeleteMacroGoals();
+  const updateMacroGoals = useUpdateMacroGoals();
 
   const handleSave = () => {
     if (!age || !height || !weight) {
       setError("Please fill in all fields.");
       return;
     }
+
     if (+age < 10 || +age > 120) {
       setError("Enter a valid age.");
       return;
     }
+
     if (+height < 100 || +height > 250) {
       setError("Enter a valid height in cm.");
       return;
     }
+
     if (+weight < 30 || +weight > 300) {
       setError("Enter a valid weight in kg.");
       return;
@@ -101,18 +125,64 @@ export function Goals() {
 
     setError("");
 
-    createMacroGoals.mutate({
+    const payload = {
       age: Number(age),
-      gender: gender,
+      gender,
       weight: Number(weight),
       height: Number(height),
       activityLevel: activity,
       goal: goal,
-    });
+    };
 
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (hasGoals) {
+      updateMacroGoals.mutate(payload, {
+        onSuccess: () => {
+          setEdited(true);
+          setTimeout(() => setEdited(false), 3000);
+        },
+      });
+    } else {
+      createMacroGoals.mutate(payload, {
+        onSuccess: () => {
+          setSaved(true);
+          setTimeout(() => setSaved(false), 3000);
+        },
+      });
+    }
   };
+
+  const resetForm = () => {
+    setAge("");
+    setGender("");
+    setHeight("");
+    setWeight("");
+    setActivity("moderate");
+    setGoal("maintenance");
+  };
+
+  const handleDelete = () => {
+    deleteMacroGoals.mutate(undefined, {
+      onSuccess: () => {
+        resetForm();
+
+        setDeleted(true);
+        setTimeout(() => setDeleted(false), 3000);
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (!hasGoals) {
+      return;
+    }
+
+    setAge(String(goals.age));
+    setGender(goals.gender);
+    setHeight(String(goals.height));
+    setWeight(String(goals.weight));
+    setActivity(goals.activityLevel as typeof activity);
+    setGoal(goals.goal as typeof goal);
+  }, [goals]);
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 900 }}>
@@ -128,6 +198,18 @@ export function Goals() {
       {saved && (
         <Alert icon={<CheckCircleIcon />} severity="success" sx={{ mb: 3 }}>
           Goals saved successfully!
+        </Alert>
+      )}
+
+      {deleted && (
+        <Alert icon={<CheckCircleIcon />} severity="success" sx={{ mb: 3 }}>
+          Goals deleted successfully!
+        </Alert>
+      )}
+
+      {edited && (
+        <Alert icon={<CheckCircleIcon />} severity="success" sx={{ mb: 3 }}>
+          Goals edited successfully!
         </Alert>
       )}
 
@@ -199,11 +281,11 @@ export function Goals() {
                     onChange={(e) =>
                       setActivity(
                         e.target.value as
-                        | "sedentary"
-                        | "light"
-                        | "moderate"
-                        | "active"
-                        | "very_active"
+                          | "sedentary"
+                          | "light"
+                          | "moderate"
+                          | "active"
+                          | "very_active",
                       )
                     }
                   >
@@ -222,64 +304,81 @@ export function Goals() {
                     label="Weight Goal"
                     onChange={(e) =>
                       setGoal(
-                        e.target.value as
-                        | "cutting"
-                        | "bulking"
-                        | "maintenance"
+                        e.target.value as "cutting" | "bulking" | "maintenance",
                       )
                     }
                   >
                     {Object.keys(WEIGHT_GOAL_LABELS).map((k) => (
                       <MenuItem key={k} value={k}>
-                        {WEIGHT_GOAL_LABELS[k as keyof typeof WEIGHT_GOAL_LABELS]}
+                        {
+                          WEIGHT_GOAL_LABELS[
+                            k as keyof typeof WEIGHT_GOAL_LABELS
+                          ]
+                        }
                       </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
 
                 <Button variant="contained" size="large" onClick={handleSave}>
-                  Save Goals
+                  {hasGoals ? "Update Goals" : "Create Goals"}
                 </Button>
+                {hasGoals && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="large"
+                    onClick={handleDelete}
+                    disabled={deleteMacroGoals.isPending}
+                  >
+                    Delete Goals
+                  </Button>
+                )}
               </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Preview */}
+        {/* goals */}
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}>
-                <Typography variant="h6">NUTRITION PREVIEW</Typography>
-                <InfoOutlinedIcon sx={{ fontSize: 16, color: "text.disabled" }} />
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}
+              >
+                <Typography variant="h6">NUTRITION GOALS </Typography>
+                <InfoOutlinedIcon
+                  sx={{ fontSize: 16, color: "text.disabled" }}
+                />
               </Box>
 
-              {preview ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
-                  <Box>
-                    <Typography variant="overline" sx={{ fontSize: 11, color: "text.secondary" }}>
-                      TDEE (Maintenance)
-                    </Typography>
-                    <Typography variant="h3" sx={{ lineHeight: 1.1 }}>
-                      {preview.tdee}
-                    </Typography>
-                    <Typography variant="caption">
-                      kcal / day (estimated)
-                    </Typography>
-                  </Box>
-
+              {isLoading ? (
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", mt: 2 }}
+                >
+                  Loading your nutrition goals...
+                </Typography>
+              ) : goals ? (
+                <Box
+                  sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+                >
                   <Divider />
 
                   <Box>
-                    <Typography variant="overline" sx={{ fontSize: 11, color: "text.secondary" }}>
+                    <Typography
+                      variant="overline"
+                      sx={{ fontSize: 11, color: "text.secondary" }}
+                    >
                       DAILY CALORIE TARGET
                     </Typography>
-                    <Typography variant="h2" sx={{ color: "primary.main", lineHeight: 1.1 }}>
-                      {preview.dailyCalories}
+                    <Typography
+                      variant="h2"
+                      sx={{ color: "primary.main", lineHeight: 1.1 }}
+                    >
+                      {goals?.calories}
                     </Typography>
-                    <Typography variant="caption">
-                      kcal / day
-                    </Typography>
+                    <Typography variant="caption">kcal / day</Typography>
 
                     <Box sx={{ mt: 1 }}>
                       <Chip
@@ -293,22 +392,46 @@ export function Goals() {
 
                   <Divider />
 
-                  <Typography variant="overline" sx={{ fontSize: 11, color: "text.secondary" }}>
+                  <Typography
+                    variant="overline"
+                    sx={{ fontSize: 11, color: "text.secondary" }}
+                  >
                     DAILY MACROS
                   </Typography>
 
                   <Box sx={{ display: "flex", gap: 1.5 }}>
-                    <MacroCard label="Protein" value={preview.protein} unit="g" color="#3df2a8" />
-                    <MacroCard label="Carbs" value={preview.carbs} unit="g" color="#3db5f2" />
-                    <MacroCard label="Fat" value={preview.fat} unit="g" color="#f2c93d" />
+                    <MacroCard
+                      label="Protein"
+                      value={goals?.protein ?? 0}
+                      unit="g"
+                      color="#3df2a8"
+                    />
+                    <MacroCard
+                      label="Carbs"
+                      value={goals?.carbs ?? 0}
+                      unit="g"
+                      color="#3db5f2"
+                    />
+                    <MacroCard
+                      label="Fat"
+                      value={goals?.fat ?? 0}
+                      unit="g"
+                      color="#f2c93d"
+                    />
                   </Box>
 
-                  <Typography variant="caption" sx={{ color: "text.disabled", fontSize: 11 }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "text.disabled", fontSize: 11 }}
+                  >
                     Calculated via Mifflin-St Jeor equation.
                   </Typography>
                 </Box>
               ) : (
-                <Typography variant="body2" sx={{ color: "text.secondary", mt: 2 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: "text.secondary", mt: 2 }}
+                >
                   Fill in your stats to see your personalised nutrition goals.
                 </Typography>
               )}

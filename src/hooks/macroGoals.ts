@@ -1,15 +1,13 @@
 import { macroGoalApi } from "@/api/macroGoals";
 import { MacroGoalsPost } from "@/types";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { use } from "react";
 
-const useGetMacroGoals = () => {
+export const useGetMacroGoals = () => {
   return useQuery({
     queryKey: ["macroGoals"],
     queryFn: macroGoalApi.getMyMacroGoal,
   });
 };
-
 export const useCreateMacroGoals = () => {
   const queryClient = useQueryClient();
 
