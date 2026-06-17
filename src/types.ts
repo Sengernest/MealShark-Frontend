@@ -51,6 +51,8 @@ export type Food = {
   protein: number;
   carbs: number;
   fat: number;
+
+  units: FoodUnit[]
 };
 
 export type Nutrition = {
@@ -95,7 +97,7 @@ export type Recipe = RecipeBase & {
 export type RecipeFoodPost = {
   foodId: number
   amount: number
-  unit?: FoodUnit
+  unit: FoodUnit
 }
 
 export type RecipePost = {
