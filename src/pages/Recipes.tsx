@@ -25,6 +25,8 @@ import {
   ListItem,
   ListItemText,
   Tooltip,
+  Alert,
+  Stack,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
@@ -34,10 +36,17 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PeopleIcon from "@mui/icons-material/People";
 import { useApp } from "../AppContext";
-import type { RecipeFood, Recipe, RecipePost, RecipeFoodPost, FoodUnit } from "../types";
+import type {
+  RecipeFood,
+  Recipe,
+  RecipePost,
+  RecipeFoodPost,
+  FoodUnit,
+} from "../types";
 import { useCreateRecipe, useGetRecipes } from "@/hooks/recipes";
 import { useSearchParams } from "react-router";
 import { useGetFoods, useSearchFoods } from "@/hooks/foods";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 const CATEGORIES = [
   "All",
@@ -352,18 +361,18 @@ function CreateRecipeDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const { data } = useGetFoods()
-  const foods = data ?? []
+  const { data } = useGetFoods();
+  const foods = data ?? [];
 
-  const createRecipe = useCreateRecipe()
+  const createRecipe = useCreateRecipe();
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("High Protein");
-  const [prepTime, setPrepTime] = useState("10");
-  const [cookTime, setCookTime] = useState("20");
-  const [servings, setServings] = useState("1");
-  const [instructions, setInstructions] = useState("");
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm<RecipePost>();
+
   const [ingredients, setIngredients] = useState<RecipeFoodPost[]>([]);
   const [selectedFood, setSelectedFood] = useState(foods[0]?.id ?? "");
   const [amount, setAmount] = useState("100");
@@ -372,7 +381,10 @@ function CreateRecipeDialog({
   const addIngredient = () => {
     const food = foods.find((f) => f.id === selectedFood);
     if (!food) return;
-    setIngredients((prev) => [...prev, { foodId: food.id, amount: +amount, unit }]);
+    setIngredients((prev) => [
+      ...prev,
+      { foodId: food.id, amount: +amount, unit },
+    ]);
   };
 
   const removeIngredient = (i: number) =>
@@ -390,195 +402,190 @@ function CreateRecipeDialog({
   //   totFat += (ing.food.fat * g) / 100;
   // });
 
-  const handleCreate = async () => {
-    if (!name || ingredients.length === 0) return;
-    const recipe: RecipePost = {
-      name,
-      description,
-      category,
-      prepTime: +prepTime,
-      cookTime: +cookTime,
-      servings: +servings,
-      ingredients,
-      instructions: instructions.split("\n").filter(Boolean),
-    };
-    await createRecipe.mutateAsync(recipe);
+  const onSubmit: SubmitHandler<RecipePost> = async (data) => {
+    await createRecipe.mutateAsync(data);
     onClose();
   };
 
+  console.log(errors);
+  console.log(getValues("name"));
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Typography variant="h5">CREATE RECIPE</Typography>
-      </DialogTitle>
-      <DialogContent
-        sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
-      >
-        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
-          <TextField
-            label="Recipe Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            fullWidth
-            sx={{ gridColumn: "1/-1" }}
-          />
-          <TextField
-            label="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            multiline
-            rows={2}
-            fullWidth
-            sx={{ gridColumn: "1/-1" }}
-          />
-          <FormControl size="small">
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={category}
-              label="Category"
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              {CATEGORIES.slice(1).map((c) => (
-                <MenuItem key={c} value={c}>
-                  {c}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Servings"
-            value={servings}
-            onChange={(e) => setServings(e.target.value)}
-            type="number"
-          />
-          <TextField
-            label="Prep Time (min)"
-            value={prepTime}
-            onChange={(e) => setPrepTime(e.target.value)}
-            type="number"
-          />
-          <TextField
-            label="Cook Time (min)"
-            value={cookTime}
-            onChange={(e) => setCookTime(e.target.value)}
-            type="number"
-          />
-        </Box>
-
-        <Divider />
-        <Typography variant="h6">INGREDIENTS</Typography>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "1fr 90px 80px auto",
-            gap: 1.5,
-            alignItems: "center",
-          }}
-        >
-          <FormControl size="small">
-            <InputLabel>Food</InputLabel>
-            <Select
-              value={selectedFood}
-              label="Food"
-              onChange={(e) => setSelectedFood(e.target.value)}
-            >
-              {foods.map((f) => (
-                <MenuItem key={f.id} value={f.id}>
-                  {f.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            type="number"
-            size="small"
-          />
-          <TextField
-            label="Unit"
-            value={unit}
-            onChange={(e) => setUnit(e.target.value)}
-            size="small"
-          />
-          <Button
-            variant="outlined"
-            onClick={addIngredient}
-            sx={{ height: 40 }}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogTitle>
+          <Typography variant="h5">CREATE RECIPE</Typography>
+        </DialogTitle>
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
           >
-            Add
-          </Button>
-        </Box>
+          <Stack gap={1}>
 
-        {ingredients.length > 0 && (
-          <List dense disablePadding>
-            {ingredients.map((ing, i) => (
-              <ListItem
-                key={i}
-                disablePadding
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => removeIngredient(i)}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                }
-                sx={{
-                  py: 0.5,
-                  borderBottom: "1px solid",
-                  borderColor: "divider",
-                }}
+          {Object.entries(errors).map(([field, error]) => (
+            <Alert severity="error">
+              {error.message}
+            </Alert>
+          ))}
+          </Stack>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+            <TextField
+              {...register("name", { required: "Recipe name is required" })}
+              label="Recipe Name"
+              fullWidth
+              sx={{ gridColumn: "1/-1" }}
+            />
+            <TextField
+              label="Description"
+              {...register("description")}
+              multiline
+              rows={2}
+              fullWidth
+              sx={{ gridColumn: "1/-1" }}
+            />
+            <FormControl size="small">
+              <InputLabel>Category</InputLabel>
+              <Select {...register("category")} label="Category">
+                {CATEGORIES.slice(1).map((c) => (
+                  <MenuItem key={c} value={c}>
+                    {c}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="Servings"
+              {...register("servings", {
+                required: "Servings is required",
+                min: { value: 1, message: "Servings must be at least 1" },
+              })}
+              type="number"
+            />
+            <TextField
+              label="Prep Time (min)"
+              {...register("prepTime", {
+                min: { value: 0, message: "Prep time cannot be negative" },
+              })}
+              type="number"
+            />
+            <TextField
+              label="Cook Time (min)"
+              {...register("cookTime", {
+                min: { value: 0, message: "Cook time cannot be negative" },
+              })}
+              type="number"
+            />
+          </Box>
+
+          <Divider />
+          <Typography variant="h6">INGREDIENTS</Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 90px 80px auto",
+              gap: 1.5,
+              alignItems: "center",
+            }}
+          >
+            <FormControl size="small">
+              <InputLabel>Food</InputLabel>
+              <Select
+                value={selectedFood}
+                label="Food"
+                onChange={(e) => setSelectedFood(e.target.value)}
               >
-                <ListItemText
-                  primary={ing.food.name}
-                  secondary={`${ing.amount} ${ing.unit}`}
-                  primaryTypographyProps={{
-                    variant: "body2",
-                    color: "text.primary",
-                  }}
-                  secondaryTypographyProps={{ variant: "caption" }}
-                />
-              </ListItem>
-            ))}
-            <Box sx={{ pt: 1 }}>
-              <NutritionRow
-                cal={Math.round(totCal)}
-                prot={totProt}
-                carbs={totCarbs}
-                fat={totFat}
-              />
-            </Box>
-          </List>
-        )}
+                {foods.map((f) => (
+                  <MenuItem key={f.id} value={f.id}>
+                    {f.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              label="Amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              type="number"
+              size="small"
+            />
+            <TextField
+              label="Unit"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value as FoodUnit)}
+              size="small"
+            />
+            <Button
+              variant="outlined"
+              onClick={addIngredient}
+              sx={{ height: 40 }}
+            >
+              Add
+            </Button>
+          </Box>
 
-        <Divider />
-        <TextField
-          label="Instructions (one step per line)"
-          value={instructions}
-          onChange={(e) => setInstructions(e.target.value)}
-          multiline
-          rows={4}
-          fullWidth
-          placeholder={
-            "Season chicken with salt and pepper.\nHeat oil in a pan over medium heat.\nCook 6 minutes per side."
-          }
-        />
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleCreate}
-          disabled={!name || ingredients.length === 0}
-        >
-          Create Recipe
-        </Button>
-      </DialogActions>
+          {ingredients.length > 0 && (
+            <List dense disablePadding>
+              {ingredients.map((ing, i) => (
+                <ListItem
+                  key={i}
+                  disablePadding
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      size="small"
+                      onClick={() => removeIngredient(i)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  }
+                  sx={{
+                    py: 0.5,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <ListItemText
+                    primary={ing.food.name}
+                    secondary={`${ing.amount} ${ing.unit}`}
+                    primaryTypographyProps={{
+                      variant: "body2",
+                      color: "text.primary",
+                    }}
+                    secondaryTypographyProps={{ variant: "caption" }}
+                  />
+                </ListItem>
+              ))}
+              <Box sx={{ pt: 1 }}>
+                <NutritionRow
+                  cal={Math.round(totCal)}
+                  prot={totProt}
+                  carbs={totCarbs}
+                  fat={totFat}
+                />
+              </Box>
+            </List>
+          )}
+
+          <Divider />
+          <TextField
+            label="Instructions (one step per line)"
+            {...register("instructions", { maxLength: 2000 })}
+            multiline
+            rows={4}
+            fullWidth
+            placeholder={
+              "Season chicken with salt and pepper.\nHeat oil in a pan over medium heat.\nCook 6 minutes per side."
+            }
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={onClose} sx={{ color: "text.secondary" }}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained">
+            Create Recipe
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }
