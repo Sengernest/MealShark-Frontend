@@ -14,11 +14,15 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import HistoryIcon from "@mui/icons-material/History";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
-import { useApp } from "../AppContext";
 import { Link } from "react-router";
 import { useCurrentUser } from "@/hooks/auth";
+import { useGetMacroGoals } from "@/hooks/macroGoals";
 
-const TODAY = "2026-06-14";
+const TODAY = new Date().toISOString().split("T")[0];
+
+const logCarbs = 0;
+const logFat = 0;
+const logProt = 0;
 
 function MacroBar({
   label,
@@ -120,13 +124,14 @@ function StatCard({
 
 export function Dashboard() {
   //const { user, getLogEntry, mealPlans, activePlanId } = useApp();
-  const user = useCurrentUser();
-  const goal = user?.nutritionGoal;
+  const { data: user } = useCurrentUser();
+  const { data: goals } = useGetMacroGoals();
+ //const goal = user?.nutritionGoal;
  // const todayLog = getLogEntry(TODAY);
- // const activePlan = mealPlans.find((p) => p.id === activePlanId);
+ //const activePlan = mealPlans.find((p) => p.id === activePlanId);
 
   // Sum today's logged nutrition
-  let logCal = 0,
+  /*=let logCal = 0,
     logProt = 0,
     logCarbs = 0,
     logFat = 0;
@@ -145,10 +150,10 @@ export function Dashboard() {
         logFat += (item.food.fatPer100g * g) / 100;
       }
     });
-  });
-  logCal = Math.round(logCal);
+  }); */
+  const logCal = Math.round(0); 
 
-  const calPct = goal ? Math.min(100, (logCal / goal.dailyCalories) * 100) : 0;
+  const calPct = goals ? Math.min(100, (logCal / goals.calories) * 100) : 0; 
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1100 }}>
@@ -174,7 +179,7 @@ export function Dashboard() {
       </Box>
 
       {/* Goal prompt */}
-      {!goal && (
+      {!goals && (
         <Card sx={{ mb: 3, borderColor: "primary.main", borderWidth: 1 }}>
           <CardContent
             sx={{
@@ -206,30 +211,30 @@ export function Dashboard() {
           icon={<LocalFireDepartmentIcon />}
           label="Calories Today"
           value={`${logCal}`}
-          sub={`/ ${goal?.dailyCalories ?? "—"} kcal`}
+          sub={`/ ${goals?.calories ?? "—"} kcal`}
           color="#60c8f5"
         />
         <StatCard
           icon={<TrackChangesIcon />}
           label="Daily Target"
-          value={goal ? `${goal.dailyCalories}` : "—"}
+          value={goals ? `${goals.calories}` : "—"}
           sub="kcal / day"
           color="#3df2a8"
         />
-        <StatCard
+        {/* <StatCard
           icon={<CalendarMonthIcon />}
           label="Active Plan"
           value={activePlan ? activePlan.days.length + "d" : "None"}
           sub={activePlan?.name ?? "No plan set"}
           color="#3db5f2"
-        />
-        <StatCard
+        /> */}
+       {/*} <StatCard
           icon={<HistoryIcon />}
           label="Meals Logged"
           value={`${todayLog?.slots.length ?? 0}`}
           sub="today"
           color="#f2c93d"
-        />
+        /> */}
       </Box>
 
       <Grid container spacing={2.5}>
@@ -316,37 +321,37 @@ export function Dashboard() {
                     {logCal}
                   </Typography>
                   <Typography variant="caption">kcal consumed</Typography>
-                  {goal && (
+                  {goals && (
                     <Typography
                       variant="body2"
                       sx={{ mt: 0.5, color: "text.secondary", fontSize: 12 }}
                     >
-                      {Math.max(0, goal.dailyCalories - logCal)} kcal remaining
+                      {Math.max(0, goals.calories - logCal)} kcal remaining
                     </Typography>
                   )}
                 </Box>
               </Box>
 
-              {goal ? (
+              {goals ? (
                 <Box
                   sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}
                 >
                   <MacroBar
                     label="Protein"
                     value={logProt}
-                    target={goal.protein}
+                    target={goals.protein}
                     color="#3df2a8"
                   />
                   <MacroBar
                     label="Carbohydrates"
                     value={logCarbs}
-                    target={goal.carbs}
+                    target={goals.carbs}
                     color="#3db5f2"
                   />
                   <MacroBar
                     label="Fat"
                     value={logFat}
-                    target={goal.fat}
+                    target={goals.fat}
                     color="#f2c93d"
                   />
                 </Box>
@@ -363,6 +368,7 @@ export function Dashboard() {
         </Grid>
 
         {/* Active meal plan preview */}
+        {/* 
         <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
@@ -407,8 +413,9 @@ export function Dashboard() {
                       variant="outlined"
                     />
                   </Box>
-                  <Divider sx={{ mb: 2 }} />
+                  <Divider sx={{ mb: 2 }} /> */}
                   {/* Today's plan slots */}
+                  {/* 
                   {(() => {
                     const dayNames = [
                       "Sun",
@@ -545,7 +552,7 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
-
+        */}
         {/* Quick links */}
         <Grid size={12}>
           <Card>
