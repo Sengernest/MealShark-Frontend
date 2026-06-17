@@ -177,10 +177,6 @@ export function Auth() {
                   >
                     Sign In
                   </Button>
-
-                  <Divider sx={{ my: 0.5 }}>
-                    <Typography variant="caption">or</Typography>
-                  </Divider>
                 </>
               ) : (
                 <>
