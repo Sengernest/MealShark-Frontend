@@ -407,8 +407,6 @@ function CreateRecipeDialog({
     onClose();
   };
 
-  console.log(errors);
-  console.log(getValues("name"));
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -457,8 +455,10 @@ function CreateRecipeDialog({
               {...register("servings", {
                 required: "Servings is required",
                 min: { value: 1, message: "Servings must be at least 1" },
+                valueAsNumber: true
               })}
               type="number"
+              inputMode="numeric"
             />
             <TextField
               label="Prep Time (min)"
