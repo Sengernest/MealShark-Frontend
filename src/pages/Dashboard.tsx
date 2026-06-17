@@ -18,8 +18,6 @@ import { Link } from "react-router";
 import { useCurrentUser } from "@/hooks/auth";
 import { useGetMacroGoals } from "@/hooks/macroGoals";
 
-const TODAY = new Date().toISOString().split("T")[0];
-
 const logCarbs = 0;
 const logFat = 0;
 const logProt = 0;
@@ -126,9 +124,9 @@ export function Dashboard() {
   //const { user, getLogEntry, mealPlans, activePlanId } = useApp();
   const { data: user } = useCurrentUser();
   const { data: goals } = useGetMacroGoals();
- //const goal = user?.nutritionGoal;
- // const todayLog = getLogEntry(TODAY);
- //const activePlan = mealPlans.find((p) => p.id === activePlanId);
+  //const goal = user?.nutritionGoal;
+  // const todayLog = getLogEntry(TODAY);
+  //const activePlan = mealPlans.find((p) => p.id === activePlanId);
 
   // Sum today's logged nutrition
   /*=let logCal = 0,
@@ -151,9 +149,9 @@ export function Dashboard() {
       }
     });
   }); */
-  const logCal = Math.round(0); 
+  const logCal = Math.round(0);
 
-  const calPct = goals ? Math.min(100, (logCal / goals.calories) * 100) : 0; 
+  const calPct = goals ? Math.min(100, (logCal / goals.calories) * 100) : 0;
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1100 }}>
@@ -163,10 +161,10 @@ export function Dashboard() {
           variant="overline"
           sx={{ color: "text.secondary", fontSize: 12 }}
         >
-          {new Date(TODAY + "T12:00:00").toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
+          {new Date().toLocaleDateString("en-GB", {
+            weekday: "short",
             day: "numeric",
+            month: "long",
             year: "numeric",
           })}
         </Typography>
@@ -228,7 +226,7 @@ export function Dashboard() {
           sub={activePlan?.name ?? "No plan set"}
           color="#3db5f2"
         /> */}
-       {/*} <StatCard
+        {/*} <StatCard
           icon={<HistoryIcon />}
           label="Meals Logged"
           value={`${todayLog?.slots.length ?? 0}`}
@@ -414,8 +412,8 @@ export function Dashboard() {
                     />
                   </Box>
                   <Divider sx={{ mb: 2 }} /> */}
-                  {/* Today's plan slots */}
-                  {/* 
+        {/* Today's plan slots */}
+        {/* 
                   {(() => {
                     const dayNames = [
                       "Sun",

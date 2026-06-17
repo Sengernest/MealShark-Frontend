@@ -27,6 +27,11 @@ export type User = {
   nutritionGoal: NutritionGoal | null; */
 };
 
+export type Profile = {
+  name: string;
+  email: string
+}
+
 export type MacroGoals = {
   id: number;
   calories: number;

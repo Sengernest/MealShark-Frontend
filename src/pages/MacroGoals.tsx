@@ -361,7 +361,7 @@ export function Goals() {
                 </Typography>
               ) : goals ? (
                 <Box
-                  sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+                  sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                 >
                   <Divider />
 
