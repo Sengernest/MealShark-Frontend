@@ -44,7 +44,12 @@ import type {
   RecipeFoodPost,
   FoodUnit,
 } from "../types";
-import { useCreateRecipe, useGetRecipes } from "@/hooks/recipes";
+import {
+  useCreateRecipe,
+  useGetAllRecipes,
+  useGetMyRecipes,
+  useGetSampleRecipes,
+} from "@/hooks/recipes";
 import { useSearchParams } from "react-router";
 import { useGetFoods, useSearchFoods } from "@/hooks/foods";
 import {
@@ -599,7 +604,12 @@ export function Recipes() {
   const [viewRecipe, setViewRecipe] = useState<Recipe | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { data } = useGetRecipes();
+  const { data } =
+    tab === "samples"
+      ? useGetSampleRecipes()
+      : tab === "me"
+        ? useGetMyRecipes()
+        : useGetAllRecipes();
   const recipes = data ?? [];
 
   return (
@@ -635,6 +645,7 @@ export function Recipes() {
         sx={{ mb: 2.5 }}
       >
         <Tab label={`All (${recipes.length})`} value={"all"} />
+        <Tab label="Sample Recipes" value={"samples"} />
         <Tab label="My Recipes" value={"me"} />
         <Tab label="Saved" value={"saved"} />
       </Tabs>

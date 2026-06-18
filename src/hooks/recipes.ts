@@ -7,11 +7,18 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-export const useGetRecipes = () => {
+export const useGetAllRecipes = () => {
   return useQuery({
     queryKey: ["recipes"],
-    queryFn: recipeApi.getRecipes,
+    queryFn: recipeApi.getAllRecipes,
   });
+};
+
+export const useGetSampleRecipes = () => {
+  return useQuery({
+    queryKey: ["recipes", "samples"],
+    queryFn: recipeApi.getSampleRecipes,
+  })
 };
 
 export const useGetMyRecipes = () => {

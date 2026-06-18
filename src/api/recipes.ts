@@ -1,9 +1,14 @@
 import { Recipe, RecipePost } from "@/types";
 import { api } from "./baseApi";
 
-async function getRecipes(): Promise<Recipe[]> {
+async function getAllRecipes(): Promise<Recipe[]> {
   const res = await api.get("/recipes");
   return res.data;
+}
+
+async function getSampleRecipes(): Promise<Recipe[]> {
+  const res = await api.get("/recipes/samples")
+  return res.data
 }
 
 async function getMyRecipes(): Promise<Recipe[]> {
@@ -35,7 +40,8 @@ async function deleteRecipe(recipeId: number) {
 }
 
 export const recipeApi = {
-  getRecipes,
+  getAllRecipes,
+  getSampleRecipes,
   getMyRecipes,
   getRecipe,
   createRecipe,
