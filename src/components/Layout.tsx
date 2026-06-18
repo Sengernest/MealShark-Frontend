@@ -122,6 +122,19 @@ export function Layout() {
                   sx={{
                     px: open ? 2 : 1.5,
                     justifyContent: open ? "flex-start" : "center",
+
+                    // normal hover
+                    "&:hover": {
+                      bgcolor: "rgba(96,200,245,0.08)",
+                    },
+
+                    "&.Mui-selected": {
+                      bgcolor: "rgba(96,200,245,0.12)", 
+                    },
+
+                    "&.Mui-selected:hover": {
+                      bgcolor: "rgba(96,200,245,0.18)",
+                    },
                   }}
                 >
                   <ListItemIcon
@@ -154,23 +167,34 @@ export function Layout() {
         <Box sx={{ p: 1.5 }}>
           {user && (
             <Box
-              onClick={() => navigate("/profile")}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: open ? 1.5 : 0,
-                px: open ? 1 : 1.5,
-                py: 1,
-                mb: 0.5,
-                borderRadius: 2,
-                cursor: "pointer",
-                justifyContent: open ? "flex-start" : "center",
-                border: page === "profile" ? "1px solid rgba(96,200,245,0.3)" : "1px solid transparent",
-                bgcolor: page === "profile" ? "rgba(96,200,245,0.06)" : "transparent",
-                transition: "all 0.15s",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.05)" },
-              }}
-            >
+  onClick={() => navigate("/profile")}
+  sx={{
+    display: "flex",
+    alignItems: "center",
+    gap: open ? 1.5 : 0,
+    px: open ? 1 : 1.5,
+    py: 1,
+    mb: 0.5,
+    borderRadius: 2,
+    cursor: "pointer",
+    justifyContent: open ? "flex-start" : "center",
+
+
+
+    bgcolor: page === "/profile"
+      ? "rgba(96,200,245,0.12)"
+      : "transparent",
+
+    // hover effect
+    "&:hover": {
+      bgcolor: page === "/profile"
+        ? "rgba(96,200,245,0.18)"
+        : "rgba(255,255,255,0.05)",
+    },
+
+    transition: "all 0.15s",
+  }}
+>
               <Avatar
                 sx={{
                   width: 34,

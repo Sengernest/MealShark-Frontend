@@ -18,10 +18,11 @@ export type User = {
   name: string;
   email: string;
   password: string;
-  /* age: number;
-  gender: Gender;
-  height: number; // cm
-  weight: number; // kg
+  age?: number;
+  weight?: number;
+  height?: number;
+  gender?: "male" | "female";
+  /*
   activityLevel: ActivityLevel;
   weightGoal: WeightGoal;
   nutritionGoal: NutritionGoal | null; */
@@ -29,7 +30,11 @@ export type User = {
 
 export type Profile = {
   name: string;
-  email: string
+  email: string;
+  age?: number;
+  weight?: number;
+  height?: number;
+  gender?: "male" | "female";
 }
 
 export type MacroGoals = {

@@ -13,7 +13,6 @@ import {
   Divider,
   Grid,
   Alert,
-  Chip,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -23,6 +22,7 @@ import {
   useGetMacroGoals,
   useUpdateMacroGoals,
 } from "@/hooks/macroGoals";
+import { useCurrentUser } from "@/hooks/auth";
 
 const ACTIVITY_LABELS = {
   sedentary: "Sedentary (little or no exercise)",
@@ -72,10 +72,13 @@ function MacroCard({
 }
 
 export function Goals() {
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState("");
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
+  const { data: user } = useCurrentUser();
+  const [age, setAge] = useState(user?.age ?? "");
+  const [weight, setWeight] = useState(user?.weight ?? "");
+  const [height, setHeight] = useState(user?.height ?? "");
+  const [gender, setGender] = useState<"male" | "female" | "">(
+    user?.gender ?? ""
+  );
   const [activity, setActivity] = useState<
     "sedentary" | "light" | "moderate" | "active" | "very_active"
   >("moderate");
@@ -175,14 +178,13 @@ export function Goals() {
     if (!hasGoals) {
       return;
     }
-
-    setAge(String(goals.age));
-    setGender(goals.gender);
-    setHeight(String(goals.height));
-    setWeight(String(goals.weight));
+    setAge(String(user?.age));
+    setGender(user?.gender ?? "");
+    setHeight(String(user?.height));
+    setWeight(String(user?.weight));
     setActivity(goals.activityLevel as typeof activity);
     setGoal(goals.goal as typeof goal);
-  }, [goals]);
+  }, [user]);
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 900 }}>
@@ -281,11 +283,11 @@ export function Goals() {
                     onChange={(e) =>
                       setActivity(
                         e.target.value as
-                          | "sedentary"
-                          | "light"
-                          | "moderate"
-                          | "active"
-                          | "very_active",
+                        | "sedentary"
+                        | "light"
+                        | "moderate"
+                        | "active"
+                        | "very_active",
                       )
                     }
                   >
@@ -312,7 +314,7 @@ export function Goals() {
                       <MenuItem key={k} value={k}>
                         {
                           WEIGHT_GOAL_LABELS[
-                            k as keyof typeof WEIGHT_GOAL_LABELS
+                          k as keyof typeof WEIGHT_GOAL_LABELS
                           ]
                         }
                       </MenuItem>
@@ -379,15 +381,6 @@ export function Goals() {
                       {goals?.calories}
                     </Typography>
                     <Typography variant="caption">kcal / day</Typography>
-
-                    <Box sx={{ mt: 1 }}>
-                      <Chip
-                        label={WEIGHT_GOAL_LABELS[goal]}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
-                    </Box>
                   </Box>
 
                   <Divider />

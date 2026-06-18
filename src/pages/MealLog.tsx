@@ -10,8 +10,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TodayIcon from "@mui/icons-material/Today";
-import { useApp } from "../AppContext";
 import type { MealLogEntry, MealLogSlot, MealItem } from "../types";
+import { useCurrentUser } from "@/hooks/auth";
+import { useGetMacroGoals } from "@/hooks/macroGoals";
+import { useGetMealLog, useGetMealLogs } from "@/hooks/mealLogs";
 
 function addDays(dateStr: string, n: number): string {
   const d = new Date(dateStr + "T12:00:00");
@@ -234,11 +236,14 @@ function SlotCard({ slot, onAddItem, onRemoveItem, onRemoveSlot }: {
     </Card>
   );
 }
-
+const TODAY = new Date()
 export function MealLog() {
-  const { user, getLogEntry, upsertLogEntry } = useApp();
-  const goal = user?.nutritionGoal;
-  const TODAY = "2026-06-14";
+  const {data: user} = useCurrentUser();
+  const {data: goals} = useGetMacroGoals();
+  const {data: mealLogs} = useGetMealLogs();
+  const getMealLog = useGetMealLog; 
+
+  const { getLogEntry, upsertLogEntry } = useApp();
   const [selectedDate, setSelectedDate] = useState(TODAY);
   const [addSlotFor, setAddSlotFor] = useState<string | null>(null); // slot id
   const [addItemOpen, setAddItemOpen] = useState(false);
@@ -302,8 +307,8 @@ export function MealLog() {
   });
   totCal = Math.round(totCal);
 
-  const calPct = goal ? Math.min(100, (totCal / goal.dailyCalories) * 100) : 0;
-  const remaining = goal ? Math.max(0, goal.dailyCalories - totCal) : null;
+  const calPct = goals ? Math.min(100, (totCal / goals.calories) * 100) : 0;
+  const remaining = goals ? Math.max(0, goals.calories - totCal) : null;
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1000 }}>
@@ -394,9 +399,9 @@ export function MealLog() {
               </Box>
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <MacroBar label="Protein" value={totProt} target={goal?.protein ?? 0} color="#3df2a8" />
-                <MacroBar label="Carbohydrates" value={totCarbs} target={goal?.carbs ?? 0} color="#3db5f2" />
-                <MacroBar label="Fat" value={totFat} target={goal?.fat ?? 0} color="#f2c93d" />
+                <MacroBar label="Protein" value={totProt} target={goals?.protein ?? 0} color="#3df2a8" />
+                <MacroBar label="Carbohydrates" value={totCarbs} target={goals?.carbs ?? 0} color="#3db5f2" />
+                <MacroBar label="Fat" value={totFat} target={goals?.fat ?? 0} color="#f2c93d" />
               </Box>
 
               {slots.length > 0 && (

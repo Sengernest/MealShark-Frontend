@@ -240,9 +240,25 @@ export function Dashboard() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2.5 }}>
-                TODAY'S NUTRITION
-              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2.5,
+                }}
+              >
+                <Typography variant="h6">
+                  TODAY'S NUTRITION
+                </Typography>
+
+                <Link to="/meal-log">
+                  <Button endIcon={<ArrowForwardIcon />} size="small">
+                    View Meal Logs
+                  </Button>
+                </Link>
+              </Box>
+
 
               {/* Calorie ring visual */}
               <Box
@@ -360,7 +376,9 @@ export function Dashboard() {
                 >
                   Set your goals to track macros
                 </Typography>
+
               )}
+
             </CardContent>
           </Card>
         </Grid>

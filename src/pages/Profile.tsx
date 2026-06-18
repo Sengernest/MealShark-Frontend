@@ -3,11 +3,16 @@ import {
     Box, Typography, Card, CardContent, Avatar, Button, TextField,
     Dialog, DialogTitle, DialogContent, DialogActions, Divider, Alert,
     IconButton, Tooltip,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useCurrentUser, useLogout } from "@/hooks/auth";
 import { useNavigate } from "react-router";
 import { useUpdateProfile } from "@/hooks/profile";
@@ -18,6 +23,12 @@ function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => vo
     const { data: user } = useCurrentUser();
     const [name, setName] = useState(user?.name ?? "");
     const [email, setEmail] = useState(user?.email ?? "");
+    const [age, setAge] = useState(user?.age ?? "");
+    const [weight, setWeight] = useState(user?.weight ?? "");
+    const [height, setHeight] = useState(user?.height ?? "");
+    const [gender, setGender] = useState<"male" | "female" | "">(
+        user?.gender ?? ""
+    );
     const [saved, setSaved] = useState(false);
 
     const updateProfile = useUpdateProfile();
@@ -27,6 +38,10 @@ function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => vo
         updateProfile.mutate({
             name: name.trim(),
             email: email.trim(),
+            age: age === "" ? undefined : Number(age),
+            height: height === "" ? undefined : Number(height),
+            weight: weight === "" ? undefined : Number(weight),
+            gender: gender === "" ? undefined : gender,
         });
 
         setSaved(true);
@@ -62,6 +77,51 @@ function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => vo
                     onChange={(e) => setEmail(e.target.value)}
                     fullWidth
                 />
+
+                <TextField
+                    label="Age/years"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    fullWidth
+                />
+
+                <TextField
+                    label="Height/cm"
+                    value={height}
+                    onChange={(e) => setHeight(e.target.value)}
+                    fullWidth
+                />
+
+                <TextField
+                    label="Weight/kg"
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                    fullWidth
+                />
+
+
+                <FormControl sx={{ flex: 1 }} size="small">
+                    <InputLabel id="gender-label">Gender</InputLabel>
+
+                    <Select
+                        labelId="gender-label"
+                        id="gender"
+                        value={gender}
+                        label="Gender"
+                        onChange={(e) => {
+                            const value = e.target.value;
+
+                            if (value === "male" || value === "female" || value === "") {
+                                setGender(value);
+                            }
+                        }}
+                    >
+                        <MenuItem value="male">Male</MenuItem>
+                        <MenuItem value="female">Female</MenuItem>
+                    </Select>
+                </FormControl>
+
+
             </DialogContent>
 
             <DialogActions sx={{ px: 3, pb: 2.5 }}>
@@ -177,14 +237,10 @@ export function Profile() {
                     </Typography>
                     <Box sx={{ display: "flex", gap: 3, mb: 3.5 }}>
                         {[
-                            { label: "HEIGHT", value: goals?.height ? `${goals.height} cm` : "—" },
-                            { label: "WEIGHT", value: goals?.weight ? `${goals.weight} kg` : "—" },
-                            { label: "AGE", value: goals?.age ? `${goals.age} yrs` : "—" },
-                            {
-                                label: "GOAL", value: goals?.goal
-                                    ? goals.goal.charAt(0).toUpperCase() + goals.goal.slice(1)
-                                    : "—",
-                            },
+                            { label: "GENDER", value: user?.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : "—" },
+                            { label: "HEIGHT", value: user?.height ? `${user.height} cm` : "—" },
+                            { label: "WEIGHT", value: user?.weight ? `${user.weight} kg` : "—" },
+                            { label: "AGE", value: user?.age ? `${user.age} yrs` : "—" },
                         ].map(({ label, value }) => (
                             <Box key={label} sx={{ textAlign: "center", flex: 1 }}>
                                 <Typography
@@ -216,48 +272,179 @@ export function Profile() {
 
                     {/* Nutrition goal summary */}
                     <>
-                        <Typography variant="h6" sx={{ mb: 2.5 }}>
+                        <Typography variant="h6" sx={{ mb: 3.5 }}>
                             NUTRITION GOALS
                         </Typography>
 
-                        {!goals ? (
-                            <Typography variant="body2" sx={{ color: "text.secondary", mb: 3.5 }}>
-                                Fill in your stats to see your personalised nutrition goals.
-                            </Typography>
-                        ) : (
+                        {!goals && (
+                            <Card
+                                sx={{
+                                    mb: 3,
+                                    border: "1px solid",
+                                    borderColor: "primary.main",
+                                    background: "transparent",
+                                }}
+                            >
+                                <CardContent
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        flexWrap: "wrap",
+                                        gap: 2,
+                                    }}
+                                >
+                                    <Box>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontFamily: "'Barlow Condensed', sans-serif",
+                                                fontWeight: 800,
+                                                letterSpacing: "0.02em",
+                                            }}
+                                        >
+                                            SET UP YOUR NUTRITION GOALS
+                                        </Typography>
+
+                                        <Typography
+                                            variant="body2"
+                                            sx={{ color: "text.secondary", mt: 0.5 }}
+                                        >
+                                            Enter your stats to get personalised calorie and macro targets.
+                                        </Typography>
+                                    </Box>
+
+                                    <Button
+                                        variant="contained"
+                                        endIcon={<ArrowForwardIcon />}
+                                        onClick={() => navigate("/goals")}
+                                    >
+                                        Set Goals
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {goals && (
                             <>
-                                <Box sx={{ display: "flex", gap: 3, mb: 3.5 }}>
+                                {/* Goal header */}
+                                <Box sx={{ mb: 2.5 }}>
+                                    <Typography
+                                        sx={{
+                                            fontFamily: "'Barlow Condensed', sans-serif",
+                                            fontWeight: 800,
+                                            fontSize: 20,
+                                            color: "primary.main",
+                                            letterSpacing: "0.08em",
+                                            textTransform: "uppercase",
+                                            lineHeight: 1,
+                                        }}
+                                    >
+                                        {goals.goal}
+                                    </Typography>
+
+                                </Box>
+
+                                {/* Macro list */}
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 1.2,
+                                        mb: 5,
+                                    }}
+                                >
+
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "baseline",
+                                         
+                                        }}
+                                    >
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: "text.secondary",
+                                                letterSpacing: "0.1em",
+                                                textTransform: "uppercase",
+                                                fontSize: 12,
+                                            }}
+                                        >
+                                            NUTRITION TARGETS
+                                        </Typography>
+
+                                       <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: "text.secondary",
+                                                letterSpacing: "0.1em",
+                                                textTransform: "uppercase",
+                                                fontSize: 12,
+                                            }}
+                                        >
+                                            PER DAY
+                                        </Typography>
+                                    </Box>
+
                                     {[
-                                        { label: "CALORIES", value: `${goals.calories}`, unit: "kcal/day", color: "primary.main" },
-                                        { label: "PROTEIN", value: `${goals.protein}g`, unit: "per day", color: "#3df2a8" },
-                                        { label: "CARBS", value: `${goals.carbs}g`, unit: "per day", color: "#3db5f2" },
-                                        { label: "FAT", value: `${goals.fat}g`, unit: "per day", color: "#f2c93d" },
-                                    ].map(({ label, value, unit, color }) => (
-                                        <Box key={label} sx={{ textAlign: "center", flex: 1 }}>
+                                        {
+                                            label: "CALORIES",
+                                            value: `${goals.calories} kcal`,
+                                            color: "primary.main",
+                                        },
+                                        {
+                                            label: "PROTEIN",
+                                            value: `${goals.protein}g`,
+                                            color: "#3df2a8",
+                                        },
+                                        {
+                                            label: "CARBS",
+                                            value: `${goals.carbs}g`,
+                                            color: "#3db5f2",
+                                        },
+                                        {
+                                            label: "FAT",
+                                            value: `${goals.fat}g`,
+                                            color: "#f2c93d",
+                                        },
+                                    ].map(({ label, value, color }) => (
+                                        <Box
+                                            key={label}
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                                py: 0.8,
+                                                borderBottom: "1px solid rgba(255,255,255,0.06)",
+                                            }}
+                                        >
                                             <Typography
                                                 sx={{
-                                                    color,
-                                                    fontFamily: "'Barlow Condensed'",
-                                                    fontWeight: 800,
-                                                    fontSize: 18,
-                                                    lineHeight: 1
+                                                    color: "text.secondary",
+                                                    fontSize: 10,
+                                                    letterSpacing: "0.12em",
                                                 }}
                                             >
-                                                {value}
-                                            </Typography>
-
-                                            <Typography variant="caption" sx={{ color: "text.disabled", fontSize: 10, display: "block" }}>
                                                 {label}
                                             </Typography>
 
-                                            <Typography variant="caption" sx={{ color: "text.disabled", fontSize: 10 }}>
-                                                {unit}
+                                            <Typography
+                                                sx={{
+                                                    color,
+                                                    fontFamily: "'Barlow Condensed', sans-serif",
+                                                    fontWeight: 800,
+                                                    fontSize: 16,
+                                                }}
+                                            >
+                                                {value}
                                             </Typography>
                                         </Box>
                                     ))}
                                 </Box>
 
-                                <Divider sx={{ mb: 3 }} />
+                             
                             </>
                         )}
                     </>
