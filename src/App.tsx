@@ -8,6 +8,7 @@ import { Goals } from "./pages/MacroGoals";
 import { MealLog } from "./pages/MealLog";
 import { MealPlans } from "./pages/MealPlans";
 import { Recipes } from "./pages/Recipes";
+import { Profile } from "./pages/Profile";
 import { muiTheme } from "./theme/muiTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/meal-log",
         element: <MealLog />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
     ],
   },

@@ -21,7 +21,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router";
 
 const DRAWER_OPEN = 220;
@@ -152,70 +152,66 @@ export function Layout() {
 
         {/* User + collapse */}
         <Box sx={{ p: 1.5 }}>
-          {open && user && (
+          {user && (
             <Box
+              onClick={() => navigate("/profile")}
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1.5,
-                px: 1,
-                py: 1.5,
+                gap: open ? 1.5 : 0,
+                px: open ? 1 : 1.5,
+                py: 1,
+                mb: 0.5,
+                borderRadius: 2,
+                cursor: "pointer",
+                justifyContent: open ? "flex-start" : "center",
+                border: page === "profile" ? "1px solid rgba(96,200,245,0.3)" : "1px solid transparent",
+                bgcolor: page === "profile" ? "rgba(96,200,245,0.06)" : "transparent",
+                transition: "all 0.15s",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.05)" },
               }}
             >
               <Avatar
                 sx={{
-                  width: 32,
-                  height: 32,
+                  width: 34,
+                  height: 34,
                   bgcolor: "primary.main",
                   color: "#0d0d0d",
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: 800,
+                  flexShrink: 0,
                 }}
               >
-                {user.name.charAt(0)}
+                {user.name.charAt(0).toUpperCase()}
               </Avatar>
-              <Box sx={{ overflow: "hidden", flex: 1 }}>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: 600,
-                    color: "text.primary",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    fontSize: 13,
-                  }}
-                >
-                  {user.name}
-                </Typography>
-                <Typography variant="caption" sx={{ fontSize: 11 }}>
-                  {user.email}
-                </Typography>
-              </Box>
-              <Tooltip title="Logout">
-                <IconButton
-                  size="small"
-                  onClick={handleLogout}
-                  sx={{ color: "text.secondary" }}
-                >
-                  <LogoutIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
+              {open && (
+                <Box sx={{ overflow: "hidden", flex: 1, minWidth: 0 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontSize: 13 }}>
+                    {user.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontSize: 11, display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {user.email}
+                  </Typography>
+                </Box>
+              )}
+              {open && (
+                <Tooltip title="Logout">
+                  <IconButton
+                    size="small"
+                    onClick={handleLogout}
+                    sx={{ color: "text.secondary", flexShrink: 0 }}
+                  >
+                    <LogoutIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
             </Box>
           )}
           <ListItemButton
             onClick={() => setOpen(!open)}
-            sx={{
-              borderRadius: 1.5,
-              justifyContent: open ? "flex-end" : "center",
-              py: 1,
-            }}
+            sx={{ borderRadius: 1.5, justifyContent: open ? "flex-end" : "center", py: 1 }}
           >
-            {open ? (
-              <ChevronLeftIcon sx={{ color: "text.secondary" }} />
-            ) : (
-              <ChevronRightIcon sx={{ color: "text.secondary" }} />
-            )}
+            {open ? <ChevronLeftIcon sx={{ color: "text.secondary" }} /> : <ChevronRightIcon sx={{ color: "text.secondary" }} />}
           </ListItemButton>
         </Box>
       </Drawer>
