@@ -77,6 +77,7 @@ export type Unit = {
 export type FoodUnit = {
   foodId: number;
   unitId: number;
+  unit: Unit
   gramsPerUnit: number
 }
 

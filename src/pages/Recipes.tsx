@@ -416,6 +416,12 @@ function CreateRecipeDialog({
     onClose();
   };
 
+  const currentFoodId = getValues("currentIngredient").foodId;
+  const currentFoodUnits =
+    foods
+      .find((food) => food.id === currentFoodId)
+      ?.units.map((foodUnit) => foodUnit.unit) ?? [];
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -520,13 +526,22 @@ function CreateRecipeDialog({
               type="number"
               size="small"
             />
-            <TextField
-              label="Unit"
-              {...register("currentIngredient.unitId", {
-                required: "Ingredient unit is required",
-              })}
-              size="small"
-            />
+            <FormControl size="small">
+              <InputLabel id="unit-label">Unit</InputLabel>
+              <Controller
+                name="currentIngredient.unitId"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} labelId="unit-label" label="Unit">
+                    {currentFoodUnits.map((unit) => (
+                      <MenuItem key={unit.id} value={unit.id}>
+                        {unit.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+            </FormControl>
             <Button
               variant="outlined"
               onClick={addIngredient}
