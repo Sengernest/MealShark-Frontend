@@ -69,13 +69,22 @@ export type Nutrition = {
   };
 };
 
-export type FoodUnit = "g" | "ml"
+export type Unit = {
+  id: number;
+  name: string
+}
+
+export type FoodUnit = {
+  foodId: number;
+  unitId: number;
+  gramsPerUnit: number
+}
 
 export type RecipeFood = {
   foodId: number;
   recipeId: number;
   amount: number;
-  unit?: FoodUnit;
+  unit: Unit;
   food: Food;
 };
 
@@ -101,8 +110,8 @@ export type Recipe = RecipeBase & {
 
 export type RecipeFoodPost = {
   foodId: number
+  unitId: number
   amount: number
-  unit: FoodUnit
 }
 
 export type RecipePost = {

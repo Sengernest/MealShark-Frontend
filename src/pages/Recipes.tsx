@@ -187,9 +187,8 @@ function RecipeCard({
             <AccessTimeIcon sx={{ fontSize: 13 }} />
             <Typography variant="caption">
               {recipe.prepTime && recipe.cookTime
-                ? recipe.prepTime + recipe.cookTime
+                ? recipe.prepTime + recipe.cookTime + "m"
                 : "-"}
-              m
             </Typography>
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
@@ -304,7 +303,7 @@ function RecipeDetailDialog({
             >
               <ListItemText
                 primary={ingredient.food.name}
-                secondary={`${ingredient.amount} ${ingredient.unit}`}
+                secondary={`${ingredient.amount} ${ingredient.unit.name}`}
                 primaryTypographyProps={{
                   variant: "body2",
                   color: "text.primary",
@@ -393,7 +392,7 @@ function CreateRecipeDialog({
       currentIngredient: {
         foodId: 0,
         amount: 0,
-        unit: "g",
+        unitId: 1,
       },
     },
   });
@@ -523,7 +522,7 @@ function CreateRecipeDialog({
             />
             <TextField
               label="Unit"
-              {...register("currentIngredient.unit", {
+              {...register("currentIngredient.unitId", {
                 required: "Ingredient unit is required",
               })}
               size="small"
@@ -563,7 +562,7 @@ function CreateRecipeDialog({
                       foods.find((food) => food.id === ingredient.foodId)
                         ?.name ?? ""
                     }
-                    secondary={`${ingredient.amount} ${ingredient.unit || ""}`}
+                    secondary={`${ingredient.amount} ${ingredient.unitId || ""}`}
                   />
                 </ListItem>
               ))}
