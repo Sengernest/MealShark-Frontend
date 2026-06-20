@@ -1,65 +1,56 @@
-import { useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  TextField,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  InputAdornment,
-  Tabs,
-  Tab,
-  Divider,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Tooltip,
-  Alert,
-  Stack,
-  Autocomplete,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import PeopleIcon from "@mui/icons-material/People";
-import { useApp } from "../AppContext";
-import type {
-  RecipeFood,
-  Recipe,
-  RecipePost,
-  RecipeFoodPost,
-  FoodUnit,
-  Food,
-  Unit,
-} from "../types";
+import { useSearchFoods } from "@/hooks/foods";
 import {
   useCreateRecipe,
   useGetAllRecipes,
   useGetMyRecipes,
   useGetSampleRecipes,
 } from "@/hooks/recipes";
-import { useSearchParams } from "react-router";
-import { useGetFoods, useSearchFoods } from "@/hooks/foods";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AddIcon from "@mui/icons-material/Add";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PeopleIcon from "@mui/icons-material/People";
+import SearchIcon from "@mui/icons-material/Search";
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  List,
+  ListItem,
+  ListItemText,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
 import {
   Controller,
   SubmitHandler,
   useFieldArray,
   useForm,
 } from "react-hook-form";
+import { useSearchParams } from "react-router";
+import type { Food, Recipe, RecipePost, Unit } from "../types";
 
 const CATEGORIES = [
   "All",
@@ -366,13 +357,19 @@ function RecipeDetailDialog({
   );
 }
 
-type FormIngredient = RecipeFoodPost & {
-  food: Food | null;
-  unit: Unit | null;
+type FormIngredient = {
+  amount: number;
+  food: Food;
+  unit: Unit;
 };
-type CreateRecipeFormData = RecipePost & {
+
+type CreateRecipeFormData = Omit<RecipePost, "ingredients"> & {
   ingredients: FormIngredient[];
-  currentIngredient?: FormIngredient;
+  currentIngredient: {
+    amount: number;
+    food: Food | null;
+    unitId: number | null;
+  };
 };
 
 function CreateRecipeDialog({
@@ -395,12 +392,13 @@ function CreateRecipeDialog({
     control,
     watch,
     getValues,
+    resetField,
   } = useForm<CreateRecipeFormData>({
     defaultValues: {
       currentIngredient: {
         amount: 0,
         food: null,
-        unit: null,
+        unitId: null,
       },
     },
   });
@@ -412,21 +410,46 @@ function CreateRecipeDialog({
 
   const addIngredient = () => {
     const currentIngredient = getValues("currentIngredient");
-    if (currentIngredient) {
-      ingredientsFieldArray.append(currentIngredient);
+    if (!currentIngredient.food || !currentIngredient.unitId) {
+      return;
     }
+    const unit = currentIngredient.food.units.find(foodUnit => foodUnit.unitId === currentIngredient.unitId)!.unit
+    ingredientsFieldArray.append({
+      amount: currentIngredient.amount,
+      food: currentIngredient.food,
+      unit,
+    });
+
+    resetField("currentIngredient", {
+      defaultValue: {
+        amount: 0,
+        food: null,
+        unitId: null,
+      },
+    });
+
+    setFoodSearch("");
   };
 
   const removeIngredient = (i: number) => {
     ingredientsFieldArray.remove(i);
   };
 
-  const onSubmit: SubmitHandler<CreateRecipeFormData> = async (data) => {
-    await createRecipe.mutateAsync(data);
+  const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
+    const { currentIngredient, ...recipe } = formData;
+    const payload: RecipePost = {
+      ...recipe,
+      ingredients: recipe.ingredients.map((ingredient) => ({
+        foodId: ingredient.food.id,
+        amount: ingredient.amount,
+        unitId: ingredient.unit.id,
+      })),
+    };
+    await createRecipe.mutateAsync(payload);
     onClose();
   };
 
-  const currentIngredient = watch("currentIngredient")
+  const currentIngredient = watch("currentIngredient");
   console.log(currentIngredient);
 
   return (
@@ -485,6 +508,7 @@ function CreateRecipeDialog({
               label="Prep Time (min)"
               {...register("prepTime", {
                 min: { value: 0, message: "Prep time cannot be negative" },
+                valueAsNumber: true,
               })}
               type="number"
             />
@@ -492,6 +516,7 @@ function CreateRecipeDialog({
               label="Cook Time (min)"
               {...register("cookTime", {
                 min: { value: 0, message: "Cook time cannot be negative" },
+                valueAsNumber: true,
               })}
               type="number"
             />
@@ -532,19 +557,22 @@ function CreateRecipeDialog({
               })}
               type="number"
               size="small"
+              disabled={!currentIngredient.food}
             />
             <FormControl size="small">
               <InputLabel id="unit-label">Unit</InputLabel>
               <Controller
-                name="currentIngredient.unit.name"
+                name="currentIngredient.unitId"
                 control={control}
+                disabled={!currentIngredient.food}
                 render={({ field }) => (
-                  <Select {...field}
+                  <Select
+                    {...field}
                     labelId="unit-label"
                     label="Unit"
                   >
                     {currentIngredient?.food?.units?.map((unit) => (
-                      <MenuItem key={unit.unit.id} value={unit.unit.name}>
+                      <MenuItem key={unit.unit.name} value={unit.unit.id}>
                         {unit.unit.name}
                       </MenuItem>
                     ))}
@@ -584,8 +612,8 @@ function CreateRecipeDialog({
                     }}
                   >
                     <ListItemText
-                      primary={ingredient.food?.name}
-                      secondary={`${ingredient.amount} ${ingredient.unit?.name}`}
+                      primary={ingredient.food.name}
+                      secondary={`${ingredient.amount} ${ingredient.unit.name}`}
                     />
                   </ListItem>
                 );
