@@ -43,6 +43,8 @@ import type {
   RecipePost,
   RecipeFoodPost,
   FoodUnit,
+  Food,
+  Unit,
 } from "../types";
 import {
   useCreateRecipe,
@@ -364,8 +366,13 @@ function RecipeDetailDialog({
   );
 }
 
+type FormIngredient = RecipeFoodPost & {
+  food: Food | null;
+  unit: Unit | null;
+};
 type CreateRecipeFormData = RecipePost & {
-  currentIngredient: RecipeFoodPost;
+  ingredients: FormIngredient[];
+  currentIngredient?: FormIngredient;
 };
 
 function CreateRecipeDialog({
@@ -386,25 +393,28 @@ function CreateRecipeDialog({
     handleSubmit,
     formState: { errors },
     control,
+    watch,
     getValues,
   } = useForm<CreateRecipeFormData>({
     defaultValues: {
       currentIngredient: {
-        foodId: 0,
         amount: 0,
-        unitId: 1,
+        food: null,
+        unit: null,
       },
     },
   });
 
-  const ingredientsFieldArray = useFieldArray<CreateRecipeFormData>({
+  const ingredientsFieldArray = useFieldArray({
     control,
     name: "ingredients",
   });
 
   const addIngredient = () => {
     const currentIngredient = getValues("currentIngredient");
-    ingredientsFieldArray.append(currentIngredient);
+    if (currentIngredient) {
+      ingredientsFieldArray.append(currentIngredient);
+    }
   };
 
   const removeIngredient = (i: number) => {
@@ -416,11 +426,8 @@ function CreateRecipeDialog({
     onClose();
   };
 
-  const currentFoodId = getValues("currentIngredient").foodId;
-  const currentFoodUnits =
-    foods
-      .find((food) => food.id === currentFoodId)
-      ?.units.map((foodUnit) => foodUnit.unit) ?? [];
+  const currentIngredient = watch("currentIngredient")
+  console.log(currentIngredient);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -500,14 +507,14 @@ function CreateRecipeDialog({
             }}
           >
             <Controller
-              name="currentIngredient.foodId"
+              name="currentIngredient.food"
               control={control}
               render={({ field }) => (
                 <Autocomplete
                   options={foods}
                   getOptionLabel={(food) => food.name}
-                  value={foods.find((f) => f.id === field.value) ?? null}
-                  onChange={(_, food) => field.onChange(food?.id ?? 0)}
+                  value={foods.find((f) => f.id === field.value?.id) ?? null}
+                  onChange={(_, food) => field.onChange(food)}
                   inputValue={foodSearch}
                   onInputChange={(_, value) => setFoodSearch(value)}
                   renderInput={(params) => (
@@ -529,13 +536,16 @@ function CreateRecipeDialog({
             <FormControl size="small">
               <InputLabel id="unit-label">Unit</InputLabel>
               <Controller
-                name="currentIngredient.unitId"
+                name="currentIngredient.unit.name"
                 control={control}
                 render={({ field }) => (
-                  <Select {...field} labelId="unit-label" label="Unit">
-                    {currentFoodUnits.map((unit) => (
-                      <MenuItem key={unit.id} value={unit.id}>
-                        {unit.name}
+                  <Select {...field}
+                    labelId="unit-label"
+                    label="Unit"
+                  >
+                    {currentIngredient?.food?.units?.map((unit) => (
+                      <MenuItem key={unit.unit.id} value={unit.unit.name}>
+                        {unit.unit.name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -553,34 +563,33 @@ function CreateRecipeDialog({
 
           {ingredientsFieldArray.fields.length > 0 && (
             <List dense disablePadding>
-              {ingredientsFieldArray.fields.map((ingredient, i) => (
-                <ListItem
-                  key={i}
-                  disablePadding
-                  secondaryAction={
-                    <IconButton
-                      edge="end"
-                      size="small"
-                      onClick={() => removeIngredient(i)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  }
-                  sx={{
-                    py: 0.5,
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                  }}
-                >
-                  <ListItemText
-                    primary={
-                      foods.find((food) => food.id === ingredient.foodId)
-                        ?.name ?? ""
+              {ingredientsFieldArray.fields.map((ingredient, i) => {
+                return (
+                  <ListItem
+                    key={i}
+                    disablePadding
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        size="small"
+                        onClick={() => removeIngredient(i)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                     }
-                    secondary={`${ingredient.amount} ${ingredient.unitId || ""}`}
-                  />
-                </ListItem>
-              ))}
+                    sx={{
+                      py: 0.5,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                    }}
+                  >
+                    <ListItemText
+                      primary={ingredient.food?.name}
+                      secondary={`${ingredient.amount} ${ingredient.unit?.name}`}
+                    />
+                  </ListItem>
+                );
+              })}
             </List>
           )}
           <Box sx={{ pt: 1 }}>
