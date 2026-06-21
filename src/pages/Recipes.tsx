@@ -45,6 +45,7 @@ import {
 import { useState } from "react";
 import {
   Controller,
+  FieldError,
   SubmitHandler,
   useFieldArray,
   useForm,
@@ -393,6 +394,7 @@ function CreateRecipeDialog({
     watch,
     getValues,
     resetField,
+    trigger,
   } = useForm<CreateRecipeFormData>({
     defaultValues: {
       currentIngredient: {
@@ -408,12 +410,24 @@ function CreateRecipeDialog({
     name: "ingredients",
   });
 
-  const addIngredient = () => {
+  const addIngredient = async () => {
+    // Validate food, amount and unit fields before adding
+    const valid = await trigger([
+      "currentIngredient.food",
+      "currentIngredient.amount",
+      "currentIngredient.unitId",
+    ]);
+    if (!valid) return;
+
     const currentIngredient = getValues("currentIngredient");
+    // These fields should never be null after the validation above
     if (!currentIngredient.food || !currentIngredient.unitId) {
       return;
     }
-    const unit = currentIngredient.food.units.find(foodUnit => foodUnit.unitId === currentIngredient.unitId)!.unit
+
+    const unit = currentIngredient.food.units.find(
+      (foodUnit) => foodUnit.unitId === currentIngredient.unitId,
+    )!.unit;
     ingredientsFieldArray.append({
       amount: currentIngredient.amount,
       food: currentIngredient.food,
@@ -428,6 +442,7 @@ function CreateRecipeDialog({
       },
     });
 
+    // Clear food search input
     setFoodSearch("");
   };
 
@@ -450,7 +465,13 @@ function CreateRecipeDialog({
   };
 
   const currentIngredient = watch("currentIngredient");
-  console.log(currentIngredient);
+  console.log(errors);
+
+  const ingredientErrors = [
+    { message: errors.currentIngredient?.food?.message },
+    { message: errors.currentIngredient?.amount?.message },
+    { message: errors.currentIngredient?.unitId?.message },
+  ];
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -462,11 +483,14 @@ function CreateRecipeDialog({
           sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
         >
           <Stack gap={1}>
-            {Object.entries(errors).map(([field, error], i) => (
-              <Alert key={i} severity="error">
-                {error.message}
-              </Alert>
-            ))}
+            {Object.entries(errors).map(
+              ([field, error], i) =>
+                field !== "currentIngredient" && (
+                  <Alert key={i} severity="error">
+                    {error.message}
+                  </Alert>
+                ),
+            )}
           </Stack>
 
           <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
@@ -523,6 +547,16 @@ function CreateRecipeDialog({
           </Box>
           <Divider />
           <Typography variant="h6">INGREDIENTS</Typography>
+          <Stack gap={1}>
+            {ingredientErrors.map(
+              (error, i) =>
+                error.message && (
+                  <Alert key={i} severity="error">
+                    {error.message}
+                  </Alert>
+                ),
+            )}
+          </Stack>
           <Box
             sx={{
               display: "grid",
@@ -534,6 +568,7 @@ function CreateRecipeDialog({
             <Controller
               name="currentIngredient.food"
               control={control}
+              rules={{ required: "Ingredient food is required" }}
               render={({ field }) => (
                 <Autocomplete
                   options={foods}
@@ -554,10 +589,10 @@ function CreateRecipeDialog({
               {...register("currentIngredient.amount", {
                 required: "Ingredient amount is required",
                 valueAsNumber: true,
+                validate: v => v > 0 || "Ingredient amount must be a positive number"
               })}
               type="number"
               size="small"
-              disabled={!currentIngredient.food}
             />
             <FormControl size="small">
               <InputLabel id="unit-label">Unit</InputLabel>
@@ -565,12 +600,9 @@ function CreateRecipeDialog({
                 name="currentIngredient.unitId"
                 control={control}
                 disabled={!currentIngredient.food}
+                rules={{ required: "Ingredient unit is required" }}
                 render={({ field }) => (
-                  <Select
-                    {...field}
-                    labelId="unit-label"
-                    label="Unit"
-                  >
+                  <Select {...field} labelId="unit-label" label="Unit">
                     {currentIngredient?.food?.units?.map((unit) => (
                       <MenuItem key={unit.unit.name} value={unit.unit.id}>
                         {unit.unit.name}
