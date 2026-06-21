@@ -7,7 +7,7 @@ import { Foods } from "./pages/Foods";
 import { Goals } from "./pages/MacroGoals";
 import { MealLog } from "./pages/MealLog";
 import { MealPlans } from "./pages/MealPlans";
-import { Recipes } from "./pages/Recipes";
+import { Recipes } from "./pages/recipes/Recipes";
 import { Profile } from "./pages/Profile";
 import { muiTheme } from "./theme/muiTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
