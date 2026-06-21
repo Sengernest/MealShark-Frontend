@@ -28,6 +28,11 @@ export type User = {
   nutritionGoal: NutritionGoal | null; */
 };
 
+export type ChangePasswordInput = {
+  currentPassword: string;
+  newPassword: string; 
+}
+
 export type Profile = {
   name: string;
   email: string;

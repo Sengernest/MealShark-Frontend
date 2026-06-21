@@ -1,4 +1,4 @@
-import { LoginPost, SignupPost, User } from "@/types";
+import { ChangePasswordInput, LoginPost, SignupPost, User } from "@/types";
 import { api } from "./baseApi";
 
 async function signUp(data: SignupPost): Promise<User> {
@@ -10,6 +10,12 @@ async function login(data: LoginPost): Promise<User> {
   const res = await api.post("/login", data);
   return res.data;
 }
+
+async function changePassword(data: ChangePasswordInput): Promise<User> {
+  const res = await api.patch("/me/password", data);
+  return res.data; 
+} 
+
 
 async function logout() {
   const res = await api.post("/logout");
@@ -24,6 +30,7 @@ async function getCurrentUser(): Promise<User> {
 export const authApi = {
   signUp,
   login,
+  changePassword,
   logout,
   getCurrentUser
 };

@@ -18,7 +18,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LockIcon from "@mui/icons-material/Lock";
-import { useCurrentUser, useLogout } from "@/hooks/auth";
+import { useChangePassword, useCurrentUser, useLogout } from "@/hooks/auth";
 import { useNavigate } from "react-router";
 import { useUpdateProfile } from "@/hooks/profile";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
@@ -180,9 +180,10 @@ function ChangePasswordDialog({
     const [confirmPassword, setConfirmPassword] = useState("");
     const [saved, setSaved] = useState(false);
     const [error, setError] = useState("");
+    const { data: user } = useCurrentUser();
+    const changePassword = useChangePassword();
 
     const handleSave = async () => {
-        setError("");
 
         if (!currentPassword || !newPassword || !confirmPassword) {
             setError("All fields are required.");
@@ -195,29 +196,28 @@ function ChangePasswordDialog({
         }
 
         if (newPassword !== confirmPassword) {
-            setError("Passwords do not match.");
+            setError("New and Confirm New Passwords do not match.");
             return;
         }
 
-        // TODO: replace with your API hook
-        try {
-            // await changePassword.mutateAsync({
-            //     currentPassword,
-            //     newPassword,
-            // });
+        changePassword.mutate({ currentPassword, newPassword },
+            {
+                onSuccess: () => {
+                    setSaved(true);
 
-            setSaved(true);
+                    setTimeout(() => {
+                        setSaved(false);
+                        onClose();
+                        setCurrentPassword("");
+                        setNewPassword("");
+                        setConfirmPassword("");
+                    }, 1200);
+                },
 
-            setTimeout(() => {
-                setSaved(false);
-                onClose();
-                setCurrentPassword("");
-                setNewPassword("");
-                setConfirmPassword("");
-            }, 1200);
-        } catch (e: any) {
-            setError(e?.message || "Failed to change password.");
-        }
+                onError: (err: any) => {
+                    setError(err?.response?.data?.error);
+                }
+            })
     };
 
     return (
@@ -243,7 +243,7 @@ function ChangePasswordDialog({
                     label="Current Password"
                     type="password"
                     value={currentPassword}
-                     sx={{ mt: 0.5 }}
+                    sx={{ mt: 0.5 }}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     fullWidth
                 />
