@@ -36,7 +36,7 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PeopleIcon from "@mui/icons-material/People";
-import { useApp } from "../AppContext";
+//import { useApp } from "../AppContext";
 import type {
   RecipeFood,
   Recipe,

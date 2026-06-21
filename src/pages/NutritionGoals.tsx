@@ -21,21 +21,18 @@ import { useCurrentUser } from "@/hooks/auth";
 
 const ACTIVITY_LABELS = {
   sedentary: "Sedentary (little or no exercise)",
-  light: "Light (1–3 days/week)",
-  moderate: "Moderate (3–5 days/week)",
-  active: "Active (6–7 days/week)",
+  light: "Light (1-3 days/week)",
+  moderate: "Moderate (3-5 days/week)",
+  active: "Active (6-7 days/week)",
   very_active: "Very active (physical job or 2x/day training)",
 };
 
 const WEIGHT_GOAL_LABELS = {
-
   "bulk_0.25": "Bulking 0.25kg/week",
   "bulk_0.5": "Bulking 0.5kg/week",
   maintenance: "Maintenance",
   "cut_0.25": "Cutting 0.25kg/week",
   "cut_0.5": "Cutting 0.5kg/week",
-
-
 };
 
 function MacroCard({
@@ -84,6 +81,8 @@ export function Goals() {
     "sedentary" | "light" | "moderate" | "active" | "very_active"
   >("moderate");
   const [goal, setGoal] = useState<"bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5">("maintenance");
+  const computedGoalWeight =
+    goal === "maintenance" ? currentWeight : goalWeight;
   const [saved, setSaved] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [edited, setEdited] = useState(false);
@@ -110,24 +109,8 @@ export function Goals() {
       return;
     }
 
-    /* if (+age < 10 || +age > 120) {
-      setError("Enter a valid age.");
-      return;
-    }
-
-    if (+height < 100 || +height > 250) {
-      setError("Enter a valid height in cm.");
-      return;
-    } */
-
     if (+currentWeight < 30 || +currentWeight > 300 || +goalWeight < 30 || +goalWeight > 300) {
       setError("Enter a valid weight in kg.");
-      return;
-    }
-
-
-    if (goal === "maintenance" && +currentWeight !== +goalWeight) {
-      setError("For maintenance, goal weight must equal current weight.");
       return;
     }
 
@@ -187,24 +170,25 @@ export function Goals() {
     });
   };
 
+  // user sync
   useEffect(() => {
-    if (!hasGoals) {
-      return;
-    }
-    setAge(String(user?.age));
-    setGender(user?.gender ?? "");
-    setHeight(String(user?.height));
-    setCurrentWeight(String(goals?.currentWeight));
-    setGoalWeight(String(goals?.goalWeight));
-    setActivity(goals.activityLevel as typeof activity);
-    setGoal(goals.goal as typeof goal);
-  }, [user],);
+    if (!user) return;
 
+    setAge(String(user.age ?? ""));
+    setGender(user.gender ?? "");
+    setHeight(String(user.height ?? ""));
+  }, [user]);
+
+  // goals sync
   useEffect(() => {
-    if (goal === "maintenance") {
-      setGoalWeight(currentWeight);
-    }
-  }, [goal, currentWeight]);
+    if (!goals) return;
+
+    setCurrentWeight(String(goals.currentWeight ?? ""));
+    setGoalWeight(String(goals.goalWeight ?? ""));
+    setActivity(goals.activityLevel ?? "moderate");
+    setGoal(goals.goal ?? "maintenance");
+  }, [goals]);
+
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 900 }}>
       <Box sx={{ mb: 4 }}>
@@ -239,6 +223,13 @@ export function Goals() {
           {error}
         </Alert>
       )}
+      {!user?.age ||
+        !user?.height ||
+        !user?.gender && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            Some profile details are missing. Please set your stats in your profile.
+          </Alert>
+        )}
 
       <Grid container spacing={3}>
         {/* Form */}
@@ -283,7 +274,7 @@ export function Goals() {
 
                   <TextField
                     label="Goal Weight (kg)"
-                    value={goalWeight}
+                    value={computedGoalWeight}
                     onChange={(e) => setGoalWeight(e.target.value)}
                     type="number"
                     disabled={goal === "maintenance"}
@@ -321,10 +312,10 @@ export function Goals() {
                 </FormControl>
 
                 <FormControl fullWidth size="small">
-                  <InputLabel>Weight Goal</InputLabel>
+                  <InputLabel>Your Goal</InputLabel>
                   <Select
                     value={goal}
-                    label="Weight Goal"
+                    label="Your Goal"
                     onChange={(e) => setGoal(e.target.value as "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5")}
                   >
                     {Object.keys(WEIGHT_GOAL_LABELS).map((k) => (
@@ -454,7 +445,7 @@ export function Goals() {
                   variant="body2"
                   sx={{ color: "text.secondary", mt: 2 }}
                 >
-                  Fill in your stats to see your personalised nutrition goals.
+                  Fill in your current weight, goal weight and select your activity level and your goal to see your personalised nutrition goals.
                 </Typography>
               )}
             </CardContent>

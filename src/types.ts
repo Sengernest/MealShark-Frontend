@@ -49,7 +49,7 @@ export type NutritionGoals = {
   currentWeight: number;
   goalWeight: number;
   activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
-  goal: "bulk_0.5" | "bulk_0.25" | "maintenance" | "cutting_0.25" | "cutting_0.5";
+  goal: "bulk_0.5" | "bulk_0.25" | "maintenance" | "cut_0.25" | "cut_0.5";
   etaWeeks: number;
 };
 

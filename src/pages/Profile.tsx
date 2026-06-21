@@ -8,11 +8,16 @@ import {
     Select,
     MenuItem,
 } from "@mui/material";
+import dayjs from "dayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import LockIcon from "@mui/icons-material/Lock";
 import { useCurrentUser, useLogout } from "@/hooks/auth";
 import { useNavigate } from "react-router";
 import { useUpdateProfile } from "@/hooks/profile";
@@ -23,24 +28,36 @@ function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => vo
     const { data: user } = useCurrentUser();
     const [name, setName] = useState(user?.name ?? "");
     const [email, setEmail] = useState(user?.email ?? "");
-    const [age, setAge] = useState(user?.age ?? "");
-    const [weight, setWeight] = useState(user?.weight ?? "");
+    const [birthDate, setBirthDate] = useState(user?.birthDate ?? "");
     const [height, setHeight] = useState(user?.height ?? "");
     const [gender, setGender] = useState<"male" | "female" | "">(
         user?.gender ?? ""
     );
     const [saved, setSaved] = useState(false);
+    const [error, setError] = useState("");
 
     const updateProfile = useUpdateProfile();
 
     const handleSave = () => {
         if (!name.trim() || !email.trim()) return;
+        const ageDiff = dayjs().diff(dayjs(birthDate), "year");
+
+        if (birthDate && ageDiff < 10 || ageDiff > 120) {
+            setError("Enter a valid birth date (age must be between 10 and 120).");
+            return;
+        }
+
+
+        if (+height < 100 || +height > 250) {
+            setError("Enter a valid height in cm (100–250).");
+            return;
+        }
+
         updateProfile.mutate({
             name: name.trim(),
             email: email.trim(),
-            age: age === "" ? undefined : Number(age),
+            birthDate: birthDate === "" ? undefined : birthDate,
             height: height === "" ? undefined : Number(height),
-            weight: weight === "" ? undefined : Number(weight),
             gender: gender === "" ? undefined : gender,
         });
 
@@ -54,10 +71,18 @@ function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => vo
                 <Typography variant="h5" component="div">EDIT PROFILE</Typography>
             </DialogTitle>
 
+
+
             <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}>
                 {saved && (
                     <Alert icon={<CheckCircleIcon />} severity="success" sx={{ fontSize: 13 }}>
                         Profile updated!
+                    </Alert>
+                )}
+
+                {error && (
+                    <Alert severity="error" sx={{ fontSize: 13 }}>
+                        {error}
                     </Alert>
                 )}
 
@@ -78,24 +103,25 @@ function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => vo
                     fullWidth
                 />
 
-                <TextField
-                    label="Age/years"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    fullWidth
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                        label="Birth Date (DD/MM/YYYY)"
+                        value={birthDate ? dayjs(birthDate) : null}
+                        format="DD/MM/YYYY"
+                        onChange={(newValue) => {
+                            setBirthDate(
+                                newValue ? newValue.format("YYYY-MM-DD") : ""
+                            );
+                        }}
+                        slotProps={{ textField: { fullWidth: true } }}
+                    />
+                </LocalizationProvider>
+
 
                 <TextField
                     label="Height/cm"
                     value={height}
                     onChange={(e) => setHeight(e.target.value)}
-                    fullWidth
-                />
-
-                <TextField
-                    label="Weight/kg"
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
                     fullWidth
                 />
 
@@ -141,10 +167,132 @@ function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => vo
 }
 
 
+
+function ChangePasswordDialog({
+    open,
+    onClose,
+}: {
+    open: boolean;
+    onClose: () => void;
+}) {
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [saved, setSaved] = useState(false);
+    const [error, setError] = useState("");
+
+    const handleSave = async () => {
+        setError("");
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            setError("All fields are required.");
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setError("New password must be at least 6 characters.");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+
+        // TODO: replace with your API hook
+        try {
+            // await changePassword.mutateAsync({
+            //     currentPassword,
+            //     newPassword,
+            // });
+
+            setSaved(true);
+
+            setTimeout(() => {
+                setSaved(false);
+                onClose();
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+            }, 1200);
+        } catch (e: any) {
+            setError(e?.message || "Failed to change password.");
+        }
+    };
+
+    return (
+        <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+            <DialogTitle>
+                <Typography variant="h5">CHANGE PASSWORD</Typography>
+            </DialogTitle>
+
+            <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}>
+                {saved && (
+                    <Alert severity="success" icon={<CheckCircleIcon />}>
+                        Password updated!
+                    </Alert>
+                )}
+
+                {error && (
+                    <Alert severity="error">
+                        {error}
+                    </Alert>
+                )}
+
+                <TextField
+                    label="Current Password"
+                    type="password"
+                    value={currentPassword}
+                     sx={{ mt: 0.5 }}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    fullWidth
+                />
+
+                <TextField
+                    label="New Password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    fullWidth
+                />
+
+                <TextField
+                    label="Confirm New Password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    fullWidth
+                />
+            </DialogContent>
+
+            <DialogActions sx={{ px: 3, pb: 2.5 }}>
+                <Button onClick={onClose} sx={{ color: "text.secondary" }}>
+                    Cancel
+                </Button>
+
+                <Button
+                    variant="contained"
+                    onClick={handleSave}
+                >
+                    Update Password
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+const WEIGHT_GOAL_LABELS = {
+    "bulk_0.25": "Bulking 0.25kg/week",
+    "bulk_0.5": "Bulking 0.5kg/week",
+    maintenance: "Maintenance",
+    "cut_0.25": "Cutting 0.25kg/week",
+    "cut_0.5": "Cutting 0.5kg/week",
+} as const;
+
 export function Profile() {
     const { data: user } = useCurrentUser();
     const [editOpen, setEditOpen] = useState(false);
-
+    const [passwordOpen, setPasswordOpen] = useState(false);
     const navigate = useNavigate();
     const logout = useLogout();
 
@@ -165,6 +313,16 @@ export function Profile() {
     const memberSince = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
     const { data: goals } = useGetMyNutritionGoals();
+
+    const profileChanged =
+        goals &&
+        user &&
+        (
+            goals.age !== user.age ||
+            goals.height !== user.height ||
+            goals.gender !== user.gender
+        );
+
 
     return (
         <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 600 }}>
@@ -239,7 +397,12 @@ export function Profile() {
                         {[
                             { label: "GENDER", value: user?.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : "—" },
                             { label: "HEIGHT", value: user?.height ? `${user.height} cm` : "—" },
-                            { label: "AGE", value: user?.age ? `${user.age} yrs` : "—" },
+                            {
+                                label: "BIRTHDATE",
+                                value: user?.birthDate
+                                    ? `${dayjs(user.birthDate).format("DD/MM/YYYY")} (${user.age}y)`
+                                    : "—"
+                            },
                         ].map(({ label, value }) => (
                             <Box key={label} sx={{ textAlign: "center", flex: 1 }}>
                                 <Typography
@@ -271,11 +434,11 @@ export function Profile() {
 
                     {/* Nutrition goal summary */}
                     <>
-                        <Typography variant="h6" sx={{ mb: 3.5 }}>
+                        <Typography variant="h6" sx={{ mb: 2 }}>
                             NUTRITION GOALS
                         </Typography>
 
-                        {!goals && (
+                        {!goals || profileChanged ? (
                             <Card
                                 sx={{
                                     mb: 3,
@@ -301,15 +464,19 @@ export function Profile() {
                                                 fontWeight: 800,
                                                 letterSpacing: "0.02em",
                                             }}
-                                        >
-                                            SET UP YOUR NUTRITION GOALS
+                                        > {profileChanged
+                                            ? "UPDATE YOUR NUTRITION GOALS"
+                                            : "SET UP YOUR NUTRITION GOALS"}
+
                                         </Typography>
 
                                         <Typography
                                             variant="body2"
                                             sx={{ color: "text.secondary", mt: 0.5 }}
                                         >
-                                            Enter your stats to get personalised calorie and macro targets.
+                                            {profileChanged
+                                                ? "Your profile has changed — update your calorie and macro targets."
+                                                : "Enter your stats to get personalised calorie and macro targets."}
                                         </Typography>
                                     </Box>
 
@@ -317,14 +484,14 @@ export function Profile() {
                                         variant="contained"
                                         endIcon={<ArrowForwardIcon />}
                                         onClick={() => navigate("/goals")}
-                                    >
-                                        Set Goals
+                                    >{profileChanged
+                                        ? "Update Goals"
+                                        : "Set Goals"}
+
                                     </Button>
                                 </CardContent>
                             </Card>
-                        )}
-
-                        {goals && (
+                        ) : (
                             <>
                                 {/* Goal header */}
                                 <Box sx={{ mb: 2.5 }}>
@@ -332,25 +499,26 @@ export function Profile() {
                                         sx={{
                                             fontFamily: "'Barlow Condensed', sans-serif",
                                             fontWeight: 800,
-                                            fontSize: 20,
+                                            fontSize: 18,
                                             color: "primary.main",
                                             letterSpacing: "0.08em",
                                             textTransform: "uppercase",
                                             lineHeight: 1,
                                         }}
                                     >
-                                        {goals.goal}
+                                        {WEIGHT_GOAL_LABELS[goals.goal as keyof typeof WEIGHT_GOAL_LABELS]}
                                     </Typography>
 
                                 </Box>
-
-                                {/* Macro list */}
+                                <Divider />
+                                {/* Nutrition list */}
                                 <Box
                                     sx={{
                                         display: "flex",
                                         flexDirection: "column",
                                         gap: 1.2,
                                         mb: 5,
+                                        mt: 1.5
                                     }}
                                 >
 
@@ -359,7 +527,7 @@ export function Profile() {
                                             display: "flex",
                                             justifyContent: "space-between",
                                             alignItems: "baseline",
-                                         
+
                                         }}
                                     >
                                         <Typography
@@ -374,7 +542,7 @@ export function Profile() {
                                             NUTRITION TARGETS
                                         </Typography>
 
-                                       <Typography
+                                        <Typography
                                             variant="caption"
                                             sx={{
                                                 color: "text.secondary",
@@ -443,21 +611,43 @@ export function Profile() {
                                     ))}
                                 </Box>
 
-                             
+
                             </>
                         )}
                     </>
 
                     {/* Actions */}
-                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                        <Button
-                            variant="contained"
-                            startIcon={<EditIcon />}
-                            onClick={() => setEditOpen(true)}
-                            sx={{ flex: 1 }}
-                        >
-                            Edit Profile
-                        </Button>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        {/* Row 1 */}
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                            <Button
+                                variant="contained"
+                                startIcon={<EditIcon />}
+                                onClick={() => setEditOpen(true)}
+                                sx={{ flex: 1 }}
+                            >
+                                Edit Profile
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                startIcon={<LockIcon />}
+                                onClick={() => setPasswordOpen(true)}
+                                sx={{
+                                    flex: 1,
+                                    color: "primary.main",
+                                    borderColor: "rgba(96,200,245,0.3)",
+                                    "&:hover": {
+                                        borderColor: "primary.main",
+                                        bgcolor: "rgba(96,200,245,0.06)",
+                                    },
+                                }}
+                            >
+                                Change Password
+                            </Button>
+                        </Box>
+
+                        {/* Row 2 (full width) */}
 
                         <Button
                             variant="outlined"
@@ -469,17 +659,22 @@ export function Profile() {
                                 borderColor: "rgba(255,59,92,0.3)",
                                 "&:hover": {
                                     borderColor: "error.main",
-                                    bgcolor: "rgba(255,59,92,0.06)"
-                                }
+                                    bgcolor: "rgba(255,59,92,0.06)",
+                                },
                             }}
                         >
-                            Sign Out
+                            Logout
                         </Button>
                     </Box>
+
                 </CardContent>
             </Card>
 
             <EditProfileDialog open={editOpen} onClose={() => setEditOpen(false)} />
+            <ChangePasswordDialog
+                open={passwordOpen}
+                onClose={() => setPasswordOpen(false)}
+            />
         </Box>
     );
 }
