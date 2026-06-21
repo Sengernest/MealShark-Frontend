@@ -16,7 +16,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useCurrentUser, useLogout } from "@/hooks/auth";
 import { useNavigate } from "react-router";
 import { useUpdateProfile } from "@/hooks/profile";
-import { useGetMacroGoals } from "@/hooks/macroGoals";
+import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 
 
 function EditProfileDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -164,7 +164,7 @@ export function Profile() {
 
     const memberSince = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
-    const { data: goals } = useGetMacroGoals();
+    const { data: goals } = useGetMyNutritionGoals();
 
     return (
         <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 600 }}>
@@ -239,7 +239,6 @@ export function Profile() {
                         {[
                             { label: "GENDER", value: user?.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : "—" },
                             { label: "HEIGHT", value: user?.height ? `${user.height} cm` : "—" },
-                            { label: "WEIGHT", value: user?.weight ? `${user.weight} kg` : "—" },
                             { label: "AGE", value: user?.age ? `${user.age} yrs` : "—" },
                         ].map(({ label, value }) => (
                             <Box key={label} sx={{ textAlign: "center", flex: 1 }}>

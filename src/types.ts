@@ -19,7 +19,7 @@ export type User = {
   email: string;
   password: string;
   age?: number;
-  weight?: number;
+  birthDate?: string;
   height?: number;
   gender?: "male" | "female";
   /*
@@ -31,25 +31,26 @@ export type User = {
 export type Profile = {
   name: string;
   email: string;
-  age?: number;
-  weight?: number;
+  birthDate?: string;
   height?: number;
   gender?: "male" | "female";
 }
 
-export type MacroGoals = {
+export type NutritionGoals = {
   id: number;
   calories: number;
   protein: number;
   fat: number;
   carbs: number;
   creatorId: number;
-  gender: string;
+  gender: "male" | "female";
   age: number;
   height: number;
-  weight: number;
-  activityLevel: string;
-  goal: string;
+  currentWeight: number;
+  goalWeight: number;
+  activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
+  goal: "bulk_0.5" | "bulk_0.25" | "maintenance" | "cutting_0.25" | "cutting_0.5";
+  etaWeeks: number;
 };
 
 export type Food = {
@@ -233,13 +234,14 @@ export type LoginPost = {
   password: string;
 };
 
-export type MacroGoalsPost = {
+export type NutritionGoalsPost = {
   age: number;
   gender: string;
-  weight: number;
+  currentWeight: number;
+  goalWeight: number
   height: number;
   activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
-  goal: "cutting" | "bulking" | "maintenance";
+  goal: "bulk_0.25" |"bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
 };
 
 

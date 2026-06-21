@@ -12,7 +12,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TodayIcon from "@mui/icons-material/Today";
 import type { MealLogEntry, MealLogSlot, MealItem } from "../types";
 import { useCurrentUser } from "@/hooks/auth";
-import { useGetMacroGoals } from "@/hooks/macroGoals";
+import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import { useGetMealLog, useGetMealLogs } from "@/hooks/mealLogs";
 
 function addDays(dateStr: string, n: number): string {
@@ -239,7 +239,7 @@ function SlotCard({ slot, onAddItem, onRemoveItem, onRemoveSlot }: {
 const TODAY = new Date()
 export function MealLog() {
   const {data: user} = useCurrentUser();
-  const {data: goals} = useGetMacroGoals();
+  const {data: goals} = useGetMyNutritionGoals();
   const {data: mealLogs} = useGetMealLogs();
   const getMealLog = useGetMealLog; 
 

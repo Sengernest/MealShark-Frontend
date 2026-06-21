@@ -4,7 +4,7 @@ import { Layout } from "./components/Layout";
 import { Auth } from "./pages/Auth";
 import { Dashboard } from "./pages/Dashboard";
 import { Foods } from "./pages/Foods";
-import { Goals } from "./pages/MacroGoals";
+import { Goals } from "./pages/NutritionGoals";
 import { MealLog } from "./pages/MealLog";
 import { MealPlans } from "./pages/MealPlans";
 import { Recipes } from "./pages/Recipes";

@@ -16,7 +16,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { Link } from "react-router";
 import { useCurrentUser } from "@/hooks/auth";
-import { useGetMacroGoals } from "@/hooks/macroGoals";
+import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 
 const logCarbs = 0;
 const logFat = 0;
@@ -123,7 +123,7 @@ function StatCard({
 export function Dashboard() {
   //const { user, getLogEntry, mealPlans, activePlanId } = useApp();
   const { data: user } = useCurrentUser();
-  const { data: goals } = useGetMacroGoals();
+  const { data: goals } = useGetMyNutritionGoals();
   //const goal = user?.nutritionGoal;
   // const todayLog = getLogEntry(TODAY);
   //const activePlan = mealPlans.find((p) => p.id === activePlanId);
