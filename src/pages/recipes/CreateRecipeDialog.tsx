@@ -242,6 +242,11 @@ export function IngredientRow({
     name: `ingredients.${index}.food`,
   });
 
+  const ingredients = useWatch({
+    control,
+    name: "ingredients",
+  });
+
   return (
     <Box
       sx={{
@@ -254,7 +259,16 @@ export function IngredientRow({
       <Controller
         name={`ingredients.${index}.food`}
         control={control}
-        rules={{ required: "Required" }}
+        rules={{
+          required: "Required",
+          validate: (food) => {
+            if (!food) return true;
+            const duplicates = ingredients.filter(
+              (ingredient) => ingredient.food?.id === food.id,
+            );
+            return duplicates.length <= 1 || "This food has been added more than once"
+          },
+        }}
         render={({ field }) => (
           <Autocomplete
             options={foods}
