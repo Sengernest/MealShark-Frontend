@@ -30,29 +30,20 @@ import { z } from "zod";
 import type { Food, RecipePost, Unit } from "../../types";
 import { NutritionRow, RECIPE_CATEGORIES } from "./Recipes";
 
-const createRecipeSchema = z.object({
-  name: z.string().min(1, "Recipe name is required"),
-  description: z.string(),
-  category: z.string(),
-  instructions: z.string(),
-  prepTime: z.preprocess(
-    (v) => (v === "" || v == null ? null : Number(v)),
-    z.number("Prep time must be a number").nonnegative("Prep time must be non-negative").nullable(),
-  ),
-  cookTime: z.preprocess(
-    (v) => (v === "" || v == null ? null : Number(v)),
-    z.number("Cook time must be a number").nonnegative("Cook time must be non-negative").nullable(),
-  ),
-  servings: z.int("Servings must be an integer")
-    .positive("Servings must be at least 1"),
-  currentIngredient: z.object({
-    foodId: z.int("Ingredient food is required").positive(),
-    unitId: z.int("Ingredient unit is required").positive(),
-    amount: z.number().positive("Ingredient amount must be positive"),
-  }),
-});
-
-type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;
+type CreateRecipeFormData = {
+  name: string;
+  description: string | null;
+  category: string | null;
+  instructions: string | null;
+  prepTime: number | null;
+  cookTime: number | null;
+  servings: number;
+  currentIngredient: {
+    amount: number;
+    unitId: number | null;
+    foodId: number | null;
+  };
+};
 
 type Ingredient = {
   food: Food;
@@ -82,13 +73,12 @@ export function CreateRecipeDialog({
     getValues,
     resetField,
     trigger,
-  } = useForm({
-    resolver: zodResolver(createRecipeSchema),
+  } = useForm<CreateRecipeFormData>({
     defaultValues: {
       currentIngredient: {
         amount: 0,
-        foodId: undefined,
-        unitId: undefined,
+        foodId: null,
+        unitId: null,
       },
     },
   });
@@ -127,7 +117,13 @@ export function CreateRecipeDialog({
     ]);
 
     // Clear current ingredient state
-    resetField("currentIngredient");
+    resetField("currentIngredient", {
+      defaultValue: {
+        amount: 0,
+        foodId: null,
+        unitId: null,
+      },
+    });
 
     // Clear food search input
     setFoodSearch("");
@@ -181,7 +177,7 @@ export function CreateRecipeDialog({
 
           <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
             <TextField
-              {...register("name")}
+              {...register("name", { required: "Recipe name is required" })}
               label="Recipe Name"
               fullWidth
               sx={{ gridColumn: "1/-1" }}
@@ -206,17 +202,28 @@ export function CreateRecipeDialog({
             </FormControl>
             <TextField
               label="Servings"
-              {...register("servings", {valueAsNumber: true})}
+              {...register("servings", {
+                required: "Servings is required",
+                min: { value: 1, message: "Servings must be at least 1" },
+                valueAsNumber: true,
+              })}
               type="number"
+              inputMode="numeric"
             />
             <TextField
               label="Prep Time (min)"
-              {...register("prepTime")}
+              {...register("prepTime", {
+                min: { value: 0, message: "Prep time cannot be negative" },
+                valueAsNumber: true,
+              })}
               type="number"
             />
             <TextField
               label="Cook Time (min)"
-              {...register("cookTime")}
+              {...register("cookTime", {
+                min: { value: 0, message: "Cook time cannot be negative" },
+                valueAsNumber: true,
+              })}
               type="number"
             />
           </Box>
@@ -242,14 +249,14 @@ export function CreateRecipeDialog({
           >
             <Controller
               name="currentIngredient.foodId"
-              rules={{ required: "Ingredient food is required" }}
               control={control}
+              rules={{ required: "Ingredient food is required" }}
               render={({ field }) => (
                 <Autocomplete
                   options={foods}
                   getOptionLabel={(food) => food.name}
                   value={foods.find((f) => f.id === field.value) ?? null}
-                  onChange={(_, food) => field.onChange(food?.id ?? null)}
+                  onChange={(_, food) => field.onChange(food?.id ?? null )}
                   inputValue={foodSearch}
                   onInputChange={(_, value) => setFoodSearch(value)}
                   renderInput={(params) => (
@@ -261,7 +268,12 @@ export function CreateRecipeDialog({
             />
             <TextField
               label="Amount"
-              {...register("currentIngredient.amount", { valueAsNumber: true })}
+              {...register("currentIngredient.amount", {
+                required: "Ingredient amount is required",
+                valueAsNumber: true,
+                validate: (v) =>
+                  v > 0 || "Ingredient amount must be a positive number",
+              })}
               type="number"
               size="small"
             />
@@ -269,9 +281,9 @@ export function CreateRecipeDialog({
               <InputLabel id="unit-label">Unit</InputLabel>
               <Controller
                 name="currentIngredient.unitId"
-                rules={{ required: "Ingredient unit" }}
                 control={control}
                 disabled={!currentIngredient.foodId}
+                rules={{ required: "Ingredient unit is required" }}
                 render={({ field }) => (
                   <Select {...field} labelId="unit-label" label="Unit">
                     {currentFood?.units?.map((unit) => (
@@ -330,7 +342,7 @@ export function CreateRecipeDialog({
           <Divider />
           <TextField
             label="Instructions"
-            {...register("instructions")}
+            {...register("instructions", { maxLength: 2000 })}
             multiline
             rows={4}
             fullWidth
