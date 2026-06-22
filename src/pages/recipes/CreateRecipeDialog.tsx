@@ -11,6 +11,7 @@ import {
   DialogTitle,
   Divider,
   FormControl,
+  FormHelperText,
   IconButton,
   InputLabel,
   MenuItem,
@@ -21,10 +22,14 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import {
+  Control,
   Controller,
+  FieldErrors,
   SubmitHandler,
   useFieldArray,
   useForm,
+  UseFormRegister,
+  useWatch,
 } from "react-hook-form";
 import type { Food, RecipePost, Unit } from "../../types";
 import { NutritionRow, RECIPE_CATEGORIES } from "./Recipes";
@@ -62,7 +67,7 @@ export function CreateRecipeDialog({
     handleSubmit,
     formState: { errors },
     control,
-    watch
+    watch,
   } = useForm<CreateRecipeFormData>();
 
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
@@ -104,7 +109,8 @@ export function CreateRecipeDialog({
           <Stack gap={1}>
             {Object.entries(errors).map(
               ([field, error], i) =>
-                field !== "currentIngredient" && error.message && (
+                field !== "currentIngredient" &&
+                error.message && (
                   <Alert key={i} severity="error">
                     {error.message}
                   </Alert>
@@ -174,90 +180,16 @@ export function CreateRecipeDialog({
             Add
           </Button>
           <Stack gap={2}>
-            {ingredientsFieldArray.fields.map((ingredient, index) => {
-              const selectedFood = watch(`ingredients.${index}.food`);
-              return (
-                <Box
-                  key={ingredient.id}
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 90px 80px auto",
-                    gap: 1.5,
-                    alignItems: "top",
-                  }}
-                >
-                  <Controller
-                    name={`ingredients.${index}.food`}
-                    control={control}
-                    rules={{ required: "Required" }}
-                    render={({ field }) => (
-                      <Autocomplete
-                        options={foods}
-                        getOptionLabel={(food) => food.name}
-                        value={field.value}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        onChange={(_, food) => field.onChange(food ?? null)}
-                        inputValue={foodSearch}
-                        onInputChange={(_, value) => setFoodSearch(value)}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Food"
-                            size="small"
-                            error={!!errors.ingredients?.[index]?.food}
-                            helperText={
-                              errors.ingredients?.[index]?.food?.message
-                            }
-                          />
-                        )}
-                        filterOptions={(x) => x}
-                      />
-                    )}
-                  />
-                  <TextField
-                    label="Amount"
-                    {...register(`ingredients.${index}.amount`, {
-                      required: "Required",
-                      valueAsNumber: true,
-                      validate: (v) =>
-                        (v && v > 0) ||
-                        "Ingredient amount must be a positive number",
-                    })}
-                    type="number"
-                    error={!!errors.ingredients?.[index]?.amount}
-                    helperText={errors.ingredients?.[index]?.amount?.message}
-                    size="small"
-                  />
-                  <FormControl
-                    size="small"
-                    error={!!errors.ingredients?.[index]?.unitId}
-                  >
-                    <InputLabel id="unit-label">Unit</InputLabel>
-                    <Controller
-                      name={`ingredients.${index}.unitId`}
-                      control={control}
-                      rules={{ required: "Required" }}
-                      render={({ field }) => (
-                        <Select {...field} labelId="unit-label" label="Unit">
-                          {selectedFood?.units?.map((unit) => (
-                            <MenuItem key={unit.unit.name} value={unit.unit.id}>
-                              {unit.unit.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      )}
-                    />
-                  </FormControl>
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => removeIngredient(index)}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              );
-            })}
+            {ingredientsFieldArray.fields.map((ingredient, index) => (
+              <IngredientRow
+                key={ingredient.id}
+                index={index}
+                control={control}
+                register={register}
+                errors={errors}
+                onRemove={removeIngredient}
+              />
+            ))}
           </Stack>
           <Box sx={{ pt: 1 }}>
             <NutritionRow cal={900} prot={40} carbs={30} fat={30} />
@@ -282,5 +214,109 @@ export function CreateRecipeDialog({
         </DialogActions>
       </form>
     </Dialog>
+  );
+}
+
+type IngredientRowProps = {
+  index: number;
+  control: Control<CreateRecipeFormData>;
+  register: UseFormRegister<CreateRecipeFormData>;
+  errors: FieldErrors<CreateRecipeFormData>;
+  onRemove: (index: number) => void;
+};
+
+export function IngredientRow({
+  index,
+  control,
+  register,
+  errors,
+  onRemove,
+}: IngredientRowProps) {
+  const [foodSearch, setFoodSearch] = useState("");
+
+  const { data } = useSearchFoods(foodSearch, 20);
+  const foods = data ?? [];
+
+  const selectedFood = useWatch({
+    control,
+    name: `ingredients.${index}.food`,
+  });
+
+  return (
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "1fr 90px 80px auto",
+        gap: 1.5,
+        alignItems: "start",
+      }}
+    >
+      <Controller
+        name={`ingredients.${index}.food`}
+        control={control}
+        rules={{ required: "Required" }}
+        render={({ field }) => (
+          <Autocomplete
+            options={foods}
+            value={field.value}
+            onChange={(_, food) => field.onChange(food)}
+            inputValue={foodSearch}
+            onInputChange={(_, value) => setFoodSearch(value)}
+            getOptionLabel={(food) => food.name}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            filterOptions={(x) => x}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Food"
+                size="small"
+                error={!!errors.ingredients?.[index]?.food}
+                helperText={errors.ingredients?.[index]?.food?.message}
+              />
+            )}
+          />
+        )}
+      />
+
+      <TextField
+        label="Amount"
+        size="small"
+        type="number"
+        {...register(`ingredients.${index}.amount`, {
+          required: "Required",
+          valueAsNumber: true,
+          validate: (v) => (v && v > 0) || "Must be positive",
+        })}
+        error={!!errors.ingredients?.[index]?.amount}
+        helperText={errors.ingredients?.[index]?.amount?.message}
+      />
+
+      <FormControl size="small" error={!!errors.ingredients?.[index]?.unitId}>
+        <InputLabel>Unit</InputLabel>
+
+        <Controller
+          name={`ingredients.${index}.unitId`}
+          control={control}
+          rules={{ required: "Required" }}
+          render={({ field }) => (
+            <Select {...field} label="Unit">
+              {selectedFood?.units?.map((unit) => (
+                <MenuItem key={unit.unit.id} value={unit.unit.id}>
+                  {unit.unit.name}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
+
+        <FormHelperText>
+          {errors.ingredients?.[index]?.unitId?.message}
+        </FormHelperText>
+      </FormControl>
+
+      <IconButton edge="end" size="small" onClick={() => onRemove(index)}>
+        <DeleteIcon fontSize="small" />
+      </IconButton>
+    </Box>
   );
 }
