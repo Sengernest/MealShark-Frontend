@@ -18,33 +18,44 @@ export type User = {
   name: string;
   email: string;
   password: string;
-  /* age: number;
-  gender: Gender;
-  height: number; // cm
-  weight: number; // kg
+  age?: number;
+  birthDate?: string;
+  height?: number;
+  gender?: "male" | "female";
+  /*
   activityLevel: ActivityLevel;
   weightGoal: WeightGoal;
   nutritionGoal: NutritionGoal | null; */
 };
 
-export type Profile = {
-  name: string;
-  email: string
+export type ChangePasswordInput = {
+  currentPassword: string;
+  newPassword: string; 
 }
 
-export type MacroGoals = {
+export type Profile = {
+  name: string;
+  email: string;
+  birthDate?: string;
+  height?: number;
+  gender?: "male" | "female";
+}
+
+export type NutritionGoals = {
   id: number;
   calories: number;
   protein: number;
   fat: number;
   carbs: number;
   creatorId: number;
-  gender: string;
+  gender: "male" | "female";
   age: number;
   height: number;
-  weight: number;
-  activityLevel: string;
-  goal: string;
+  currentWeight: number;
+  goalWeight: number;
+  activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
+  goal: "bulk_0.5" | "bulk_0.25" | "maintenance" | "cut_0.25" | "cut_0.5";
+  etaWeeks: number;
 };
 
 export type Food = {
@@ -238,13 +249,14 @@ export type LoginPost = {
   password: string;
 };
 
-export type MacroGoalsPost = {
+export type NutritionGoalsPost = {
   age: number;
   gender: string;
-  weight: number;
+  currentWeight: number;
+  goalWeight: number
   height: number;
   activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
-  goal: "cutting" | "bulking" | "maintenance";
+  goal: "bulk_0.25" |"bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
 };
 
 

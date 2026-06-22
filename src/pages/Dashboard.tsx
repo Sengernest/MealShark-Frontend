@@ -16,7 +16,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { Link } from "react-router";
 import { useCurrentUser } from "@/hooks/auth";
-import { useGetMacroGoals } from "@/hooks/macroGoals";
+import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 
 const logCarbs = 0;
 const logFat = 0;
@@ -123,7 +123,7 @@ function StatCard({
 export function Dashboard() {
   //const { user, getLogEntry, mealPlans, activePlanId } = useApp();
   const { data: user } = useCurrentUser();
-  const { data: goals } = useGetMacroGoals();
+  const { data: goals } = useGetMyNutritionGoals();
   //const goal = user?.nutritionGoal;
   // const todayLog = getLogEntry(TODAY);
   //const activePlan = mealPlans.find((p) => p.id === activePlanId);
@@ -240,9 +240,25 @@ export function Dashboard() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
-              <Typography variant="h6" sx={{ mb: 2.5 }}>
-                TODAY'S NUTRITION
-              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2.5,
+                }}
+              >
+                <Typography variant="h6">
+                  TODAY'S NUTRITION
+                </Typography>
+
+                <Link to="/meal-log">
+                  <Button endIcon={<ArrowForwardIcon />} size="small">
+                    View Meal Logs
+                  </Button>
+                </Link>
+              </Box>
+
 
               {/* Calorie ring visual */}
               <Box
@@ -360,7 +376,9 @@ export function Dashboard() {
                 >
                   Set your goals to track macros
                 </Typography>
+
               )}
+
             </CardContent>
           </Card>
         </Grid>

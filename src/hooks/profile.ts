@@ -1,4 +1,4 @@
-import { usersApi } from "@/api/users";
+import { usersApi } from "@/api/profile";
 import { Profile } from "@/types";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 

@@ -1,5 +1,5 @@
 import { authApi } from "@/api/auth";
-import { LoginPost, SignupPost } from "@/types";
+import { ChangePasswordInput, LoginPost, SignupPost } from "@/types";
 import {
   useQueryClient,
   useMutation,
@@ -23,6 +23,17 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: (data: LoginPost) => authApi.login(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ChangePasswordInput) => authApi.changePassword(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },

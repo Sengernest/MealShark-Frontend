@@ -8,7 +8,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useApp } from "../AppContext";
+//import { useApp } from "../AppContext";
 import type { MealPlan, DayPlan, MealSlot, MealItem } from "../types";
 
 const DAYS: DayPlan["day"][] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];

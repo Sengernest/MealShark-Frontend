@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+/* import { createContext, ReactNode, useContext, useState } from "react";
 import type {
   ActivityLevel,
   Food,
@@ -189,4 +189,4 @@ export function AppProvider({ children }: { children: ReactNode }) {
       {children}
     </AppContext.Provider>
   );
-}
+} */
