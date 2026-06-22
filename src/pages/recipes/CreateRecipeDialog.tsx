@@ -44,7 +44,7 @@ type CreateRecipeFormData = {
   cookTime: number | null;
   servings: number;
   ingredients: {
-    food: Food | null;
+    foodId: number | null;
     unitId: number | null;
     amount: number | null;
   }[];
@@ -57,9 +57,6 @@ export function CreateRecipeDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const [foodSearch, setFoodSearch] = useState("");
-  const { data } = useSearchFoods(foodSearch, 20);
-  const foods = data ?? [];
   const createRecipe = useCreateRecipe();
 
   const {
@@ -74,7 +71,7 @@ export function CreateRecipeDialog({
 
   const addIngredient = async () => {
     ingredientsFieldArray.append({
-      food: null,
+      foodId: null,
       unitId: null,
       amount: null,
     });
@@ -88,7 +85,7 @@ export function CreateRecipeDialog({
     const payload: RecipePost = {
       ...formData,
       ingredients: formData.ingredients.map((ingredient) => ({
-        foodId: ingredient.food!.id,
+        foodId: ingredient.foodId!,
         amount: ingredient.amount!,
         unitId: ingredient.unitId!,
       })),
@@ -237,10 +234,12 @@ export function IngredientRow({
   const { data } = useSearchFoods(foodSearch, 20);
   const foods = data ?? [];
 
-  const selectedFood = useWatch({
+  const selectedFoodId = useWatch({
     control,
-    name: `ingredients.${index}.food`,
+    name: `ingredients.${index}.foodId`,
   });
+
+  const selectedFood = foods.find((f) => f.id === selectedFoodId) ?? null;
 
   const ingredients = useWatch({
     control,
@@ -257,35 +256,41 @@ export function IngredientRow({
       }}
     >
       <Controller
-        name={`ingredients.${index}.food`}
+        name={`ingredients.${index}.foodId`}
         control={control}
         rules={{
           required: "Required",
-          validate: (food) => {
-            if (!food) return true;
+          validate: (foodId) => {
+            if (!foodId) return true;
             const duplicates = ingredients.filter(
-              (ingredient) => ingredient.food?.id === food.id,
+              (ingredient) => ingredient.foodId === foodId,
             );
-            return duplicates.length <= 1 || "This food has been added more than once"
+            return (
+              duplicates.length <= 1 ||
+              "This food has been added more than once"
+            );
           },
         }}
         render={({ field }) => (
           <Autocomplete
             options={foods}
-            value={field.value}
-            onChange={(_, food) => field.onChange(food)}
+            value={selectedFood}
+            onChange={(_, food) => {
+              field.onChange(food?.id ?? null);
+              setFoodSearch(food?.name ?? "");
+            }}
             inputValue={foodSearch}
             onInputChange={(_, value) => setFoodSearch(value)}
             getOptionLabel={(food) => food.name}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) => option.id === value?.id}
             filterOptions={(x) => x}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Food"
                 size="small"
-                error={!!errors.ingredients?.[index]?.food}
-                helperText={errors.ingredients?.[index]?.food?.message}
+                error={!!errors.ingredients?.[index]?.foodId}
+                helperText={errors.ingredients?.[index]?.foodId?.message}
               />
             )}
           />
