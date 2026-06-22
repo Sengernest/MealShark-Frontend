@@ -11,6 +11,11 @@ import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import {
   Avatar,
   Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   Drawer,
   IconButton,
@@ -43,11 +48,17 @@ export function Layout() {
   const { data: user, isLoading: isLoadingUser } = useCurrentUser();
   const navigate = useNavigate();
   const logout = useLogout();
-  const handleLogout = async () => {
-    await logout.mutateAsync();
-    navigate("/auth");
+  const [logoutOpen, setLogoutOpen] = useState(false);
+
+  const handleLogoutClick = () => {
+    setLogoutOpen(true);
   };
 
+  const handleConfirmLogout = async () => {
+    await logout.mutateAsync();
+    setLogoutOpen(false);
+    navigate("/auth");
+  };
   if (isLoadingUser) {
     return <div>Loading...</div>;
   }
@@ -129,7 +140,7 @@ export function Layout() {
                     },
 
                     "&.Mui-selected": {
-                      bgcolor: "rgba(96,200,245,0.12)", 
+                      bgcolor: "rgba(96,200,245,0.12)",
                     },
 
                     "&.Mui-selected:hover": {
@@ -167,34 +178,32 @@ export function Layout() {
         <Box sx={{ p: 1.5 }}>
           {user && (
             <Box
-  onClick={() => navigate("/profile")}
-  sx={{
-    display: "flex",
-    alignItems: "center",
-    gap: open ? 1.5 : 0,
-    px: open ? 1 : 1.5,
-    py: 1,
-    mb: 0.5,
-    borderRadius: 2,
-    cursor: "pointer",
-    justifyContent: open ? "flex-start" : "center",
+              onClick={() => navigate("/profile")}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: open ? 1.5 : 0,
+                px: open ? 1 : 1.5,
+                py: 1,
+                mb: 0.5,
+                borderRadius: 2,
+                cursor: "pointer",
+                justifyContent: open ? "flex-start" : "center",
 
+                bgcolor:
+                  page === "/profile" ? "rgba(96,200,245,0.12)" : "transparent",
 
+                // hover effect
+                "&:hover": {
+                  bgcolor:
+                    page === "/profile"
+                      ? "rgba(96,200,245,0.18)"
+                      : "rgba(255,255,255,0.05)",
+                },
 
-    bgcolor: page === "/profile"
-      ? "rgba(96,200,245,0.12)"
-      : "transparent",
-
-    // hover effect
-    "&:hover": {
-      bgcolor: page === "/profile"
-        ? "rgba(96,200,245,0.18)"
-        : "rgba(255,255,255,0.05)",
-    },
-
-    transition: "all 0.15s",
-  }}
->
+                transition: "all 0.15s",
+              }}
+            >
               <Avatar
                 sx={{
                   width: 34,
@@ -210,10 +219,29 @@ export function Layout() {
               </Avatar>
               {open && (
                 <Box sx={{ overflow: "hidden", flex: 1, minWidth: 0 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontSize: 13 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      color: "text.primary",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      fontSize: 13,
+                    }}
+                  >
                     {user.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ fontSize: 11, display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontSize: 11,
+                      display: "block",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     {user.email}
                   </Typography>
                 </Box>
@@ -222,7 +250,10 @@ export function Layout() {
                 <Tooltip title="Logout">
                   <IconButton
                     size="small"
-                    onClick={handleLogout}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLogoutClick();
+                    }}
                     sx={{ color: "text.secondary", flexShrink: 0 }}
                   >
                     <LogoutIcon fontSize="small" />
@@ -233,9 +264,17 @@ export function Layout() {
           )}
           <ListItemButton
             onClick={() => setOpen(!open)}
-            sx={{ borderRadius: 1.5, justifyContent: open ? "flex-end" : "center", py: 1 }}
+            sx={{
+              borderRadius: 1.5,
+              justifyContent: open ? "flex-end" : "center",
+              py: 1,
+            }}
           >
-            {open ? <ChevronLeftIcon sx={{ color: "text.secondary" }} /> : <ChevronRightIcon sx={{ color: "text.secondary" }} />}
+            {open ? (
+              <ChevronLeftIcon sx={{ color: "text.secondary" }} />
+            ) : (
+              <ChevronRightIcon sx={{ color: "text.secondary" }} />
+            )}
           </ListItemButton>
         </Box>
       </Drawer>
@@ -247,6 +286,40 @@ export function Layout() {
       >
         <Outlet />
       </Box>
+
+      <Dialog
+        open={logoutOpen}
+        onClose={() => setLogoutOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>
+          <Typography variant="h6">Confirm Logout</Typography>
+        </DialogTitle>
+
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            Are you sure you want to logout?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setLogoutOpen(false)}
+            sx={{ color: "text.secondary" }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleConfirmLogout}
+          >
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
