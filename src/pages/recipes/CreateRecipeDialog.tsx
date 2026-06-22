@@ -1,7 +1,5 @@
 import { useSearchFoods } from "@/hooks/foods";
 import { useCreateRecipe } from "@/hooks/recipes";
-import { zodResolver } from "@hookform/resolvers/zod";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Alert,
   Autocomplete,
@@ -15,9 +13,6 @@ import {
   FormControl,
   IconButton,
   InputLabel,
-  List,
-  ListItem,
-  ListItemText,
   MenuItem,
   Select,
   Stack,
@@ -25,10 +20,15 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
+import {
+  Controller,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import type { Food, RecipePost, Unit } from "../../types";
 import { NutritionRow, RECIPE_CATEGORIES } from "./Recipes";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 type CreateRecipeFormData = {
   name: string;
@@ -38,17 +38,11 @@ type CreateRecipeFormData = {
   prepTime: number | null;
   cookTime: number | null;
   servings: number;
-  currentIngredient: {
-    amount: number;
+  ingredients: {
+    food: Food | null;
     unitId: number | null;
-    foodId: number | null;
-  };
-};
-
-type Ingredient = {
-  food: Food;
-  unit: Unit;
-  amount: number;
+    amount: number | null;
+  }[];
 };
 
 export function CreateRecipeDialog({
@@ -62,98 +56,40 @@ export function CreateRecipeDialog({
   const { data } = useSearchFoods(foodSearch, 20);
   const foods = data ?? [];
   const createRecipe = useCreateRecipe();
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     control,
-    watch,
-    getValues,
-    resetField,
-    trigger,
-  } = useForm<CreateRecipeFormData>({
-    defaultValues: {
-      currentIngredient: {
-        amount: 0,
-        foodId: null,
-        unitId: null,
-      },
-    },
-  });
+  } = useForm<CreateRecipeFormData>();
 
-  const currentIngredient = watch("currentIngredient");
-  // Food that is currently selected
-  const currentFood = foods.find(
-    (food) => food.id === currentIngredient.foodId,
-  );
-  const currentUnit = currentFood?.units.find(
-    (foodUnit) => foodUnit.unitId === currentIngredient.unitId,
-  )?.unit;
+  const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
 
   const addIngredient = async () => {
-    // Validate food, amount and unit fields before adding
-    const valid = await trigger([
-      "currentIngredient.foodId",
-      "currentIngredient.amount",
-      "currentIngredient.unitId",
-    ]);
-    if (!valid) return;
-
-    // These values should never be null after the validation above
-    if (!currentFood || !currentUnit) {
-      return;
-    }
-
-    // Add to ingredients list
-    setIngredients((prev) => [
-      ...prev,
-      {
-        food: currentFood,
-        unit: currentUnit,
-        amount: currentIngredient.amount,
-      },
-    ]);
-
-    // Clear current ingredient state
-    resetField("currentIngredient", {
-      defaultValue: {
-        amount: 0,
-        foodId: null,
-        unitId: null,
-      },
+    ingredientsFieldArray.append({
+      food: null,
+      unitId: null,
+      amount: null,
     });
-
-    // Clear food search input
-    setFoodSearch("");
   };
 
   const removeIngredient = (i: number) => {
-    setIngredients((prev) => prev.filter((_, index) => index !== i));
+    ingredientsFieldArray.remove(i);
   };
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
-    const { currentIngredient, ...recipe } = formData;
     const payload: RecipePost = {
-      ...recipe,
-      ingredients: ingredients.map((ingredient) => ({
-        foodId: ingredient.food.id,
-        amount: ingredient.amount,
-        unitId: ingredient.unit.id,
+      ...formData,
+      ingredients: formData.ingredients.map((ingredient) => ({
+        foodId: ingredient.food!.id,
+        amount: ingredient.amount!,
+        unitId: ingredient.unitId!,
       })),
     };
     await createRecipe.mutateAsync(payload);
     onClose();
   };
-
-  const ingredientErrors = [
-    { message: errors.currentIngredient?.foodId?.message },
-    { message: errors.currentIngredient?.amount?.message },
-    { message: errors.currentIngredient?.unitId?.message },
-  ];
-
-  console.log(currentIngredient);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -229,112 +165,97 @@ export function CreateRecipeDialog({
           </Box>
           <Divider />
           <Typography variant="h6">INGREDIENTS</Typography>
-          <Stack gap={1}>
-            {ingredientErrors.map(
-              (error, i) =>
-                error.message && (
-                  <Alert key={i} severity="error">
-                    {error.message}
-                  </Alert>
-                ),
-            )}
-          </Stack>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "1fr 90px 80px auto",
-              gap: 1.5,
-              alignItems: "center",
-            }}
+          <Button
+            variant="outlined"
+            onClick={addIngredient}
+            sx={{ height: 40 }}
           >
-            <Controller
-              name="currentIngredient.foodId"
-              control={control}
-              rules={{ required: "Ingredient food is required" }}
-              render={({ field }) => (
-                <Autocomplete
-                  options={foods}
-                  getOptionLabel={(food) => food.name}
-                  value={foods.find((f) => f.id === field.value) ?? null}
-                  onChange={(_, food) => field.onChange(food?.id ?? null )}
-                  inputValue={foodSearch}
-                  onInputChange={(_, value) => setFoodSearch(value)}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Food" size="small" />
-                  )}
-                  filterOptions={(x) => x}
-                />
-              )}
-            />
-            <TextField
-              label="Amount"
-              {...register("currentIngredient.amount", {
-                required: "Ingredient amount is required",
-                valueAsNumber: true,
-                validate: (v) =>
-                  v > 0 || "Ingredient amount must be a positive number",
-              })}
-              type="number"
-              size="small"
-            />
-            <FormControl size="small">
-              <InputLabel id="unit-label">Unit</InputLabel>
-              <Controller
-                name="currentIngredient.unitId"
-                control={control}
-                disabled={!currentIngredient.foodId}
-                rules={{ required: "Ingredient unit is required" }}
-                render={({ field }) => (
-                  <Select {...field} labelId="unit-label" label="Unit">
-                    {currentFood?.units?.map((unit) => (
-                      <MenuItem key={unit.unit.name} value={unit.unit.id}>
-                        {unit.unit.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                )}
-              />
-            </FormControl>
-            <Button
-              variant="outlined"
-              onClick={addIngredient}
-              sx={{ height: 40 }}
-            >
-              Add
-            </Button>
-          </Box>
-
-          {ingredients.length > 0 && (
-            <List dense disablePadding>
-              {ingredients.map((ingredient, i) => {
-                return (
-                  <ListItem
-                    key={i}
-                    disablePadding
-                    secondaryAction={
-                      <IconButton
-                        edge="end"
-                        size="small"
-                        onClick={() => removeIngredient(i)}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    }
-                    sx={{
-                      py: 0.5,
-                      borderBottom: "1px solid",
-                      borderColor: "divider",
-                    }}
+            Add
+          </Button>
+          <Stack gap={2}>
+            {ingredientsFieldArray.fields.map((ingredient, index) => {
+              return (
+                <Box
+                  key={ingredient.id}
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 90px 80px auto",
+                    gap: 1.5,
+                    alignItems: "top",
+                  }}
+                >
+                  <Controller
+                    name={`ingredients.${index}.food`}
+                    control={control}
+                    rules={{ required: "Required" }}
+                    render={({ field }) => (
+                      <Autocomplete
+                        options={foods}
+                        getOptionLabel={(food) => food.name}
+                        value={foods.find((f) => f === field.value) ?? null}
+                        onChange={(_, food) => field.onChange(food ?? null)}
+                        inputValue={foodSearch}
+                        onInputChange={(_, value) => setFoodSearch(value)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Food"
+                            size="small"
+                            error={!!errors.ingredients?.[index]?.food}
+                            helperText={
+                              errors.ingredients?.[index]?.food?.message
+                            }
+                          />
+                        )}
+                        filterOptions={(x) => x}
+                      />
+                    )}
+                  />
+                  <TextField
+                    label="Amount"
+                    {...register(`ingredients.${index}.amount`, {
+                      required: "Required",
+                      valueAsNumber: true,
+                      validate: (v) =>
+                        (v && v > 0) ||
+                        "Ingredient amount must be a positive number",
+                    })}
+                    type="number"
+                    error={!!errors.ingredients?.[index]?.amount}
+                    helperText={errors.ingredients?.[index]?.amount?.message}
+                    size="small"
+                  />
+                  <FormControl
+                    size="small"
+                    error={!!errors.ingredients?.[index]?.unitId}
                   >
-                    <ListItemText
-                      primary={ingredient.food.name}
-                      secondary={`${ingredient.amount} ${ingredient.unit.name}`}
+                    <InputLabel id="unit-label">Unit</InputLabel>
+                    <Controller
+                      name={`ingredients.${index}.unitId`}
+                      control={control}
+                      rules={{ required: "Required" }}
+                      render={({ field }) => (
+                        <Select {...field} labelId="unit-label" label="Unit">
+                          {ingredient.food?.units?.map((unit) => (
+                            <MenuItem key={unit.unit.name} value={unit.unit.id}>
+                              {unit.unit.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      )}
                     />
-                  </ListItem>
-                );
-              })}
-            </List>
-          )}
+                  </FormControl>
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    onClick={() => removeIngredient(index)}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              );
+            })}
+          </Stack>
           <Box sx={{ pt: 1 }}>
             <NutritionRow cal={900} prot={40} carbs={30} fat={30} />
           </Box>
