@@ -1,7 +1,5 @@
 import { useSearchFoods } from "@/hooks/foods";
-import {
-  useCreateRecipe
-} from "@/hooks/recipes";
+import { useCreateRecipe } from "@/hooks/recipes";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Alert,
@@ -23,32 +21,39 @@ import {
   Select,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 import { useState } from "react";
 import {
   Controller,
   SubmitHandler,
   useFieldArray,
-  useForm
+  useForm,
 } from "react-hook-form";
 import type { Food, RecipePost, Unit } from "../../types";
 import { NutritionRow, RECIPE_CATEGORIES } from "./Recipes";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type FormIngredient = {
-  amount: number;
-  food: Food;
-  unit: Unit;
-};
+const createRecipeSchema = z.object({
+  name: z.string().min(1, "Recipe name is required"),
+  description: z.string().nullable(),
+  category: z.string().nullable(),
+  instructions: z.string().nullable(),
+  prepTime: z.number().nonnegative().nullable(),
+  cookTime: z.number().nonnegative().nullable(),
+  servings: z.int().positive(),
+  ingredients: z.array(z.object({
+    
+  })),
+  currentIngredient: z.object({
+    amount: z.number().positive(),
+    unitId: z.int().positive().nullable(),
+    food: z.object({}).nullable(),
+  }),
+});
 
-type CreateRecipeFormData = Omit<RecipePost, "ingredients"> & {
-  ingredients: FormIngredient[];
-  currentIngredient: {
-    amount: number;
-    food: Food | null;
-    unitId: number | null;
-  };
-};
+type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;
 
 export function CreateRecipeDialog({
   open,
@@ -73,6 +78,7 @@ export function CreateRecipeDialog({
     resetField,
     trigger,
   } = useForm<CreateRecipeFormData>({
+    resolver: zodResolver(createRecipeSchema),
     defaultValues: {
       currentIngredient: {
         amount: 0,

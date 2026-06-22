@@ -118,12 +118,12 @@ export type RecipeFoodPost = {
 export type RecipePost = {
   name: string;
   ingredients: RecipeFoodPost[];
-  category?: string;
-  description?: string;
-  instructions?: string[];
-  prepTime?: number;
-  cookTime?: number;
-  servings?: number;
+  category: string | null;
+  description: string | null;
+  instructions: string[] | null;
+  prepTime: number | null;
+  cookTime: number | null;
+  servings: number;
 };
 
 /* export type MealItem = {
