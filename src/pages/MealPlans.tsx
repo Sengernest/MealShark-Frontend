@@ -27,11 +27,20 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type { MealPlan, MealPlanPost, MealPost, MealWithNutrition } from "../types";
-import { useCreateMealPlan, useGetMyMealPlans } from "@/hooks/mealPlans";
-import { useCurrentUser } from "@/hooks/auth";
-import { recipes } from "@/mock/data";
-import { Foods } from "./Foods";
+import type {
+  MealPlan,
+  MealPlanPost,
+  MealPost,
+  MealWithNutrition,
+} from "../types";
+import {
+  useActivateMealPlan,
+  useCreateMealPlan,
+  useGetAllMealPlans,
+  useGetMyMealPlans,
+  useGetSampleMealPlans,
+} from "@/hooks/mealPlans";
+import { useSearchParams } from "react-router";
 
 function mealCalories(meal: MealWithNutrition["meal"], nutrition: any) {
   return nutrition?.calories ?? 0;
@@ -131,7 +140,7 @@ function PlanDetailDialog({
         >
           <Box>
             <Chip
-              label={plan.isProvided ? "Provided" : "My Plan"}
+              label={plan.isSample ? "Sample" : "My Plan"}
               size="small"
               variant="outlined"
               sx={{ mb: 1 }}
@@ -142,7 +151,7 @@ function PlanDetailDialog({
               sx={{ color: "text.secondary", mt: 0.5 }}
             >
               {plan.description}
-            </Typography> 
+            </Typography>
           </Box>
           {/* <Chip
             label={`${plan.targetCalories} kcal target`}
@@ -249,13 +258,12 @@ function CreatePlanDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  //const { recipes, foods, addMealPlan } = useApp();
   const createMealPlan = useCreateMealPlan();
   const [name, setName] = useState("");
   const [meals, setMeals] = useState<MealPost[]>([
     { mealPlanIndex: 0, recipeItems: [], foodItems: [] },
   ]);
-  //const [description, setDescription] = useState("");
+  const [description, setDescription] = useState("");
 
   const addMeal = () => {
     setMeals((prev) => [
@@ -374,6 +382,7 @@ function CreatePlanDialog({
     const payload: MealPlanPost = {
       name,
       meals,
+      description,
     };
 
     createMealPlan.mutate(payload);
@@ -404,7 +413,7 @@ function CreatePlanDialog({
             onChange={(e) => setDescription(e.target.value)}
             fullWidth
             sx={{ gridColumn: "1/-1" }}
-          /> 
+          />
           {/* <TextField label="Daily Calorie Target" value={targetCal} onChange={(e) => setTargetCal(e.target.value)} type="number" /> */}
         </Box>
 
@@ -619,14 +628,8 @@ function PlanCard({
   onView: () => void;
   onSetActive: () => void;
 }) {
-  const avgCal = plan.days.length
-    ? Math.round(
-        plan.days.reduce(
-          (s, d) => s + d.slots.reduce((ss, sl) => ss + slotCalories(sl), 0),
-          0,
-        ) / plan.days.length,
-      )
-    : 0;
+  const totalCalories =
+    plan.meals?.reduce((sum, m) => sum + (m.nutrition?.calories ?? 0), 0) ?? 0;
 
   return (
     <Card
@@ -653,7 +656,7 @@ function PlanCard({
         >
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Chip
-              label={plan.isProvided ? "Provided" : "My Plan"}
+              label={plan.isSample ? "Sample" : "My Plan"}
               size="small"
               variant="outlined"
               sx={{ fontSize: 11 }}
@@ -698,17 +701,17 @@ function PlanCard({
                 lineHeight: 1,
               }}
             >
-              {avgCal}
+              {totalCalories}
             </Typography>
             <Typography
               variant="caption"
               sx={{ color: "text.disabled", fontSize: 10 }}
             >
-              AVG KCAL/DAY
+              TOTAL KCAL
             </Typography>
           </Box>
           <Box>
-            <Typography
+            {/* <Typography
               sx={{
                 color: "#3db5f2",
                 fontFamily: "'Barlow Condensed'",
@@ -718,15 +721,15 @@ function PlanCard({
               }}
             >
               {plan.targetCalories}
-            </Typography>
+            </Typography> 
             <Typography
               variant="caption"
               sx={{ color: "text.disabled", fontSize: 10 }}
             >
               TARGET
-            </Typography>
+            </Typography> */}
           </Box>
-          <Box sx={{ ml: "auto" }}>
+          {/*<Box sx={{ ml: "auto" }}>
             <Typography
               sx={{
                 fontFamily: "'Barlow Condensed'",
@@ -744,7 +747,7 @@ function PlanCard({
             >
               DAYS
             </Typography>
-          </Box>
+          </Box> */}
         </Box>
       </CardContent>
       <CardActions sx={{ pt: 0, px: 2, pb: 2, gap: 1 }}>
@@ -772,16 +775,19 @@ function PlanCard({
 }
 
 export function MealPlans() {
-  //const { mealPlans, activePlanId, setActivePlan } = useApp();
-  const { data: mealPlans = [] } = useGetMyMealPlans();
-  const { data: user } = useCurrentUser();
-  const [tab, setTab] = useState(0);
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
+  const tab = urlSearchParams.get("tab");
 
-  const filtered = mealPlans.filter((p) =>
-    tab === 0 ? true : tab === 1 ? p.creatorId === user?.id : true,
-  );
+  const allMealPlans = useGetAllMealPlans();
+  const myMealPlans = useGetMyMealPlans();
+  const sampleMealPlans = useGetSampleMealPlans();
+
+  const { data: mealPlans = [] } =
+    tab === "samples" ? sampleMealPlans : tab === "me" ? myMealPlans : allMealPlans;
+
+  const activateMealPlan = useActivateMealPlan();
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
@@ -810,10 +816,14 @@ export function MealPlans() {
         </Button>
       </Box>
 
-      <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ mb: 2.5 }}>
-        <Tab label={`All (${mealPlans.length})`} />
-        <Tab label="My Plans" />
-        <Tab label="Provided" />
+      <Tabs
+        value={tab}
+        onChange={(_, v) => setUrlSearchParams({ tab: v })}
+        sx={{ mb: 2.5 }}
+      >
+        <Tab label={`All (${mealPlans.length})`} value={"all"} />
+        <Tab label="Sample Meal Plans" value={"samples"} />
+        <Tab label="My Meal Plans" value={"me"} />
       </Tabs>
 
       <Box
@@ -823,16 +833,17 @@ export function MealPlans() {
           gap: 2,
         }}
       >
-        {filtered.map((p) => (
+        {mealPlans.map((p) => (
           <PlanCard
             key={p.id}
             plan={p}
-            isActive={p.id === activePlanId}
+            isActive={p.isActive}
             onView={() => setViewPlan(p)}
-            onSetActive={() => setActivePlan(p.id)}
+            onSetActive={() => activateMealPlan.mutate(Number(p.id))}
           />
         ))}
-        {filtered.length === 0 && (
+
+        {mealPlans.length === 0 && (
           <Box sx={{ gridColumn: "1/-1", textAlign: "center", py: 8 }}>
             <Typography variant="body1" sx={{ color: "text.disabled" }}>
               No meal plans found.

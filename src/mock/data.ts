@@ -1,4 +1,4 @@
-export type FoodItem = {
+/*export type FoodItem = {
   id: string;
   name: string;
   calories: number;
@@ -287,4 +287,4 @@ export const mealLog: MealLogEntry[] = [
   { id: "l10", date: "2024-01-23", meal: "Lunch", type: "recipe", name: "High-Protein Chicken Bowl", calories: 601, protein: 71, carbs: 56, fat: 6, quantity: 1, unit: "serving" },
   { id: "l11", date: "2024-01-23", meal: "Snack", type: "food", name: "Greek Yogurt", calories: 100, protein: 17, carbs: 6, fat: 0.7, quantity: 1, unit: "serving" },
   { id: "l12", date: "2024-01-23", meal: "Dinner", type: "recipe", name: "Salmon & Sweet Potato", calories: 434, protein: 45.3, carbs: 27.6, fat: 13.5, quantity: 1, unit: "serving" },
-];
+]; */

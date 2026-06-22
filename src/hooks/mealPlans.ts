@@ -23,6 +23,13 @@ export const useGetMyMealPlan = (mealPlanId: number) => {
   });
 };
 
+export const useGetAllMealPlans = () => {
+  return useQuery({
+    queryKey: ["meal-plans"],
+    queryFn: mealPlanApi.getAllMealPlans,
+  });
+};
+
 export const useCreateMealPlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -58,3 +65,14 @@ export const useDeleteMealPlan = () => {
     },
   });
 };
+
+export const useActivateMealPlan = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (mealPlanId: number) => mealPlanApi.activateMealPlan(mealPlanId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meal-plans"] });
+    },
+  });
+};
+
