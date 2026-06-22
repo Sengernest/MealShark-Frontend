@@ -62,6 +62,7 @@ export function CreateRecipeDialog({
     handleSubmit,
     formState: { errors },
     control,
+    watch
   } = useForm<CreateRecipeFormData>();
 
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
@@ -103,7 +104,7 @@ export function CreateRecipeDialog({
           <Stack gap={1}>
             {Object.entries(errors).map(
               ([field, error], i) =>
-                field !== "currentIngredient" && (
+                field !== "currentIngredient" && error.message && (
                   <Alert key={i} severity="error">
                     {error.message}
                   </Alert>
@@ -174,6 +175,7 @@ export function CreateRecipeDialog({
           </Button>
           <Stack gap={2}>
             {ingredientsFieldArray.fields.map((ingredient, index) => {
+              const selectedFood = watch(`ingredients.${index}.food`);
               return (
                 <Box
                   key={ingredient.id}
@@ -192,7 +194,8 @@ export function CreateRecipeDialog({
                       <Autocomplete
                         options={foods}
                         getOptionLabel={(food) => food.name}
-                        value={foods.find((f) => f === field.value) ?? null}
+                        value={field.value}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
                         onChange={(_, food) => field.onChange(food ?? null)}
                         inputValue={foodSearch}
                         onInputChange={(_, value) => setFoodSearch(value)}
@@ -236,7 +239,7 @@ export function CreateRecipeDialog({
                       rules={{ required: "Required" }}
                       render={({ field }) => (
                         <Select {...field} labelId="unit-label" label="Unit">
-                          {ingredient.food?.units?.map((unit) => (
+                          {selectedFood?.units?.map((unit) => (
                             <MenuItem key={unit.unit.name} value={unit.unit.id}>
                               {unit.unit.name}
                             </MenuItem>
