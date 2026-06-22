@@ -131,7 +131,7 @@ export type RecipePost = {
   ingredients: RecipeFoodPost[];
   category: string | null;
   description: string | null;
-  instructions: string[] | null;
+  instructions: string | null;
   prepTime: number | null;
   cookTime: number | null;
   servings: number;

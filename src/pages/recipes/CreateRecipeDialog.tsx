@@ -1,5 +1,6 @@
 import { useSearchFoods } from "@/hooks/foods";
 import { useCreateRecipe } from "@/hooks/recipes";
+import { zodResolver } from "@hookform/resolvers/zod";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Alert,
@@ -24,36 +25,40 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import {
-  Controller,
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 import type { Food, RecipePost, Unit } from "../../types";
 import { NutritionRow, RECIPE_CATEGORIES } from "./Recipes";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const createRecipeSchema = z.object({
   name: z.string().min(1, "Recipe name is required"),
-  description: z.string().nullable(),
-  category: z.string().nullable(),
-  instructions: z.string().nullable(),
-  prepTime: z.number().nonnegative().nullable(),
-  cookTime: z.number().nonnegative().nullable(),
-  servings: z.int().positive(),
-  ingredients: z.array(z.object({
-    
-  })),
+  description: z.string(),
+  category: z.string(),
+  instructions: z.string(),
+  prepTime: z.preprocess(
+    (v) => (v === "" || v == null ? null : Number(v)),
+    z.number("Prep time must be a number").nonnegative("Prep time must be non-negative").nullable(),
+  ),
+  cookTime: z.preprocess(
+    (v) => (v === "" || v == null ? null : Number(v)),
+    z.number("Cook time must be a number").nonnegative("Cook time must be non-negative").nullable(),
+  ),
+  servings: z.int("Servings must be an integer")
+    .positive("Servings must be at least 1"),
   currentIngredient: z.object({
-    amount: z.number().positive(),
-    unitId: z.int().positive().nullable(),
-    food: z.object({}).nullable(),
+    foodId: z.int("Ingredient food is required").positive(),
+    unitId: z.int("Ingredient unit is required").positive(),
+    amount: z.number().positive("Ingredient amount must be positive"),
   }),
 });
 
 type CreateRecipeFormData = z.infer<typeof createRecipeSchema>;
+
+type Ingredient = {
+  food: Food;
+  unit: Unit;
+  amount: number;
+};
 
 export function CreateRecipeDialog({
   open,
@@ -65,8 +70,8 @@ export function CreateRecipeDialog({
   const [foodSearch, setFoodSearch] = useState("");
   const { data } = useSearchFoods(foodSearch, 20);
   const foods = data ?? [];
-
   const createRecipe = useCreateRecipe();
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
   const {
     register,
@@ -77,67 +82,66 @@ export function CreateRecipeDialog({
     getValues,
     resetField,
     trigger,
-  } = useForm<CreateRecipeFormData>({
+  } = useForm({
     resolver: zodResolver(createRecipeSchema),
     defaultValues: {
       currentIngredient: {
         amount: 0,
-        food: null,
-        unitId: null,
+        foodId: undefined,
+        unitId: undefined,
       },
     },
   });
 
-  const ingredientsFieldArray = useFieldArray({
-    control,
-    name: "ingredients",
-  });
+  const currentIngredient = watch("currentIngredient");
+  // Food that is currently selected
+  const currentFood = foods.find(
+    (food) => food.id === currentIngredient.foodId,
+  );
+  const currentUnit = currentFood?.units.find(
+    (foodUnit) => foodUnit.unitId === currentIngredient.unitId,
+  )?.unit;
 
   const addIngredient = async () => {
     // Validate food, amount and unit fields before adding
     const valid = await trigger([
-      "currentIngredient.food",
+      "currentIngredient.foodId",
       "currentIngredient.amount",
       "currentIngredient.unitId",
     ]);
     if (!valid) return;
 
-    const currentIngredient = getValues("currentIngredient");
-    // These fields should never be null after the validation above
-    if (!currentIngredient.food || !currentIngredient.unitId) {
+    // These values should never be null after the validation above
+    if (!currentFood || !currentUnit) {
       return;
     }
 
-    const unit = currentIngredient.food.units.find(
-      (foodUnit) => foodUnit.unitId === currentIngredient.unitId,
-    )!.unit;
-    ingredientsFieldArray.append({
-      amount: currentIngredient.amount,
-      food: currentIngredient.food,
-      unit,
-    });
-
-    resetField("currentIngredient", {
-      defaultValue: {
-        amount: 0,
-        food: null,
-        unitId: null,
+    // Add to ingredients list
+    setIngredients((prev) => [
+      ...prev,
+      {
+        food: currentFood,
+        unit: currentUnit,
+        amount: currentIngredient.amount,
       },
-    });
+    ]);
+
+    // Clear current ingredient state
+    resetField("currentIngredient");
 
     // Clear food search input
     setFoodSearch("");
   };
 
   const removeIngredient = (i: number) => {
-    ingredientsFieldArray.remove(i);
+    setIngredients((prev) => prev.filter((_, index) => index !== i));
   };
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
     const { currentIngredient, ...recipe } = formData;
     const payload: RecipePost = {
       ...recipe,
-      ingredients: recipe.ingredients.map((ingredient) => ({
+      ingredients: ingredients.map((ingredient) => ({
         foodId: ingredient.food.id,
         amount: ingredient.amount,
         unitId: ingredient.unit.id,
@@ -147,13 +151,13 @@ export function CreateRecipeDialog({
     onClose();
   };
 
-  const currentIngredient = watch("currentIngredient");
-
   const ingredientErrors = [
-    { message: errors.currentIngredient?.food?.message },
+    { message: errors.currentIngredient?.foodId?.message },
     { message: errors.currentIngredient?.amount?.message },
     { message: errors.currentIngredient?.unitId?.message },
   ];
+
+  console.log(currentIngredient);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -177,7 +181,7 @@ export function CreateRecipeDialog({
 
           <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
             <TextField
-              {...register("name", { required: "Recipe name is required" })}
+              {...register("name")}
               label="Recipe Name"
               fullWidth
               sx={{ gridColumn: "1/-1" }}
@@ -202,28 +206,17 @@ export function CreateRecipeDialog({
             </FormControl>
             <TextField
               label="Servings"
-              {...register("servings", {
-                required: "Servings is required",
-                min: { value: 1, message: "Servings must be at least 1" },
-                valueAsNumber: true,
-              })}
+              {...register("servings", {valueAsNumber: true})}
               type="number"
-              inputMode="numeric"
             />
             <TextField
               label="Prep Time (min)"
-              {...register("prepTime", {
-                min: { value: 0, message: "Prep time cannot be negative" },
-                valueAsNumber: true,
-              })}
+              {...register("prepTime")}
               type="number"
             />
             <TextField
               label="Cook Time (min)"
-              {...register("cookTime", {
-                min: { value: 0, message: "Cook time cannot be negative" },
-                valueAsNumber: true,
-              })}
+              {...register("cookTime")}
               type="number"
             />
           </Box>
@@ -248,15 +241,15 @@ export function CreateRecipeDialog({
             }}
           >
             <Controller
-              name="currentIngredient.food"
-              control={control}
+              name="currentIngredient.foodId"
               rules={{ required: "Ingredient food is required" }}
+              control={control}
               render={({ field }) => (
                 <Autocomplete
                   options={foods}
                   getOptionLabel={(food) => food.name}
-                  value={foods.find((f) => f.id === field.value?.id) ?? null}
-                  onChange={(_, food) => field.onChange(food)}
+                  value={foods.find((f) => f.id === field.value) ?? null}
+                  onChange={(_, food) => field.onChange(food?.id ?? null)}
                   inputValue={foodSearch}
                   onInputChange={(_, value) => setFoodSearch(value)}
                   renderInput={(params) => (
@@ -268,12 +261,7 @@ export function CreateRecipeDialog({
             />
             <TextField
               label="Amount"
-              {...register("currentIngredient.amount", {
-                required: "Ingredient amount is required",
-                valueAsNumber: true,
-                validate: (v) =>
-                  v > 0 || "Ingredient amount must be a positive number",
-              })}
+              {...register("currentIngredient.amount", { valueAsNumber: true })}
               type="number"
               size="small"
             />
@@ -281,12 +269,12 @@ export function CreateRecipeDialog({
               <InputLabel id="unit-label">Unit</InputLabel>
               <Controller
                 name="currentIngredient.unitId"
+                rules={{ required: "Ingredient unit" }}
                 control={control}
-                disabled={!currentIngredient.food}
-                rules={{ required: "Ingredient unit is required" }}
+                disabled={!currentIngredient.foodId}
                 render={({ field }) => (
                   <Select {...field} labelId="unit-label" label="Unit">
-                    {currentIngredient?.food?.units?.map((unit) => (
+                    {currentFood?.units?.map((unit) => (
                       <MenuItem key={unit.unit.name} value={unit.unit.id}>
                         {unit.unit.name}
                       </MenuItem>
@@ -304,9 +292,9 @@ export function CreateRecipeDialog({
             </Button>
           </Box>
 
-          {ingredientsFieldArray.fields.length > 0 && (
+          {ingredients.length > 0 && (
             <List dense disablePadding>
-              {ingredientsFieldArray.fields.map((ingredient, i) => {
+              {ingredients.map((ingredient, i) => {
                 return (
                   <ListItem
                     key={i}
@@ -342,7 +330,7 @@ export function CreateRecipeDialog({
           <Divider />
           <TextField
             label="Instructions"
-            {...register("instructions", { maxLength: 2000 })}
+            {...register("instructions")}
             multiline
             rows={4}
             fullWidth
