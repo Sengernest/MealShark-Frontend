@@ -65,7 +65,7 @@ export function CreateRecipeDialog({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     control,
     watch,
   } = useForm<CreateRecipeFormData>();
@@ -208,7 +208,7 @@ export function CreateRecipeDialog({
           <Button onClick={onClose} sx={{ color: "text.secondary" }}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
             Create Recipe
           </Button>
         </DialogActions>
