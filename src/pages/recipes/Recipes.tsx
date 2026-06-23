@@ -1,8 +1,11 @@
 import {
+  useDeleteRecipe,
   useGetAllRecipes,
   useGetMyRecipes,
-  useGetSampleRecipes
+  useGetSampleRecipes,
 } from "@/hooks/recipes";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AddIcon from "@mui/icons-material/Add";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
@@ -34,7 +37,7 @@ import {
   Tabs,
   TextField,
   Tooltip,
-  Typography
+  Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
@@ -199,13 +202,20 @@ function RecipeCard({
 function RecipeDetailDialog({
   recipe,
   onClose,
+  onEdit,
+  onDelete,
 }: {
   recipe: Recipe;
   onClose: () => void;
+  onEdit: (recipe: Recipe) => void;
+  onDelete: (recipeId: number) => void;
 }) {
   const toggleSaveRecipe = (recipeId: number) => {
     // TODO:
   };
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   return (
     <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
@@ -225,14 +235,31 @@ function RecipeDetailDialog({
             />
             <Typography variant="h4">{recipe.name}</Typography>
           </Box>
-          <Tooltip title={recipe.isSaved ? "Unsave" : "Save"}>
-            <IconButton
-              onClick={() => toggleSaveRecipe(recipe.id)}
-              sx={{ color: recipe.isSaved ? "primary.main" : "text.disabled" }}
-            >
-              {recipe.isSaved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-            </IconButton>
-          </Tooltip>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Tooltip title="Edit">
+              <IconButton onClick={() => onEdit(recipe)} color="primary">
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Delete">
+              <IconButton color="error" onClick={() => setDeleteOpen(true)}>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title={recipe.isSaved ? "Unsave" : "Save"}>
+              <IconButton
+                onClick={() => toggleSaveRecipe(recipe.id)}
+                sx={{
+                  color: recipe.isSaved ? "primary.main" : "text.disabled",
+                }}
+              >
+                {recipe.isSaved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </DialogTitle>
       <DialogContent>
@@ -342,6 +369,32 @@ function RecipeDetailDialog({
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>Confirm Delete Recipe</DialogTitle>
+
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{recipe.name}</strong>?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => {
+              onDelete(recipe.id);
+              setDeleteOpen(false);
+              onClose();
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 }
@@ -355,6 +408,8 @@ export function Recipes() {
   const [viewRecipe, setViewRecipe] = useState<Recipe | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+
   const { data } =
     tab === "samples"
       ? useGetSampleRecipes()
@@ -362,6 +417,8 @@ export function Recipes() {
         ? useGetMyRecipes()
         : useGetAllRecipes();
   const recipes = data ?? [];
+
+  const deleteRecipe = useDeleteRecipe();
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
@@ -467,10 +524,22 @@ export function Recipes() {
         <RecipeDetailDialog
           recipe={viewRecipe}
           onClose={() => setViewRecipe(null)}
+          onEdit={(recipe) => {
+            setEditingRecipe(recipe);
+            setViewRecipe(null);
+            setCreateOpen(true);
+          }}
+          onDelete={(id) => {
+            deleteRecipe.mutate(id);
+          }}
         />
       )}
       {createOpen && (
-        <CreateRecipeDialog open onClose={() => setCreateOpen(false)} />
+        <CreateRecipeDialog
+          open
+          recipe={editingRecipe}
+          onClose={() => setCreateOpen(false)}
+        />
       )}
     </Box>
   );
