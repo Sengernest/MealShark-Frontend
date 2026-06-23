@@ -1,13 +1,8 @@
-import { MealLog, MealLogPost } from "@/types";
+import { MealLog, MealLogPost, MealSummary } from "@/types";
 import { api } from "./baseApi";
 
-async function getMyMealLogs(): Promise<MealLog[]> {
-  const res = await api.get("/me/meal-logs");
-  return res.data;
-}
-
-async function getMealLog(mealLogId: number): Promise<MealLog> {
-  const res = await api.get(`/meal-logs/${mealLogId}`);
+async function getMyDailySummary(date: Date): Promise<MealSummary> {
+  const res = await api.get(`/me/meal-logs/daily-summary?date=${date}`);
   return res.data;
 }
 
@@ -30,8 +25,7 @@ async function deleteMealLog(mealLogId: number) {
 }
 
 export const mealLogApi = {
-  getMyMealLogs,
-  getMealLog,
+  getMyDailySummary,
   createMealLog,
   updateMealLog,
   deleteMealLog,

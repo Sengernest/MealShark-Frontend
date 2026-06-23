@@ -2,17 +2,10 @@ import { mealLogApi } from "@/api/mealLogs";
 import { MealLogPost } from "@/types";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
-export const useGetMealLogs = () => {
+export const useGetMealSummary = (date: Date) => {
   return useQuery({
     queryKey: ["mealLogs"],
-    queryFn: mealLogApi.getMyMealLogs,
-  });
-};
-
-export const useGetMealLog = (mealLogId: number) => {
-  return useQuery({
-    queryKey: ["mealLogs", mealLogId],
-    queryFn: () => mealLogApi.getMealLog(mealLogId),
+    queryFn: () => mealLogApi.getMyDailySummary(date),
   });
 };
 
