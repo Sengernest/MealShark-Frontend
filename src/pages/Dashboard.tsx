@@ -17,6 +17,7 @@ import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { Link } from "react-router";
 import { useCurrentUser } from "@/hooks/auth";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
+import { useGetMyMealPlans } from "@/hooks/mealPlans";
 
 const logCarbs = 0;
 const logFat = 0;
@@ -124,9 +125,16 @@ export function Dashboard() {
   //const { user, getLogEntry, mealPlans, activePlanId } = useApp();
   const { data: user } = useCurrentUser();
   const { data: goals } = useGetMyNutritionGoals();
-  //const goal = user?.nutritionGoal;
+  const { data: mealPlans = [] } = useGetMyMealPlans();
   // const todayLog = getLogEntry(TODAY);
-  //const activePlan = mealPlans.find((p) => p.id === activePlanId);
+  const activePlan = mealPlans.find((p) => p.isActive);
+
+  const profileChanged =
+    goals &&
+    user &&
+    (goals.age !== user.age ||
+      goals.height !== user.height ||
+      goals.gender !== user.gender);
 
   // Sum today's logged nutrition
   /*=let logCal = 0,
@@ -177,7 +185,7 @@ export function Dashboard() {
       </Box>
 
       {/* Goal prompt */}
-      {!goals && (
+      {(!goals || profileChanged) && (
         <Card sx={{ mb: 3, borderColor: "primary.main", borderWidth: 1 }}>
           <CardContent
             sx={{
@@ -189,14 +197,20 @@ export function Dashboard() {
             }}
           >
             <Box>
-              <Typography variant="h6">SET UP YOUR NUTRITION GOALS</Typography>
+              <Typography variant="h6">
+                {!goals
+                  ? "SET UP YOUR NUTRITION GOALS"
+                  : "EDIT YOUR NUTRITION GOALS"}
+              </Typography>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                Enter your stats to get personalised calorie and macro targets.
+                {!goals
+                  ? "Enter your stats to get personalised calorie and macro targets."
+                  : "Edit your goals as your stats have changed."}
               </Typography>
             </Box>
             <Link to={"/goals"}>
               <Button variant="contained" endIcon={<ArrowForwardIcon />}>
-                Set Goals
+                {!goals ? "Set Goals" : "Edit Goals"}
               </Button>
             </Link>
           </CardContent>
@@ -214,18 +228,18 @@ export function Dashboard() {
         />
         <StatCard
           icon={<TrackChangesIcon />}
-          label="Daily Target"
+          label="Nutrition Goals"
           value={goals ? `${goals.calories}` : "—"}
           sub="kcal / day"
           color="#3df2a8"
         />
-        {/* <StatCard
+        <StatCard
           icon={<CalendarMonthIcon />}
-          label="Active Plan"
-          value={activePlan ? activePlan.days.length + "d" : "None"}
+          label="Active Meal Plan"
+          value={activePlan ? activePlan.nutrition.calories + " kcal" : "None"}
           sub={activePlan?.name ?? "No plan set"}
           color="#3db5f2"
-        /> */}
+        />
         {/*} <StatCard
           icon={<HistoryIcon />}
           label="Meals Logged"
@@ -248,9 +262,7 @@ export function Dashboard() {
                   mb: 2.5,
                 }}
               >
-                <Typography variant="h6">
-                  TODAY'S NUTRITION
-                </Typography>
+                <Typography variant="h6">TODAY'S NUTRITION</Typography>
 
                 <Link to="/meal-log">
                   <Button endIcon={<ArrowForwardIcon />} size="small">
@@ -258,7 +270,6 @@ export function Dashboard() {
                   </Button>
                 </Link>
               </Box>
-
 
               {/* Calorie ring visual */}
               <Box
@@ -376,15 +387,13 @@ export function Dashboard() {
                 >
                   Set your goals to track macros
                 </Typography>
-
               )}
-
             </CardContent>
           </Card>
         </Grid>
 
         {/* Active meal plan preview */}
-        {/* 
+
         <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
@@ -418,21 +427,21 @@ export function Dashboard() {
                     sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}
                   >
                     <Chip
-                      label={`${activePlan.targetCalories} kcal target`}
+                      label={`${activePlan.nutrition.calories} kcal `}
                       size="small"
                       color="primary"
                       variant="outlined"
                     />
                     <Chip
-                      label={`${activePlan.days.length} days`}
+                      label={`${activePlan.targetCalories} kcal target `}
                       size="small"
                       variant="outlined"
                     />
                   </Box>
-                  <Divider sx={{ mb: 2 }} /> */}
-        {/* Today's plan slots */}
-        {/* 
-                  {(() => {
+                  <Divider sx={{ mb: 2 }} />
+
+                  {/* Today's plan slots */}
+                  {/* {(() => {
                     const dayNames = [
                       "Sun",
                       "Mon",
@@ -550,7 +559,7 @@ export function Dashboard() {
                         No meals planned for today.
                       </Typography>
                     );
-                  })()}
+                  })()} */}
                 </>
               ) : (
                 <Box sx={{ textAlign: "center", py: 4 }}>
@@ -568,7 +577,7 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
-        */}
+
         {/* Quick links */}
         <Grid size={12}>
           <Card>

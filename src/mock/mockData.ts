@@ -1,4 +1,4 @@
-import type { Food, Recipe, MealPlan, MealItem } from "../../types";
+/*import type { Food, Recipe, MealPlan, MealItem } from "../../types";
 
 export const FOODS: Food[] = [
   { id: "f1", name: "Chicken Breast", category: "Protein", caloriesPer100g: 165, proteinPer100g: 31, carbsPer100g: 0, fatPer100g: 3.6, isCustom: false },
@@ -258,4 +258,4 @@ export const MEAL_PLANS: MealPlan[] = [
       },
     ],
   },
-];
+]; */

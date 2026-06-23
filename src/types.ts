@@ -30,8 +30,8 @@ export type User = {
 
 export type ChangePasswordInput = {
   currentPassword: string;
-  newPassword: string; 
-}
+  newPassword: string;
+};
 
 export type Profile = {
   name: string;
@@ -39,7 +39,7 @@ export type Profile = {
   birthDate?: string;
   height?: number;
   gender?: "male" | "female";
-}
+};
 
 export type NutritionGoals = {
   id: number;
@@ -68,7 +68,7 @@ export type Food = {
   carbs: number;
   fat: number;
 
-  units: FoodUnit[]
+  units: FoodUnit[];
 };
 
 export type Nutrition = {
@@ -82,15 +82,15 @@ export type Nutrition = {
 
 export type Unit = {
   id: number;
-  name: string
-}
+  name: string;
+};
 
 export type FoodUnit = {
   foodId: number;
   unitId: number;
-  unit: Unit
-  gramsPerUnit: number
-}
+  unit: Unit;
+  gramsPerUnit: number;
+};
 
 export type RecipeFood = {
   foodId: number;
@@ -121,10 +121,10 @@ export type Recipe = RecipeBase & {
 };
 
 export type RecipeFoodPost = {
-  foodId: number
-  unitId: number
-  amount: number
-}
+  foodId: number;
+  unitId: number;
+  amount: number;
+};
 
 export type RecipePost = {
   name: string;
@@ -182,7 +182,6 @@ export type MealFood = {
   food: Food;
 };
 
-
 export type Meal = {
   id: number;
   mealPlanId: number;
@@ -202,6 +201,9 @@ export type MealPlan = {
   creatorId: number | null;
   meals: MealWithNutrition[];
   nutrition: Nutrition;
+  targetCalories: number;
+  description: string | null;
+  isActive: boolean;
 };
 
 export type MealLogRecipe = {
@@ -253,22 +255,21 @@ export type NutritionGoalsPost = {
   age: number;
   gender: string;
   currentWeight: number;
-  goalWeight: number
+  goalWeight: number;
   height: number;
   activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
-  goal: "bulk_0.25" |"bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
+  goal: "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
 };
-
 
 type MealRecipePost = {
   recipeId: number;
   servings: number;
-}
+};
 
 type MealFoodPost = {
   foodId: number;
   amount: number;
-}
+};
 
 export type MealPost = {
   mealPlanIndex: number;
@@ -278,6 +279,8 @@ export type MealPost = {
 
 export type MealPlanPost = {
   name: string;
+  description: string | null;
+  targetCalories: number;
   meals: MealPost[];
 };
 

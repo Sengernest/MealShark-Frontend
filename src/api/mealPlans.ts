@@ -1,6 +1,5 @@
-import { MealPlan } from "@/mock/data";
 import { api } from "./baseApi";
-import { MealPlanPost } from "@/types";
+import { MealPlanPost, MealPlan } from "@/types";
 
 async function getSampleMealPlans(): Promise<MealPlan[]> {
   const res = await api.get("/meal-plans/samples");
@@ -14,6 +13,11 @@ async function getMyMealPlans(): Promise<MealPlan[]> {
 
 async function getMealPlan(mealPlanId: number): Promise<MealPlan> {
   const res = await api.get(`/meal-plans/${mealPlanId}`);
+  return res.data;
+}
+
+async function getAllMealPlans(): Promise<MealPlan[]> {
+  const res = await api.get("/meal-plans");
   return res.data;
 }
 
@@ -35,11 +39,18 @@ async function deleteMealPlan(mealPlanId: number) {
   return res.data;
 }
 
+async function activateMealPlan(mealPlanId: number): Promise<MealPlan> {
+  const res = await api.patch(`/meal-plans/${mealPlanId}`);
+  return res.data;
+}
+
 export const mealPlanApi = {
   getSampleMealPlans,
   getMyMealPlans,
   getMealPlan,
+  getAllMealPlans,
   createMealPlan,
   updateMealPlan,
   deleteMealPlan,
+  activateMealPlan
 };

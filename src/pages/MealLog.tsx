@@ -10,7 +10,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TodayIcon from "@mui/icons-material/Today";
-import type { MealLogEntry, MealLogSlot, MealItem } from "../types";
+//import type { MealLogEntry, MealLogSlot, MealItem } from "../types";
 import { useCurrentUser } from "@/hooks/auth";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import { useGetMealLog, useGetMealLogs } from "@/hooks/mealLogs";
@@ -243,7 +243,7 @@ export function MealLog() {
   const {data: mealLogs} = useGetMealLogs();
   const getMealLog = useGetMealLog; 
 
-  const { getLogEntry, upsertLogEntry } = useApp();
+  //const { getLogEntry, upsertLogEntry } = useApp();
   const [selectedDate, setSelectedDate] = useState(TODAY);
   const [addSlotFor, setAddSlotFor] = useState<string | null>(null); // slot id
   const [addItemOpen, setAddItemOpen] = useState(false);

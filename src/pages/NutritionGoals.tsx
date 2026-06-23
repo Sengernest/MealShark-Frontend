@@ -13,10 +13,21 @@ import {
   Divider,
   Grid,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { useCreateNutritionGoals, useDeleteNutritionGoals, useGetMyNutritionGoals, useUpdateNutritionGoals } from "@/hooks/nutritionGoals";
+import {
+  useCreateNutritionGoals,
+  useDeleteNutritionGoals,
+  useGetMyNutritionGoals,
+  useUpdateNutritionGoals,
+} from "@/hooks/nutritionGoals";
 import { useCurrentUser } from "@/hooks/auth";
 
 const ACTIVITY_LABELS = {
@@ -75,16 +86,19 @@ export function Goals() {
   const [goalWeight, setGoalWeight] = useState("");
   const [height, setHeight] = useState(user?.height ?? "");
   const [gender, setGender] = useState<"male" | "female" | "">(
-    user?.gender ?? ""
+    user?.gender ?? "",
   );
   const [activity, setActivity] = useState<
     "sedentary" | "light" | "moderate" | "active" | "very_active"
   >("moderate");
-  const [goal, setGoal] = useState<"bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5">("maintenance");
+  const [goal, setGoal] = useState<
+    "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5"
+  >("maintenance");
   const computedGoalWeight =
     goal === "maintenance" ? currentWeight : goalWeight;
   const [saved, setSaved] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [edited, setEdited] = useState(false);
   const [error, setError] = useState("");
   const createNutritionGoals = useCreateNutritionGoals();
@@ -109,7 +123,12 @@ export function Goals() {
       return;
     }
 
-    if (+currentWeight < 30 || +currentWeight > 300 || +goalWeight < 30 || +goalWeight > 300) {
+    if (
+      +currentWeight < 30 ||
+      +currentWeight > 300 ||
+      +goalWeight < 30 ||
+      +goalWeight > 300
+    ) {
       setError("Enter a valid weight in kg.");
       return;
     }
@@ -154,21 +173,30 @@ export function Goals() {
 
   const resetForm = () => {
     setCurrentWeight("");
-    setGoalWeight("")
+    setGoalWeight("");
     setActivity("moderate");
     setGoal("maintenance");
   };
 
-  const handleDelete = () => {
+  const handleConfirmDelete = () => {
     deleteNutritionGoals.mutate(undefined, {
       onSuccess: () => {
         resetForm();
-
         setDeleted(true);
         setTimeout(() => setDeleted(false), 3000);
+        setDeleteOpen(false);
       },
     });
   };
+
+  const profileChanged =
+    goals &&
+    user &&
+    (goals.age !== user.age ||
+      goals.height !== user.height ||
+      goals.gender !== user.gender);
+
+  const missingFields = !user?.age || !user?.height || !user?.gender;
 
   // user sync
   useEffect(() => {
@@ -223,13 +251,54 @@ export function Goals() {
           {error}
         </Alert>
       )}
-      {!user?.age ||
-        !user?.height ||
-        !user?.gender && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            Some profile details are missing. Please set your stats in your profile.
-          </Alert>
-        )}
+
+      {missingFields && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Some profile details are missing. Please set your stats in your
+          profile.
+        </Alert>
+      )}
+
+      {profileChanged && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Your stats have changed. Please edit your goals.
+        </Alert>
+      )}
+
+      <Dialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>
+          <Typography variant="h6">Confirm Delete Goals</Typography>
+        </DialogTitle>
+
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            Are you sure you want to delete your nutrition goals?
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setDeleteOpen(false)}
+            sx={{ color: "text.secondary" }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleConfirmDelete}
+            disabled={deleteNutritionGoals.isPending}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Grid container spacing={3}>
         {/* Form */}
@@ -257,12 +326,9 @@ export function Goals() {
                     value={gender.charAt(0).toUpperCase() + gender.slice(1)}
                     InputProps={{ readOnly: true }}
                   />
-
                 </Box>
 
-
-                <Box sx={{ display: "flex", gap: 2, }}>
-
+                <Box sx={{ display: "flex", gap: 2 }}>
                   <TextField
                     label="Current Weight (kg)"
                     value={currentWeight}
@@ -270,7 +336,6 @@ export function Goals() {
                     type="number"
                     sx={{ flex: 1 }}
                   />
-
 
                   <TextField
                     label="Goal Weight (kg)"
@@ -281,7 +346,6 @@ export function Goals() {
                     sx={{ flex: 1 }}
                   />
                 </Box>
-
 
                 <Divider />
 
@@ -295,11 +359,11 @@ export function Goals() {
                     onChange={(e) =>
                       setActivity(
                         e.target.value as
-                        | "sedentary"
-                        | "light"
-                        | "moderate"
-                        | "active"
-                        | "very_active",
+                          | "sedentary"
+                          | "light"
+                          | "moderate"
+                          | "active"
+                          | "very_active",
                       )
                     }
                   >
@@ -316,13 +380,22 @@ export function Goals() {
                   <Select
                     value={goal}
                     label="Your Goal"
-                    onChange={(e) => setGoal(e.target.value as "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5")}
+                    onChange={(e) =>
+                      setGoal(
+                        e.target.value as
+                          | "bulk_0.25"
+                          | "bulk_0.5"
+                          | "maintenance"
+                          | "cut_0.25"
+                          | "cut_0.5",
+                      )
+                    }
                   >
                     {Object.keys(WEIGHT_GOAL_LABELS).map((k) => (
                       <MenuItem key={k} value={k}>
                         {
                           WEIGHT_GOAL_LABELS[
-                          k as keyof typeof WEIGHT_GOAL_LABELS
+                            k as keyof typeof WEIGHT_GOAL_LABELS
                           ]
                         }
                       </MenuItem>
@@ -330,16 +403,22 @@ export function Goals() {
                   </Select>
                 </FormControl>
 
-                <Button variant="contained" size="large" onClick={handleSave}>
-                  {hasGoals ? "Update Goals" : "Create Goals"}
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleSave}
+                  startIcon={<EditIcon />}
+                >
+                  {hasGoals ? "Edit Goals" : "Create Goals"}
                 </Button>
                 {hasGoals && (
                   <Button
                     variant="outlined"
                     color="error"
                     size="large"
-                    onClick={handleDelete}
+                    onClick={() => setDeleteOpen(true)}
                     disabled={deleteNutritionGoals.isPending}
+                    startIcon={<DeleteIcon />}
                   >
                     Delete Goals
                   </Button>
@@ -370,9 +449,7 @@ export function Goals() {
                   Loading your nutrition goals...
                 </Typography>
               ) : goals ? (
-                <Box
-                  sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-                >
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                   <Divider />
 
                   <Box>
@@ -421,7 +498,6 @@ export function Goals() {
                     />
                   </Box>
 
-
                   <Typography
                     variant="caption"
                     sx={{ color: "text.disabled", fontSize: 11 }}
@@ -445,7 +521,9 @@ export function Goals() {
                   variant="body2"
                   sx={{ color: "text.secondary", mt: 2 }}
                 >
-                  Fill in your current weight, goal weight and select your activity level and your goal to see your personalised nutrition goals.
+                  Fill in your current weight, goal weight and select your
+                  activity level and your goal to see your personalised
+                  nutrition goals.
                 </Typography>
               )}
             </CardContent>
