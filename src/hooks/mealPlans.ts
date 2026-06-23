@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetSampleMealPlans = () => {
   return useQuery({
-    queryKey: ["meal-plans"],
+    queryKey: ["meal-plans", "samples"],
     queryFn: mealPlanApi.getSampleMealPlans,
   });
 };
@@ -25,7 +25,7 @@ export const useGetMyMealPlan = (mealPlanId: number) => {
 
 export const useGetAllMealPlans = () => {
   return useQuery({
-    queryKey: ["meal-plans"],
+    queryKey: ["meal-plans", "all"],
     queryFn: mealPlanApi.getAllMealPlans,
   });
 };

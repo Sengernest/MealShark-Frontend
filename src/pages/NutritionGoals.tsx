@@ -18,6 +18,8 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
@@ -187,6 +189,15 @@ export function Goals() {
     });
   };
 
+  const profileChanged =
+    goals &&
+    user &&
+    (goals.age !== user.age ||
+      goals.height !== user.height ||
+      goals.gender !== user.gender);
+
+  const missingFields = !user?.age || !user?.height || !user?.gender;
+
   // user sync
   useEffect(() => {
     if (!user) return;
@@ -241,10 +252,16 @@ export function Goals() {
         </Alert>
       )}
 
-      {(!user?.age || !user?.height || !user?.gender) && (
+      {missingFields && (
         <Alert severity="error" sx={{ mb: 2 }}>
           Some profile details are missing. Please set your stats in your
           profile.
+        </Alert>
+      )}
+
+      {profileChanged && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Your stats have changed. Please edit your goals.
         </Alert>
       )}
 
@@ -386,8 +403,13 @@ export function Goals() {
                   </Select>
                 </FormControl>
 
-                <Button variant="contained" size="large" onClick={handleSave}>
-                  {hasGoals ? "Update Goals" : "Create Goals"}
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={handleSave}
+                  startIcon={<EditIcon />}
+                >
+                  {hasGoals ? "Edit Goals" : "Create Goals"}
                 </Button>
                 {hasGoals && (
                   <Button
@@ -396,6 +418,7 @@ export function Goals() {
                     size="large"
                     onClick={() => setDeleteOpen(true)}
                     disabled={deleteNutritionGoals.isPending}
+                    startIcon={<DeleteIcon />}
                   >
                     Delete Goals
                   </Button>

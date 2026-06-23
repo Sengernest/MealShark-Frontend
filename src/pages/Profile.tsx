@@ -294,7 +294,7 @@ function ChangePasswordDialog({
         </Button>
 
         <Button variant="contained" onClick={handleSave}>
-          Update Password
+          Change Password
         </Button>
       </DialogActions>
     </Dialog>
@@ -505,7 +505,7 @@ export function Profile() {
                     >
                       {" "}
                       {profileChanged
-                        ? "UPDATE YOUR NUTRITION GOALS"
+                        ? "EDIT YOUR NUTRITION GOALS"
                         : "SET UP YOUR NUTRITION GOALS"}
                     </Typography>
 
@@ -514,7 +514,7 @@ export function Profile() {
                       sx={{ color: "text.secondary", mt: 0.5 }}
                     >
                       {profileChanged
-                        ? "Your profile has changed — update your calorie and macro targets."
+                        ? "Your profile has changed — Edit your calorie and macro targets."
                         : "Enter your stats to get personalised calorie and macro targets."}
                     </Typography>
                   </Box>
@@ -524,7 +524,7 @@ export function Profile() {
                     endIcon={<ArrowForwardIcon />}
                     onClick={() => navigate("/goals")}
                   >
-                    {profileChanged ? "Update Goals" : "Set Goals"}
+                    {profileChanged ? "Edit Goals" : "Set Goals"}
                   </Button>
                 </CardContent>
               </Card>

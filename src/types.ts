@@ -201,6 +201,7 @@ export type MealPlan = {
   creatorId: number | null;
   meals: MealWithNutrition[];
   nutrition: Nutrition;
+  targetCalories: number;
   description: string | null;
   isActive: boolean;
 };
@@ -279,6 +280,7 @@ export type MealPost = {
 export type MealPlanPost = {
   name: string;
   description: string | null;
+  targetCalories: number;
   meals: MealPost[];
 };
 
