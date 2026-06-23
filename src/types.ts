@@ -230,8 +230,7 @@ export type MealLog = {
   foodItems: MealLogFood[];
 };
 
-export type MealLogWithNutrition = {
-  mealLog: MealLog;
+export type MealLogWithNutrition = MealLog & {
   nutrition: Nutrition;
 };
 
@@ -285,9 +284,9 @@ export type MealPlanPost = {
 };
 
 export type MealLogPost = {
-  logDate: Date;
+  // logDate: Date;
   mealIndex: number;
-  mealId: number;
+  mealId?: number;
   recipeItems: MealRecipePost[];
   foodItems: MealFoodPost[];
 };

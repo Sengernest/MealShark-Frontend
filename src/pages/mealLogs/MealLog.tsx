@@ -1,52 +1,45 @@
-import { useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  IconButton,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  LinearProgress,
-  Divider,
-  Tooltip,
-} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TodayIcon from "@mui/icons-material/Today";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Divider,
+  IconButton,
+  LinearProgress,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
 //import type { MealLogEntry, MealLogSlot, MealItem } from "../types";
 import { useCurrentUser } from "@/hooks/auth";
+import {
+  useCreateMealLog,
+  useDeleteMealLog,
+  useGetMealSummary,
+  useUpdateMealLog,
+} from "@/hooks/mealLogs";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
-import { useGetMealLog, useGetMealSummary } from "@/hooks/mealLogs";
 import { AddItemDialog } from "./AddItemDialog";
-import { SlotCard } from "./SlotCard";
+import { MealEntryCard } from "./MealEntryCard";
 
-function addDays(dateStr: string, n: number): string {
-  const d = new Date(dateStr + "T12:00:00");
+function addDays(date: Date, n: number): Date {
+  const d = new Date(date);
   d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
+  return new Date(d.toISOString().slice(0, 10));
 }
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", {
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
   });
 }
-
 function MacroBar({
   label,
   value,
@@ -99,70 +92,36 @@ export function MealLog() {
   const [addSlotFor, setAddSlotFor] = useState<string | null>(null); // slot id
   const [addItemOpen, setAddItemOpen] = useState(false);
 
-  
-  const {data: mealSummary, isLoading} = useGetMealSummary(selectedDate);
-  const slots = mealSummary?.meals ?? []
+  const { data: mealSummary, isLoading } = useGetMealSummary(selectedDate);
+  const meals = mealSummary?.meals ?? [];
 
-  const getOrCreateEntry = (): MealLogEntry => ({
-    id: mealSummary?.id ?? `log_${selectedDate}`,
-    date: selectedDate,
-    userId: user?.id ?? "u1",
-    slots: [...slots],
-  });
+  const createMealEntry = useCreateMealLog();
+  const updateMealEntry = useUpdateMealLog();
+  const deleteMealEntry = useDeleteMealLog();
 
-  const addSlot = () => {
-    const entry = getOrCreateEntry();
-    const label = `Meal ${entry.slots.length + 1}`;
-    entry.slots.push({ id: `ls_${Date.now()}`, label, items: [] });
-  };
-
-  const removeSlot = (slotId: string) => {
-    const entry = getOrCreateEntry();
-    entry.slots = entry.slots.filter((s) => s.id !== slotId);
-  };
-
-  const addItemToSlot = (slotId: string, item: MealItem) => {
-    const entry = getOrCreateEntry();
-    entry.slots = entry.slots.map((s) =>
-      s.id === slotId ? { ...s, items: [...s.items, item] } : s,
-    );
-  };
-
-  const removeItemFromSlot = (slotId: string, itemId: string) => {
-    const entry = getOrCreateEntry();
-    entry.slots = entry.slots.map((s) =>
-      s.id === slotId
-        ? { ...s, items: s.items.filter((i) => i.id !== itemId) }
-        : s,
-    );
-    upsertLogEntry(entry);
-  };
-
-  // Day totals
-  let totCal = 0,
-    totProt = 0,
-    totCarbs = 0,
-    totFat = 0;
-  slots.forEach((slot) => {
-    slot.items.forEach((item) => {
-      if (item.type === "recipe" && item.recipe) {
-        totCal += item.recipe.calories * item.amount;
-        totProt += item.recipe.protein * item.amount;
-        totCarbs += item.recipe.carbs * item.amount;
-        totFat += item.recipe.fat * item.amount;
-      } else if (item.type === "food" && item.food) {
-        const g = item.unit === "tbsp" ? item.amount * 15 : item.amount;
-        totCal += (item.food.caloriesPer100g * g) / 100;
-        totProt += (item.food.proteinPer100g * g) / 100;
-        totCarbs += (item.food.carbsPer100g * g) / 100;
-        totFat += (item.food.fatPer100g * g) / 100;
-      }
+  const addMeal = async (mealIndex: number) => {
+    await createMealEntry.mutateAsync({
+      mealIndex,
+      recipeItems: [],
+      foodItems: [],
     });
-  });
-  totCal = Math.round(totCal);
+  };
 
-  const calPct = goals ? Math.min(100, (totCal / goals.calories) * 100) : 0;
-  const remaining = goals ? Math.max(0, goals.calories - totCal) : null;
+  const removeMeal = async (mealLogId: number) => {
+    await deleteMealEntry.mutateAsync(mealLogId);
+  };
+
+  const addItemToMeal = async (mealLogId: number, item: MealItem) => {
+    // const mealEntryPayload =
+  };
+
+  const removeItemFromMeal = async (mealLogId: number, itemId: number) => {};
+
+  const totalCalories = mealSummary?.nutrition.calories ?? 0;
+  const caloriePercent = goals
+    ? Math.min(100, (totalCalories / goals.calories) * 100)
+    : 0;
+  const remaining = goals ? Math.max(0, goals.calories - totalCalories) : null;
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1000 }}>
@@ -244,7 +203,7 @@ export function MealLog() {
       >
         {/* Meal slots */}
         <Box>
-          {slots.length === 0 && (
+          {meals.length === 0 && (
             <Card sx={{ mb: 2 }}>
               <CardContent sx={{ textAlign: "center", py: 4 }}>
                 <Typography
@@ -257,23 +216,23 @@ export function MealLog() {
             </Card>
           )}
 
-          {slots.map((slot) => (
-            <SlotCard
+          {meals.map((slot) => (
+            <MealEntryCard
               key={slot.id}
               slot={slot}
               onAddItem={() => {
                 setAddSlotFor(slot.id);
                 setAddItemOpen(true);
               }}
-              onRemoveItem={(itemId) => removeItemFromSlot(slot.id, itemId)}
-              onRemoveSlot={() => removeSlot(slot.id)}
+              onRemoveItem={(itemId) => removeItemFromMeal(slot.id, itemId)}
+              onRemoveSlot={() => removeMeal(slot.id)}
             />
           ))}
 
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
-            onClick={addSlot}
+            onClick={addMeal}
             fullWidth
             sx={{ borderStyle: "dashed", color: "text.secondary" }}
           >
@@ -323,7 +282,7 @@ export function MealLog() {
                       fill="none"
                       stroke="#60c8f5"
                       strokeWidth="12"
-                      strokeDasharray={`${(calPct / 100) * 251.2} 251.2`}
+                      strokeDasharray={`${(caloriePercent / 100) * 251.2} 251.2`}
                       strokeLinecap="round"
                     />
                   </svg>
@@ -344,7 +303,7 @@ export function MealLog() {
                         color: "text.primary",
                       }}
                     >
-                      {Math.round(calPct)}%
+                      {Math.round(caloriePercent)}%
                     </Typography>
                   </Box>
                 </Box>
@@ -358,7 +317,7 @@ export function MealLog() {
                       lineHeight: 1,
                     }}
                   >
-                    {totCal}
+                    {totalCalories}
                   </Typography>
                   <Typography variant="caption">kcal consumed</Typography>
                   {remaining !== null && (
@@ -375,25 +334,25 @@ export function MealLog() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <MacroBar
                   label="Protein"
-                  value={totProt}
+                  value={mealSummary?.nutrition.macros.protein ?? 0}
                   target={goals?.protein ?? 0}
                   color="#3df2a8"
                 />
                 <MacroBar
                   label="Carbohydrates"
-                  value={totCarbs}
+                  value={mealSummary?.nutrition.macros.carbs ?? 0}
                   target={goals?.carbs ?? 0}
                   color="#3db5f2"
                 />
                 <MacroBar
                   label="Fat"
-                  value={totFat}
+                  value={mealSummary?.nutrition.macros.fat ?? 0}
                   target={goals?.fat ?? 0}
                   color="#f2c93d"
                 />
               </Box>
 
-              {slots.length > 0 && (
+              {meals.length > 0 && (
                 <>
                   <Divider sx={{ my: 2 }} />
                   <Typography
@@ -407,7 +366,7 @@ export function MealLog() {
                   >
                     MEALS
                   </Typography>
-                  {slots.map((slot) => {
+                  {meals.map((slot) => {
                     const cal = slot.items.reduce((s, item) => {
                       if (item.type === "recipe" && item.recipe)
                         return s + item.recipe.calories * item.amount;
@@ -455,13 +414,13 @@ export function MealLog() {
       {addItemOpen && addSlotFor && (
         <AddItemDialog
           open
-          logDate={selectedDate}
+          logDate={selectedDate.toLocaleDateString()}
           onClose={() => {
             setAddItemOpen(false);
             setAddSlotFor(null);
           }}
           onAdd={(item) => {
-            addItemToSlot(addSlotFor, item);
+            addItemToMeal(addSlotFor, item);
           }}
         />
       )}

@@ -3,7 +3,7 @@ import { Box, DeleteIcon } from "lucide-react";
 import { Button } from "react-day-picker";
 import { Tooltip } from "recharts";
 
-export function SlotCard({
+export function MealEntryCard({
   slot,
   onAddItem,
   onRemoveItem,
