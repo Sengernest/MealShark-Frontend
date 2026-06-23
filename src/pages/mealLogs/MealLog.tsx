@@ -338,56 +338,6 @@ export function MealLog() {
                   color="#f2c93d"
                 />
               </Box>
-
-              {meals.length > 0 && (
-                <>
-                  <Divider sx={{ my: 2 }} />
-                  <Typography
-                    variant="overline"
-                    sx={{
-                      fontSize: 11,
-                      color: "text.secondary",
-                      display: "block",
-                      mb: 1,
-                    }}
-                  >
-                    MEALS
-                  </Typography>
-                  {meals.map((entry) => {
-                    const calories = entry.nutrition.calories;
-                    return (
-                      <Box
-                        key={entry.id}
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          py: 0.75,
-                          borderBottom: "1px solid",
-                          borderColor: "divider",
-                        }}
-                      >
-                        <Typography
-                          variant="caption"
-                          sx={{ color: "text.secondary" }}
-                        >
-                          {entry.label}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color:
-                              calories > 0 ? "text.primary" : "text.disabled",
-                          }}
-                        >
-                          {calories > 0
-                            ? `${Math.round(calories)} kcal`
-                            : "Empty"}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                </>
-              )}
             </CardContent>
           </Card>
         </Box>

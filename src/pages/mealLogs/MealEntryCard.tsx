@@ -45,7 +45,7 @@ export function MealEntryCard({
             {mealEntry.label ?? `Meal ${mealEntry.mealIndex + 1}`}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {calories > 0 && (
+            {(
               <Typography
                 sx={{
                   color: "primary.main",
