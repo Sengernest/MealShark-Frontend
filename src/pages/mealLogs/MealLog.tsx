@@ -85,23 +85,20 @@ function MacroBar({
 const TODAY = new Date();
 
 export function MealLog() {
-  const { data: user } = useCurrentUser();
   const { data: goals } = useGetMyNutritionGoals();
 
   const [selectedDate, setSelectedDate] = useState(TODAY);
-  const [addSlotFor, setAddSlotFor] = useState<string | null>(null); // slot id
-  const [addItemOpen, setAddItemOpen] = useState(false);
-
-  const { data: mealSummary, isLoading } = useGetMealSummary(selectedDate);
+  const { data: mealSummary } = useGetMealSummary(selectedDate);
   const meals = mealSummary?.meals ?? [];
 
   const createMealEntry = useCreateMealLog();
-  const updateMealEntry = useUpdateMealLog();
   const deleteMealEntry = useDeleteMealLog();
 
-  const addMeal = async (mealIndex: number) => {
+  const numMealEntries = mealSummary?.meals.length ?? 0
+
+  const addMeal = async () => {
     await createMealEntry.mutateAsync({
-      mealIndex,
+      mealIndex: numMealEntries,
       recipeItems: [],
       foodItems: [],
     });
@@ -110,12 +107,6 @@ export function MealLog() {
   const removeMeal = async (mealLogId: number) => {
     await deleteMealEntry.mutateAsync(mealLogId);
   };
-
-  const addItemToMeal = async (mealLogId: number, item: MealItem) => {
-    // const mealEntryPayload =
-  };
-
-  const removeItemFromMeal = async (mealLogId: number, itemId: number) => {};
 
   const totalCalories = mealSummary?.nutrition.calories ?? 0;
   const caloriePercent = goals
@@ -210,7 +201,7 @@ export function MealLog() {
                   variant="body2"
                   sx={{ color: "text.disabled", mb: 2 }}
                 >
-                  No meal slots for this day. Add one to start logging.
+                  No meal entries for this day. Add one to start logging.
                 </Typography>
               </CardContent>
             </Card>
@@ -220,11 +211,6 @@ export function MealLog() {
             <MealEntryCard
               key={slot.id}
               slot={slot}
-              onAddItem={() => {
-                setAddSlotFor(slot.id);
-                setAddItemOpen(true);
-              }}
-              onRemoveItem={(itemId) => removeItemFromMeal(slot.id, itemId)}
               onRemoveSlot={() => removeMeal(slot.id)}
             />
           ))}
@@ -236,7 +222,7 @@ export function MealLog() {
             fullWidth
             sx={{ borderStyle: "dashed", color: "text.secondary" }}
           >
-            Add Meal Slot
+            Add Meal Entry
           </Button>
         </Box>
 
@@ -366,19 +352,11 @@ export function MealLog() {
                   >
                     MEALS
                   </Typography>
-                  {meals.map((slot) => {
-                    const cal = slot.items.reduce((s, item) => {
-                      if (item.type === "recipe" && item.recipe)
-                        return s + item.recipe.calories * item.amount;
-                      if (item.type === "food" && item.food)
-                        return (
-                          s + (item.food.caloriesPer100g * item.amount) / 100
-                        );
-                      return s;
-                    }, 0);
+                  {meals.map((entry) => {
+                    const calories = entry.nutrition.calories
                     return (
                       <Box
-                        key={slot.id}
+                        key={entry.id}
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
@@ -391,15 +369,15 @@ export function MealLog() {
                           variant="caption"
                           sx={{ color: "text.secondary" }}
                         >
-                          {slot.label}
+                          {entry.label}
                         </Typography>
                         <Typography
                           variant="caption"
                           sx={{
-                            color: cal > 0 ? "text.primary" : "text.disabled",
+                            color: calories > 0 ? "text.primary" : "text.disabled",
                           }}
                         >
-                          {cal > 0 ? `${Math.round(cal)} kcal` : "Empty"}
+                          {calories > 0 ? `${Math.round(calories)} kcal` : "Empty"}
                         </Typography>
                       </Box>
                     );
@@ -410,7 +388,7 @@ export function MealLog() {
           </Card>
         </Box>
       </Box>
-
+{/* 
       {addItemOpen && addSlotFor && (
         <AddItemDialog
           open
@@ -423,7 +401,7 @@ export function MealLog() {
             addItemToMeal(addSlotFor, item);
           }}
         />
-      )}
+      )} */}
     </Box>
   );
 }

@@ -220,8 +220,9 @@ export type MealLogFood = {
   food: Food;
 };
 
-export type MealLog = {
+export type MealEntryBase = {
   id: number;
+  label: string | null
   mealId: number | null;
   userId: number;
   logDate: Date;
@@ -230,12 +231,12 @@ export type MealLog = {
   foodItems: MealLogFood[];
 };
 
-export type MealLogWithNutrition = MealLog & {
+export type MealEntry = MealEntryBase & {
   nutrition: Nutrition;
 };
 
 export type MealSummary = {
-  meals: MealLogWithNutrition[];
+  meals: MealEntry[];
   nutrition: Nutrition;
 };
 

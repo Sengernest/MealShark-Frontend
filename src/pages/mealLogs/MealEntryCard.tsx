@@ -5,13 +5,13 @@ import { Tooltip } from "recharts";
 
 export function MealEntryCard({
   slot,
-  onAddItem,
-  onRemoveItem,
+  
+  
   onRemoveSlot,
 }: {
   slot: MealLogSlot;
-  onAddItem: () => void;
-  onRemoveItem: (itemId: string) => void;
+  
+  
   onRemoveSlot: () => void;
 }) {
   let slotCal = 0;
