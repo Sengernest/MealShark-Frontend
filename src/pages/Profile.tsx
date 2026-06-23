@@ -76,7 +76,8 @@ function EditProfileDialog({
       height: height === "" ? undefined : Number(height),
       gender: gender === "" ? undefined : gender,
     });
-
+    
+    setError("");
     setSaved(true);
     setTimeout(() => {
       setSaved(false);
