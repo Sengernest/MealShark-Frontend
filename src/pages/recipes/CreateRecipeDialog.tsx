@@ -20,7 +20,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Control,
   Controller,
@@ -43,11 +43,13 @@ type CreateRecipeFormData = {
   prepTime: number | null;
   cookTime: number | null;
   servings: number;
-  ingredients: {
-    foodId: number | null;
-    unitId: number | null;
-    amount: number | null;
-  }[];
+  ingredients: Ingredient[];
+};
+
+type Ingredient = {
+  foodId: number | null;
+  unitId: number | null;
+  amount: number | null;
 };
 
 export function CreateRecipeDialog({
@@ -93,6 +95,11 @@ export function CreateRecipeDialog({
     await createRecipe.mutateAsync(payload);
     onClose();
   };
+
+  const ingredients = useWatch({
+    control,
+    name: "ingredients",
+  });
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -185,6 +192,7 @@ export function CreateRecipeDialog({
                 register={register}
                 errors={errors}
                 onRemove={removeIngredient}
+                ingredients={ingredients}
               />
             ))}
           </Stack>
@@ -220,6 +228,7 @@ type IngredientRowProps = {
   register: UseFormRegister<CreateRecipeFormData>;
   errors: FieldErrors<CreateRecipeFormData>;
   onRemove: (index: number) => void;
+  ingredients: Ingredient[];
 };
 
 export function IngredientRow({
@@ -228,6 +237,7 @@ export function IngredientRow({
   register,
   errors,
   onRemove,
+  ingredients,
 }: IngredientRowProps) {
   const [foodSearch, setFoodSearch] = useState("");
 
@@ -240,11 +250,6 @@ export function IngredientRow({
   });
 
   const selectedFood = foods.find((f) => f.id === selectedFoodId) ?? null;
-
-  const ingredients = useWatch({
-    control,
-    name: "ingredients",
-  });
 
   return (
     <Box
@@ -271,30 +276,32 @@ export function IngredientRow({
             );
           },
         }}
-        render={({ field }) => (
-          <Autocomplete
-            options={foods}
-            value={selectedFood}
-            onChange={(_, food) => {
-              field.onChange(food?.id ?? null);
-              setFoodSearch(food?.name ?? "");
-            }}
-            inputValue={foodSearch}
-            onInputChange={(_, value) => setFoodSearch(value)}
-            getOptionLabel={(food) => food.name}
-            isOptionEqualToValue={(option, value) => option.id === value?.id}
-            filterOptions={(x) => x}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Food"
-                size="small"
-                error={!!errors.ingredients?.[index]?.foodId}
-                helperText={errors.ingredients?.[index]?.foodId?.message}
-              />
-            )}
-          />
-        )}
+        render={({ field }) => {
+          return (
+            <Autocomplete
+              options={foods}
+              value={foods.find(food => food.id === field.value) }
+              onChange={(_, food) => {
+                console.log(food?.name)
+                field.onChange(food?.id ?? null);
+              }}
+              inputValue={foodSearch}
+              onInputChange={(_, value) => setFoodSearch(value)}
+              getOptionLabel={(food) => food.name}
+              isOptionEqualToValue={(option, value) => option.id === value?.id}
+              filterOptions={(x) => x}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Food"
+                  size="small"
+                  error={!!errors.ingredients?.[index]?.foodId}
+                  helperText={errors.ingredients?.[index]?.foodId?.message}
+                />
+              )}
+            />
+          );
+        }}
       />
 
       <TextField
