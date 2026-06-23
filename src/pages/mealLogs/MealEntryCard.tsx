@@ -1,24 +1,34 @@
-import { Card, CardContent, Typography, IconButton, Chip } from "@mui/material";
-import { Box, DeleteIcon } from "lucide-react";
-import { Button } from "react-day-picker";
-import { Tooltip } from "recharts";
+import { MealEntry } from "@/types";
+import {
+  Card,
+  CardContent,
+  Typography,
+  IconButton,
+  Chip,
+  Box,
+  Tooltip,
+  Button,
+} from "@mui/material";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
 export function MealEntryCard({
-  slot,
-
+  mealEntry,
   onRemoveSlot,
 }: {
-  slot: MealLogSlot;
-
+  mealEntry: MealEntry;
   onRemoveSlot: () => void;
 }) {
-  let slotCal = 0;
-  slot.items.forEach((item) => {
-    if (item.type === "recipe" && item.recipe)
-      slotCal += item.recipe.calories * item.amount;
-    else if (item.type === "food" && item.food)
-      slotCal += (item.food.caloriesPer100g * item.amount) / 100;
-  });
+  const calories = mealEntry.nutrition.calories;
+
+  const handleRemoveFoodItem = async (foodId: number) => {
+    // TODO:
+  };
+
+  const handleRemoveRecipeItem = async (recipeId: number) => {};
+
+  const handleAddItem = () => {};
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -32,10 +42,10 @@ export function MealEntryCard({
           }}
         >
           <Typography variant="h6" sx={{ fontSize: 16 }}>
-            {slot.label}
+            {mealEntry.label ?? `Meal ${mealEntry.mealIndex + 1}`}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {slotCal > 0 && (
+            {calories > 0 && (
               <Typography
                 sx={{
                   color: "primary.main",
@@ -44,7 +54,7 @@ export function MealEntryCard({
                   fontSize: 16,
                 }}
               >
-                {Math.round(slotCal)} kcal
+                {Math.round(calories)} kcal
               </Typography>
             )}
             <Tooltip title="Remove slot">
@@ -63,7 +73,8 @@ export function MealEntryCard({
           </Box>
         </Box>
 
-        {slot.items.length === 0 ? (
+        {mealEntry.foodItems.length === 0 &&
+        mealEntry.recipeItems.length === 0 ? (
           <Typography
             variant="body2"
             sx={{ color: "text.disabled", mb: 1.5, fontSize: 13 }}
@@ -71,75 +82,133 @@ export function MealEntryCard({
             No items logged.
           </Typography>
         ) : (
-          slot.items.map((item) => {
-            const name =
-              item.type === "recipe" ? item.recipe?.name : item.food?.name;
-            const cal =
-              item.type === "recipe"
-                ? Math.round((item.recipe?.calories ?? 0) * item.amount)
-                : Math.round(
-                    ((item.food?.caloriesPer100g ?? 0) * item.amount) / 100,
-                  );
-            return (
-              <Box
-                key={item.id}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  py: 0.75,
-                  borderBottom: "1px solid",
-                  borderColor: "divider",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Chip
-                    label={item.type.toUpperCase()}
-                    size="small"
-                    variant="outlined"
-                    sx={{
-                      height: 18,
-                      fontSize: 10,
-                      color:
-                        item.type === "recipe" ? "primary.main" : "#3db5f2",
-                      borderColor:
-                        item.type === "recipe" ? "primary.main" : "#3db5f2",
-                    }}
-                  />
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "text.primary", fontSize: 13 }}
-                  >
-                    {name}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "text.disabled" }}>
-                    × {item.amount} {item.unit}
-                  </Typography>
+          <>
+            {mealEntry.recipeItems.map((recipeItem) => {
+              const name = recipeItem.recipe?.name;
+              const cal = recipeItem.nutrition.calories;
+              return (
+                <Box
+                  key={recipeItem.recipeId}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    py: 0.75,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Chip
+                      label={"Recipe"}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        height: 18,
+                        fontSize: 10,
+                        color: "primary.main",
+                        borderColor: "primary.main",
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.primary", fontSize: 13 }}
+                    >
+                      {name}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.disabled" }}
+                    >
+                      × {recipeItem.servings} servings
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="caption" sx={{ color: "#888" }}>
+                      {cal} kcal
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() =>
+                        handleRemoveRecipeItem(recipeItem.recipeId)
+                      }
+                      sx={{
+                        color: "text.disabled",
+                        "&:hover": { color: "error.main" },
+                      }}
+                    >
+                      <DeleteIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Box>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography variant="caption" sx={{ color: "#888" }}>
-                    {cal} kcal
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => onRemoveItem(item.id)}
-                    sx={{
-                      color: "text.disabled",
-                      "&:hover": { color: "error.main" },
-                    }}
-                  >
-                    <DeleteIcon sx={{ fontSize: 14 }} />
-                  </IconButton>
+              );
+            })}
+
+            {mealEntry.foodItems.map((foodItem) => {
+              const name = foodItem.food?.name;
+              const cal = foodItem.nutrition.calories;
+              return (
+                <Box
+                  key={foodItem.foodId}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    py: 0.75,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Chip
+                      label={"Food"}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        height: 18,
+                        fontSize: 10,
+                        color: "#3db5f2",
+                        borderColor: "#3db5f2",
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.primary", fontSize: 13 }}
+                    >
+                      {name}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "text.disabled" }}
+                    >
+                      × {foodItem.amount} {foodItem.unit.name}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography variant="caption" sx={{ color: "#888" }}>
+                      {cal} kcal
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveFoodItem(foodItem.foodId)}
+                      sx={{
+                        color: "text.disabled",
+                        "&:hover": { color: "error.main" },
+                      }}
+                    >
+                      <DeleteIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Box>
                 </Box>
-              </Box>
-            );
-          })
+              );
+            })}
+          </>
         )}
 
         <Button
           size="small"
           startIcon={<AddIcon />}
-          onClick={onAddItem}
+          onClick={handleAddItem}
           sx={{ mt: 1.5, color: "primary.main" }}
         >
           Add item

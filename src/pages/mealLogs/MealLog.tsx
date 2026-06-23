@@ -94,7 +94,7 @@ export function MealLog() {
   const createMealEntry = useCreateMealLog();
   const deleteMealEntry = useDeleteMealLog();
 
-  const numMealEntries = mealSummary?.meals.length ?? 0
+  const numMealEntries = mealSummary?.meals.length ?? 0;
 
   const addMeal = async () => {
     await createMealEntry.mutateAsync({
@@ -211,7 +211,7 @@ export function MealLog() {
           {meals.map((slot) => (
             <MealEntryCard
               key={slot.id}
-              slot={slot}
+              mealEntry={slot}
               onRemoveSlot={() => removeMeal(slot.id)}
             />
           ))}
@@ -354,7 +354,7 @@ export function MealLog() {
                     MEALS
                   </Typography>
                   {meals.map((entry) => {
-                    const calories = entry.nutrition.calories
+                    const calories = entry.nutrition.calories;
                     return (
                       <Box
                         key={entry.id}
@@ -375,10 +375,13 @@ export function MealLog() {
                         <Typography
                           variant="caption"
                           sx={{
-                            color: calories > 0 ? "text.primary" : "text.disabled",
+                            color:
+                              calories > 0 ? "text.primary" : "text.disabled",
                           }}
                         >
-                          {calories > 0 ? `${Math.round(calories)} kcal` : "Empty"}
+                          {calories > 0
+                            ? `${Math.round(calories)} kcal`
+                            : "Empty"}
                         </Typography>
                       </Box>
                     );
@@ -389,7 +392,7 @@ export function MealLog() {
           </Card>
         </Box>
       </Box>
-{/* 
+      {/* 
       {addItemOpen && addSlotFor && (
         <AddItemDialog
           open

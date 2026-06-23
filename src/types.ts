@@ -206,32 +206,33 @@ export type MealPlan = {
   isActive: boolean;
 };
 
-export type MealLogRecipe = {
+export type MealEntryRecipe = {
   recipeId: number;
   servings: number;
   mealLogId: number;
   recipe: RecipeBase;
+  nutrition: Nutrition
 };
 
-export type MealLogFood = {
-  foodId: number;
-  amount: number;
+export type MealEntryFood = {
   mealLogId: number;
+  foodId: number;
   food: Food;
+  unitId: number;
+  unit: Unit;
+  amount: number;
+  nutrition: Nutrition
 };
 
-export type MealEntryBase = {
+export type MealEntry = {
   id: number;
   label: string | null;
   mealId: number | null;
   userId: number;
   logDate: Date;
   mealIndex: number;
-  recipeItems: MealLogRecipe[];
-  foodItems: MealLogFood[];
-};
-
-export type MealEntry = MealEntryBase & {
+  recipeItems: MealEntryRecipe[];
+  foodItems: MealEntryFood[];
   nutrition: Nutrition;
 };
 
