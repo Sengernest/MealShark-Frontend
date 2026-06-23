@@ -1,5 +1,5 @@
 import { mealLogApi } from "@/api/mealLogs";
-import { MealLogPost } from "@/types";
+import { MealEntryPost } from "@/types";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useGetMealSummary = (date: Date) => {
@@ -12,7 +12,7 @@ export const useGetMealSummary = (date: Date) => {
 export const useCreateMealLog = () => {
   const queryClient = new QueryClient();
   return useMutation({
-    mutationFn: (data: MealLogPost) => mealLogApi.createMealLog(data),
+    mutationFn: (data: MealEntryPost) => mealLogApi.createMealLog(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meal-logs"] });
     },
@@ -27,7 +27,7 @@ export const useUpdateMealLog = () => {
       data,
     }: {
       mealLogId: number;
-      data: MealLogPost;
+      data: MealEntryPost;
     }) => mealLogApi.updateMealLog(mealLogId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meal-logs"] });

@@ -222,7 +222,7 @@ export type MealLogFood = {
 
 export type MealEntryBase = {
   id: number;
-  label: string | null
+  label: string | null;
   mealId: number | null;
   userId: number;
   logDate: Date;
@@ -284,8 +284,8 @@ export type MealPlanPost = {
   meals: MealPost[];
 };
 
-export type MealLogPost = {
-  // logDate: Date;
+export type MealEntryPost = {
+  logDate: Date;
   mealIndex: number;
   mealId?: number;
   recipeItems: MealRecipePost[];

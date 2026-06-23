@@ -98,6 +98,7 @@ export function MealLog() {
 
   const addMeal = async () => {
     await createMealEntry.mutateAsync({
+      logDate: selectedDate,
       mealIndex: numMealEntries,
       recipeItems: [],
       foodItems: [],

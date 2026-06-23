@@ -1,4 +1,4 @@
-import { MealEntryBase, MealLogPost, MealSummary } from "@/types";
+import { MealEntryBase, MealEntryPost, MealSummary } from "@/types";
 import { api } from "./baseApi";
 
 async function getMyDailySummary(date: Date): Promise<MealSummary> {
@@ -6,14 +6,14 @@ async function getMyDailySummary(date: Date): Promise<MealSummary> {
   return res.data;
 }
 
-async function createMealLog(data: MealLogPost): Promise<MealEntryBase> {
+async function createMealLog(data: MealEntryPost): Promise<MealEntryBase> {
   const res = await api.post("/meal-logs", data);
   return res.data;
 }
 
 async function updateMealLog(
   mealLogId: number,
-  data: MealLogPost,
+  data: MealEntryPost,
 ): Promise<MealEntryBase> {
   const res = await api.put(`/meal-logs/${mealLogId}`, data);
   return res.data;
