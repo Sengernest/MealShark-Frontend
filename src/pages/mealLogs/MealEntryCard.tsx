@@ -1,4 +1,4 @@
-import { MealEntry } from "@/types";
+import { MealEntry, MealEntryFood, MealFoodPost, MealRecipePost } from "@/types";
 import {
   Card,
   CardContent,
@@ -12,6 +12,8 @@ import {
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { useState } from "react";
+import { AddItemDialog } from "./AddItemDialog";
 
 export function MealEntryCard({
   mealEntry,
@@ -21,6 +23,7 @@ export function MealEntryCard({
   onRemoveSlot: () => void;
 }) {
   const calories = mealEntry.nutrition.calories;
+  const [addItemOpen, setAddItemOpen] = useState(false)
 
   const handleRemoveFoodItem = async (foodId: number) => {
     // TODO:
@@ -28,7 +31,8 @@ export function MealEntryCard({
 
   const handleRemoveRecipeItem = async (recipeId: number) => {};
 
-  const handleAddItem = () => {};
+  const handleAddFoodItem = (food: MealFoodPost) => {};
+  const handleAddRecipeItem = (recipe: MealRecipePost) => {};
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -45,7 +49,7 @@ export function MealEntryCard({
             {mealEntry.label ?? `Meal ${mealEntry.mealIndex + 1}`}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {(
+            {
               <Typography
                 sx={{
                   color: "primary.main",
@@ -56,7 +60,7 @@ export function MealEntryCard({
               >
                 {Math.round(calories)} kcal
               </Typography>
-            )}
+            }
             <Tooltip title="Remove slot">
               <IconButton
                 size="small"
@@ -208,11 +212,22 @@ export function MealEntryCard({
         <Button
           size="small"
           startIcon={<AddIcon />}
-          onClick={handleAddItem}
+          onClick={() => setAddItemOpen(true)}
           sx={{ mt: 1.5, color: "primary.main" }}
         >
           Add item
         </Button>
+
+        {addItemOpen && (
+          <AddItemDialog
+            open
+            onClose={() => {
+              setAddItemOpen(false);
+            }}
+            onAddFood={handleAddFoodItem}
+            onAddRecipe={handleAddRecipeItem}
+          />
+        )}
       </CardContent>
     </Card>
   );

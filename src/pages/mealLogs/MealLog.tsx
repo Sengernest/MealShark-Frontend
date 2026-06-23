@@ -342,20 +342,6 @@ export function MealLog() {
           </Card>
         </Box>
       </Box>
-      {/* 
-      {addItemOpen && addSlotFor && (
-        <AddItemDialog
-          open
-          logDate={selectedDate.toLocaleDateString()}
-          onClose={() => {
-            setAddItemOpen(false);
-            setAddSlotFor(null);
-          }}
-          onAdd={(item) => {
-            addItemToMeal(addSlotFor, item);
-          }}
-        />
-      )} */}
     </Box>
   );
 }

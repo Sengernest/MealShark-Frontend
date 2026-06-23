@@ -262,12 +262,12 @@ export type NutritionGoalsPost = {
   goal: "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
 };
 
-type MealRecipePost = {
+export type MealRecipePost = {
   recipeId: number;
   servings: number;
 };
 
-type MealFoodPost = {
+export type MealFoodPost = {
   foodId: number;
   amount: number;
 };
