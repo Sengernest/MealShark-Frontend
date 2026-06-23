@@ -279,16 +279,15 @@ export function IngredientRow({
         render={({ field }) => {
           return (
             <Autocomplete
-              options={foods}
-              value={foods.find(food => food.id === field.value) }
-              onChange={(_, food) => {
-                console.log(food?.name)
-                field.onChange(food?.id ?? null);
+              options={foods.map((food) => food.id)}
+              onChange={(_, value) => {
+                field.onChange(value);
               }}
+              value={field.value ?? undefined}
               inputValue={foodSearch}
               onInputChange={(_, value) => setFoodSearch(value)}
-              getOptionLabel={(food) => food.name}
-              isOptionEqualToValue={(option, value) => option.id === value?.id}
+              getOptionLabel={(foodId) => foods.find(food => food.id === foodId)?.name ?? ''}
+              isOptionEqualToValue={(option, value) => option === value}
               filterOptions={(x) => x}
               renderInput={(params) => (
                 <TextField
