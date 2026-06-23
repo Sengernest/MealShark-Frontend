@@ -19,7 +19,7 @@ async function updateMealLog(
   return res.data;
 }
 
-async function deleteMealLog(mealLogId: number) {
+async function deleteMealLog(mealLogId: number): Promise<MealEntry> {
   const res = await api.delete(`/meal-logs/${mealLogId}`);
   return res.data;
 }

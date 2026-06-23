@@ -1,26 +1,27 @@
 import { mealLogApi } from "@/api/mealLogs";
 import { MealEntryPost } from "@/types";
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetMealSummary = (date: Date) => {
   return useQuery({
-    queryKey: ["mealLogs"],
+    queryKey: ["meal-logs", date.toISOString()],
     queryFn: () => mealLogApi.getMyDailySummary(date),
   });
 };
 
 export const useCreateMealLog = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: MealEntryPost) => mealLogApi.createMealLog(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meal-logs"] });
+    onSuccess: (data) => {
+      console.log(data.logDate)
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
     },
   });
 };
 
 export const useUpdateMealLog = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       mealLogId,
@@ -29,18 +30,18 @@ export const useUpdateMealLog = () => {
       mealLogId: number;
       data: MealEntryPost;
     }) => mealLogApi.updateMealLog(mealLogId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meal-logs"] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
     },
   });
 };
 
 export const useDeleteMealLog = () => {
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (mealLogId: number) => mealLogApi.deleteMealLog(mealLogId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["meal-logs"] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
     },
   });
 };
