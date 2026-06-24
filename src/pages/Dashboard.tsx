@@ -122,7 +122,6 @@ function StatCard({
 }
 
 export function Dashboard() {
-  //const { user, getLogEntry, mealPlans, activePlanId } = useApp();
   const { data: user } = useCurrentUser();
   const { data: goals } = useGetMyNutritionGoals();
   const { data: mealPlans = [] } = useGetMyMealPlans();
@@ -227,26 +226,26 @@ export function Dashboard() {
           color="#60c8f5"
         />
         <StatCard
+          icon={<HistoryIcon />}
+          label="Meals Logged"
+          value="0" //`${todayLog?.slots.length ?? 0}`//
+          sub="today"
+          color="#f2c93d"
+        />
+        <StatCard
+          icon={<CalendarMonthIcon />}
+          label="Active Meal Plan"
+          value={activePlan ? `${activePlan.nutrition.calories}` : "None"}
+          sub={activePlan ? `kcal in ${activePlan.name}` : "No active plan"}
+          color="#3db5f2"
+        />
+        <StatCard
           icon={<TrackChangesIcon />}
           label="Nutrition Goals"
           value={goals ? `${goals.calories}` : "—"}
           sub="kcal / day"
           color="#3df2a8"
         />
-        <StatCard
-          icon={<CalendarMonthIcon />}
-          label="Active Meal Plan"
-          value={activePlan ? activePlan.nutrition.calories + " kcal" : "None"}
-          sub={activePlan?.name ?? "No plan set"}
-          color="#3db5f2"
-        />
-        {/*} <StatCard
-          icon={<HistoryIcon />}
-          label="Meals Logged"
-          value={`${todayLog?.slots.length ?? 0}`}
-          sub="today"
-          color="#f2c93d"
-        /> */}
       </Box>
 
       <Grid container spacing={2.5}>

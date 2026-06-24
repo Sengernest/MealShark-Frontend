@@ -21,7 +21,7 @@ import { useNavigate } from "react-router";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EditProfileDialog } from "./EditProfileDialog";
-import { ChangePasswordDialog } from "./ChangeProfileDialog";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 
 const WEIGHT_GOAL_LABELS = {
   "bulk_0.25": "Bulking 0.25kg/week",

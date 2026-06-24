@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Typography,
   Button,
@@ -18,8 +18,18 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { Controller, useForm } from "react-hook-form";
+
 import { useCurrentUser } from "@/hooks/auth";
 import { useUpdateProfile } from "@/hooks/profile";
+
+type FormValues = {
+  name: string;
+  email: string;
+  birthDate: string;
+  height: string;
+  gender: "" | "male" | "female";
+};
 
 export function EditProfileDialog({
   open,
@@ -29,46 +39,65 @@ export function EditProfileDialog({
   onClose: () => void;
 }) {
   const { data: user } = useCurrentUser();
-  const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [birthDate, setBirthDate] = useState(user?.birthDate ?? "");
-  const [height, setHeight] = useState(user?.height ?? "");
-  const [gender, setGender] = useState<"male" | "female" | "">(
-    user?.gender ?? "",
-  );
+
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   const updateProfile = useUpdateProfile();
 
-  const handleSave = () => {
-    if (!name.trim() || !email.trim()) return;
-    const ageDiff = dayjs().diff(dayjs(birthDate), "year");
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      name: "",
+      email: "",
+      birthDate: "",
+      height: "",
+      gender: "",
+    },
+  });
 
-    if ((birthDate && ageDiff < 10) || ageDiff > 120) {
-      setError("Enter a valid birth date (age must be between 10 and 120).");
-      return;
-    }
+  useEffect(() => {
+    if (!user) return;
 
-    if ((height && +height < 100) || +height > 250) {
-      setError("Enter a valid height in cm (100–250).");
-      return;
-    }
-
-    updateProfile.mutate({
-      name: name.trim(),
-      email: email.trim(),
-      birthDate: birthDate === "" ? undefined : birthDate,
-      height: height === "" ? undefined : Number(height),
-      gender: gender === "" ? undefined : gender,
+    reset({
+      name: user.name ?? "",
+      email: user.email ?? "",
+      birthDate: user.birthDate ?? "",
+      height: user.height?.toString() ?? "",
+      gender: user.gender ?? "",
     });
+  }, [user, reset]);
 
+  const onSubmit = (data: FormValues) => {
     setError("");
-    setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-      onClose();
-    }, 1200);
+
+    updateProfile.mutate(
+      {
+        name: data.name.trim(),
+        email: data.email.trim(),
+        birthDate: data.birthDate || undefined,
+        height: data.height ? Number(data.height) : undefined,
+        gender: data.gender || undefined,
+      },
+      {
+        onSuccess: () => {
+          setSaved(true);
+
+          setTimeout(() => {
+            setSaved(false);
+            onClose();
+          }, 1200);
+        },
+        onError: (err: any) => {
+          setError(err?.response?.data?.error ?? "Failed to update profile");
+        },
+      },
+    );
   };
 
   return (
@@ -106,70 +135,119 @@ export function EditProfileDialog({
 
         <TextField
           label="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
           fullWidth
           autoFocus
           sx={{ mt: 1 }}
+          error={!!errors.name}
+          helperText={errors.name?.message}
+          {...register("name", {
+            required: "Name is required",
+          })}
         />
 
         <TextField
           label="Email"
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           fullWidth
+          error={!!errors.email}
+          helperText={errors.email?.message}
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^\S+@\S+\.\S+$/,
+              message: "Invalid email address",
+            },
+          })}
         />
 
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="Birth Date (DD/MM/YYYY)"
-            value={birthDate ? dayjs(birthDate) : null}
-            format="DD/MM/YYYY"
-            onChange={(newValue) => {
-              setBirthDate(newValue ? newValue.format("YYYY-MM-DD") : "");
-            }}
-            slotProps={{ textField: { fullWidth: true } }}
-          />
-        </LocalizationProvider>
+        <Controller
+          name="birthDate"
+          control={control}
+          rules={{
+            validate: (value) => {
+              if (!value) return true;
+
+              const age = dayjs().diff(dayjs(value), "year");
+
+              return (
+                (age >= 10 && age <= 120) ||
+                "Age must be between 10 and 120"
+              );
+            },
+          }}
+          render={({ field }) => (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Birth Date (DD/MM/YYYY)"
+                value={field.value ? dayjs(field.value) : null}
+                format="DD/MM/YYYY"
+                onChange={(date) =>
+                  field.onChange(
+                    date ? date.format("YYYY-MM-DD") : "",
+                  )
+                }
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!errors.birthDate,
+                    helperText: errors.birthDate?.message,
+                  },
+                }}
+              />
+            </LocalizationProvider>
+          )}
+        />
 
         <TextField
           label="Height/cm"
-          value={height}
-          onChange={(e) => setHeight(e.target.value)}
           fullWidth
+          type="number"
+          error={!!errors.height}
+          helperText={errors.height?.message}
+          {...register("height", {
+            validate: (value) => {
+              if (!value) return true;
+
+              const height = Number(value);
+
+              return (
+                (height >= 100 && height <= 250) ||
+                "Height must be between 100 and 250 cm"
+              );
+            },
+          })}
         />
 
-        <FormControl sx={{ flex: 1 }} size="small">
-          <InputLabel id="gender-label">Gender</InputLabel>
+        <Controller
+          name="gender"
+          control={control}
+          render={({ field }) => (
+            <FormControl sx={{ flex: 1 }} size="small">
+              <InputLabel id="gender-label">Gender</InputLabel>
 
-          <Select
-            labelId="gender-label"
-            id="gender"
-            value={gender}
-            label="Gender"
-            onChange={(e) => {
-              const value = e.target.value;
-
-              if (value === "male" || value === "female" || value === "") {
-                setGender(value);
-              }
-            }}
-          >
-            <MenuItem value="male">Male</MenuItem>
-            <MenuItem value="female">Female</MenuItem>
-          </Select>
-        </FormControl>
+              <Select
+                {...field}
+                labelId="gender-label"
+                id="gender"
+                label="Gender"
+              >
+                <MenuItem value="male">Male</MenuItem>
+                <MenuItem value="female">Female</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
         <Button onClick={onClose} sx={{ color: "text.secondary" }}>
           Cancel
         </Button>
+
         <Button
           variant="contained"
-          onClick={handleSave}
-          disabled={!name.trim() || !email.trim()}
+          onClick={handleSubmit(onSubmit)}
+          disabled={updateProfile.isPending}
         >
           Save Changes
         </Button>
