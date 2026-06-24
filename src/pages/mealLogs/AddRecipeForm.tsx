@@ -18,7 +18,12 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
   const [recipeSearch, setRecipeSearch] = useState("");
   const { data: recipes = [] } = useGetAllRecipes();
 
-  const { register, handleSubmit, control } = useForm<RecipeItemPost>();
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<RecipeItemPost>();
 
   const onSubmit: SubmitHandler<RecipeItemPost> = (data) => {
     onAdd(data);
@@ -28,10 +33,10 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
     <form id="recipe-form" onSubmit={handleSubmit(onSubmit)}>
       <Box sx={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 2 }}>
         <FormControl size="small" fullWidth>
-          <InputLabel>{"Recipe"}</InputLabel>
           <Controller
             control={control}
             name={"recipeId"}
+            rules={{ required: "Required" }}
             render={({ field }) => (
               <Autocomplete
                 options={recipes.map((recipe) => recipe.id)}
@@ -43,7 +48,13 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
                 inputValue={recipeSearch}
                 onInputChange={(_, value) => setRecipeSearch(value)}
                 renderInput={(params) => (
-                  <TextField {...params} label={"Recipe"} size="small" />
+                  <TextField
+                    {...params}
+                    label={"Recipe"}
+                    size="small"
+                    error={!!errors.recipeId}
+                    helperText={errors.recipeId?.message}
+                  />
                 )}
               />
             )}
@@ -52,7 +63,7 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
         <TextField
           label="Servings"
           {...register("servings", {
-            required: "Servings is required",
+            required: "Required",
             valueAsNumber: true,
             min: { value: 1, message: "Servings must be at least 1" },
             validate: (v) =>
@@ -60,6 +71,8 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
           })}
           type="number"
           size="small"
+          error={!!errors.servings}
+          helperText={errors.servings?.message}
         />
       </Box>
     </form>
