@@ -110,6 +110,11 @@ export function RecipeDetailDialog({
             <Typography variant="body2">{recipe.servings ?? 1}</Typography>
           </Box>
         </Box>
+        <Divider sx={{ my: 2.5 }} />
+
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          NUTRITION STATS
+        </Typography>
 
         <NutritionRow
           cal={recipe.nutrition.calories}
@@ -117,6 +122,7 @@ export function RecipeDetailDialog({
           carbs={recipe.nutrition.macros.carbs}
           fat={recipe.nutrition.macros.fat}
         />
+        
         <Divider sx={{ my: 2.5 }} />
 
         <Typography variant="h6" sx={{ mb: 1 }}>

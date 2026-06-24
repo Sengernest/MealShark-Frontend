@@ -9,7 +9,6 @@ import {
   Tabs,
   Tab,
   Alert,
-  Divider,
 } from "@mui/material";
 import { useLogin, useSignup } from "@/hooks/auth";
 import { useNavigate } from "react-router";

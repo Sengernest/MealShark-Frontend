@@ -12,7 +12,7 @@ export function NutritionRow({
   fat: number;
 }) {
   return (
-    <Box sx={{ display: "flex", gap: 2.5, mt: 1.5 }}>
+    <Box sx={{ display: "flex", gap: 2.5, mt: 2.5 }}>
       {[
         { label: "KCAL", value: cal, color: "#60c8f5" },
         { label: "PROTEIN", value: `${Math.round(prot)}g`, color: "#3df2a8" },
