@@ -69,8 +69,8 @@ export const useAddRecipeToMealEntry = () => {
 export const useRemoveFoodFromMealEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ entryId, foodId }: { entryId: number; foodId: number }) =>
-      mealLogApi.removeFoodFromEntry(entryId, foodId),
+    mutationFn: ({ entryId, itemId }: { entryId: number; itemId: number }) =>
+      mealLogApi.removeFoodFromEntry(entryId, itemId),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
   });
@@ -79,13 +79,8 @@ export const useRemoveFoodFromMealEntry = () => {
 export const useRemoveRecipeFromMealEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      entryId,
-      recipeId,
-    }: {
-      entryId: number;
-      recipeId: number;
-    }) => mealLogApi.removeRecipeFromEntry(entryId, recipeId),
+    mutationFn: ({ entryId, itemId }: { entryId: number; itemId: number }) =>
+      mealLogApi.removeRecipeFromEntry(entryId, itemId),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
   });

@@ -54,12 +54,12 @@ export function MealEntryCard({
     handleClose();
   };
 
-  const handleRemoveFoodItem = async (foodId: number) => {
-    await removeFood.mutateAsync({ entryId: mealEntry.id, foodId });
+  const handleRemoveFoodItem = async (itemId: number) => {
+    await removeFood.mutateAsync({ entryId: mealEntry.id, itemId });
   };
 
-  const handleRemoveRecipeItem = async (recipeId: number) => {
-    await removeRecipe.mutateAsync({ entryId: mealEntry.id, recipeId });
+  const handleRemoveRecipeItem = async (itemId: number) => {
+    await removeRecipe.mutateAsync({ entryId: mealEntry.id, itemId });
   };
 
   return (

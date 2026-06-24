@@ -43,17 +43,17 @@ async function addFoodToEntry(
 
 async function removeRecipeFromEntry(
   entryId: number,
-  recipeId: number,
+  itemId: number,
 ): Promise<MealEntry> {
-  const res = await api.delete(`/meal-logs/${entryId}/recipes/${recipeId}`);
+  const res = await api.delete(`/meal-logs/${entryId}/recipes/${itemId}`);
   return res.data;
 }
 
 async function removeFoodFromEntry(
   entryId: number,
-  foodId: number,
+  itemId: number,
 ): Promise<MealEntry> {
-  const res = await api.delete(`/meal-logs/${entryId}/foods/${foodId}`);
+  const res = await api.delete(`/meal-logs/${entryId}/foods/${itemId}`);
   return res.data;
 }
 
