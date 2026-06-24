@@ -6,301 +6,22 @@ import {
   CardContent,
   Avatar,
   Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Divider,
-  Alert,
   IconButton,
   Tooltip,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import EditIcon from "@mui/icons-material/Edit";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LockIcon from "@mui/icons-material/Lock";
-import { useChangePassword, useCurrentUser, useLogout } from "@/hooks/auth";
+import { useCurrentUser, useLogout } from "@/hooks/auth";
 import { useNavigate } from "react-router";
-import { useUpdateProfile } from "@/hooks/profile";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
-
-function EditProfileDialog({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
-  const { data: user } = useCurrentUser();
-  const [name, setName] = useState(user?.name ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [birthDate, setBirthDate] = useState(user?.birthDate ?? "");
-  const [height, setHeight] = useState(user?.height ?? "");
-  const [gender, setGender] = useState<"male" | "female" | "">(
-    user?.gender ?? "",
-  );
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState("");
-
-  const updateProfile = useUpdateProfile();
-
-  const handleSave = () => {
-    if (!name.trim() || !email.trim()) return;
-    const ageDiff = dayjs().diff(dayjs(birthDate), "year");
-
-    if ((birthDate && ageDiff < 10) || ageDiff > 120) {
-      setError("Enter a valid birth date (age must be between 10 and 120).");
-      return;
-    }
-
-    if ((height && +height < 100) || +height > 250) {
-      setError("Enter a valid height in cm (100–250).");
-      return;
-    }
-
-    updateProfile.mutate({
-      name: name.trim(),
-      email: email.trim(),
-      birthDate: birthDate === "" ? undefined : birthDate,
-      height: height === "" ? undefined : Number(height),
-      gender: gender === "" ? undefined : gender,
-    });
-    
-    setError("");
-    setSaved(true);
-    setTimeout(() => {
-      setSaved(false);
-      onClose();
-    }, 1200);
-  };
-
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="xs"
-      fullWidth
-      disableRestoreFocus
-    >
-      <DialogTitle>
-        <Typography variant="h5" component="div">
-          EDIT PROFILE
-        </Typography>
-      </DialogTitle>
-
-      <DialogContent
-        sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
-      >
-        {saved && (
-          <Alert
-            icon={<CheckCircleIcon />}
-            severity="success"
-            sx={{ fontSize: 13 }}
-          >
-            Profile updated!
-          </Alert>
-        )}
-
-        {error && (
-          <Alert severity="error" sx={{ fontSize: 13 }}>
-            {error}
-          </Alert>
-        )}
-
-        <TextField
-          label="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          fullWidth
-          autoFocus
-          sx={{ mt: 1 }}
-        />
-
-        <TextField
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-        />
-
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="Birth Date (DD/MM/YYYY)"
-            value={birthDate ? dayjs(birthDate) : null}
-            format="DD/MM/YYYY"
-            onChange={(newValue) => {
-              setBirthDate(newValue ? newValue.format("YYYY-MM-DD") : "");
-            }}
-            slotProps={{ textField: { fullWidth: true } }}
-          />
-        </LocalizationProvider>
-
-        <TextField
-          label="Height/cm"
-          value={height}
-          onChange={(e) => setHeight(e.target.value)}
-          fullWidth
-        />
-
-        <FormControl sx={{ flex: 1 }} size="small">
-          <InputLabel id="gender-label">Gender</InputLabel>
-
-          <Select
-            labelId="gender-label"
-            id="gender"
-            value={gender}
-            label="Gender"
-            onChange={(e) => {
-              const value = e.target.value;
-
-              if (value === "male" || value === "female" || value === "") {
-                setGender(value);
-              }
-            }}
-          >
-            <MenuItem value="male">Male</MenuItem>
-            <MenuItem value="female">Female</MenuItem>
-          </Select>
-        </FormControl>
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={!name.trim() || !email.trim()}
-        >
-          Save Changes
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
-function ChangePasswordDialog({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState("");
-  const { data: user } = useCurrentUser();
-  const changePassword = useChangePassword();
-
-  const handleSave = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setError("All fields are required.");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setError("New password must be at least 6 characters.");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError("New and Confirm New Passwords do not match.");
-      return;
-    }
-
-    changePassword.mutate(
-      { currentPassword, newPassword },
-      {
-        onSuccess: () => {
-          setError("");
-          setSaved(true);
-
-          setTimeout(() => {
-            setSaved(false);
-            onClose();
-            setCurrentPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
-          }, 1200);
-        },
-
-        onError: (err: any) => {
-          setError(err?.response?.data?.error);
-        },
-      },
-    );
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>
-        <Typography variant="h5">CHANGE PASSWORD</Typography>
-      </DialogTitle>
-
-      <DialogContent
-        sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}
-      >
-        {saved && (
-          <Alert severity="success" icon={<CheckCircleIcon />}>
-            Password updated!
-          </Alert>
-        )}
-
-        {error && <Alert severity="error">{error}</Alert>}
-
-        <TextField
-          label="Current Password"
-          type="password"
-          value={currentPassword}
-          sx={{ mt: 0.5 }}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          fullWidth
-        />
-
-        <TextField
-          label="New Password"
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          fullWidth
-        />
-
-        <TextField
-          label="Confirm New Password"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          fullWidth
-        />
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
-          Cancel
-        </Button>
-
-        <Button variant="contained" onClick={handleSave}>
-          Change Password
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { EditProfileDialog } from "./EditProfileDialog";
+import { ChangePasswordDialog } from "./ChangeProfileDialog";
 
 const WEIGHT_GOAL_LABELS = {
   "bulk_0.25": "Bulking 0.25kg/week",
@@ -335,11 +56,6 @@ export function Profile() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
-
-  const memberSince = new Date().toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
 
   const { data: goals } = useGetMyNutritionGoals();
 
@@ -412,9 +128,7 @@ export function Profile() {
               >
                 {user.email}
               </Typography>
-              <Typography variant="caption" sx={{ color: "text.disabled" }}>
-                Member since {memberSince} (nid change)
-              </Typography>
+          
             </Box>
           </Box>
 
@@ -712,39 +426,16 @@ export function Profile() {
         onClose={() => setPasswordOpen(false)}
       />
 
-      <Dialog
+      <ConfirmDialog
         open={logoutOpen}
         onClose={() => setLogoutOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>
-          <Typography variant="h6">Confirm Logout</Typography>
-        </DialogTitle>
-
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            Are you sure you want to logout of your account?
-          </Typography>
-        </DialogContent>
-
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => setLogoutOpen(false)}
-            sx={{ color: "text.secondary" }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleConfirmLogout}
-          >
-            Logout
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleConfirmLogout}
+        title="Confirm Logout"
+        description="Are you sure you want to logout of your account?"
+        confirmText="Logout"
+        confirmColor="error"
+      />
+      
     </Box>
   );
 }

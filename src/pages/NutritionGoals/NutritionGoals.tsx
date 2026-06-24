@@ -29,6 +29,7 @@ import {
   useUpdateNutritionGoals,
 } from "@/hooks/nutritionGoals";
 import { useCurrentUser } from "@/hooks/auth";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 const ACTIVITY_LABELS = {
   sedentary: "Sedentary (little or no exercise)",
@@ -102,15 +103,6 @@ export function Goals() {
   const [edited, setEdited] = useState(false);
   const [error, setError] = useState("");
   const createNutritionGoals = useCreateNutritionGoals();
-
-  /* const Preview = calcNutritionGoal({
-      age: +age,
-      gender,
-      height: +height,
-      weight: +weight,
-      activityLevel: activity,
-      weightGoal: goal,
-    }); */
 
   const { data: goals, isLoading } = useGetMyNutritionGoals();
   const hasGoals = !!goals;
@@ -265,41 +257,15 @@ export function Goals() {
         </Alert>
       )}
 
-      <Dialog
+      <ConfirmDialog
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>
-          <Typography variant="h6">Confirm Delete Goals</Typography>
-        </DialogTitle>
-
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            Are you sure you want to delete your nutrition goals?
-          </Typography>
-        </DialogContent>
-
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => setDeleteOpen(false)}
-            sx={{ color: "text.secondary" }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleConfirmDelete}
-            disabled={deleteNutritionGoals.isPending}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete Goals"
+        description="Are you sure you want to delete your nutrition goals?"
+        confirmText="Delete"
+        confirmColor="error"
+      />
       <Grid container spacing={3}>
         {/* Form */}
         <Grid size={{ xs: 12, md: 7 }}>

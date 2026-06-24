@@ -32,8 +32,9 @@ import {
   useWatch,
 } from "react-hook-form";
 import type { Food, Recipe, RecipePost, Unit } from "../../types";
-import { NutritionRow, RECIPE_CATEGORIES } from "./Recipes";
+import { RECIPE_CATEGORIES } from "./Recipes";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { NutritionRow } from "./NutritionRow";
 
 type CreateRecipeFormData = {
   name: string;

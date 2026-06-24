@@ -4,45 +4,29 @@ import {
   useGetMyRecipes,
   useGetSampleRecipes,
 } from "@/hooks/recipes";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AddIcon from "@mui/icons-material/Add";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import PeopleIcon from "@mui/icons-material/People";
 import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
   Button,
   Card,
-  CardActions,
   CardContent,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
   FormControl,
-  IconButton,
   InputAdornment,
   InputLabel,
-  List,
-  ListItem,
-  ListItemText,
   MenuItem,
   Select,
   Tab,
   Tabs,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { useSearchParams } from "react-router";
 import type { Recipe } from "../../types";
 import { CreateRecipeDialog } from "./CreateRecipeDialog";
+import { RecipeCard } from "./RecipeCard";
+import { RecipeDetailDialog } from "./RecipeDetailDialog";
 
 export const RECIPE_CATEGORIES = [
   "All",
@@ -52,342 +36,6 @@ export const RECIPE_CATEGORIES = [
   "Low Carb",
   "Vegetarian",
 ];
-
-export function NutritionRow({
-  cal,
-  prot,
-  carbs,
-  fat,
-}: {
-  cal: number;
-  prot: number;
-  carbs: number;
-  fat: number;
-}) {
-  return (
-    <Box sx={{ display: "flex", gap: 2.5, mt: 1.5 }}>
-      {[
-        { label: "KCAL", value: cal, color: "#60c8f5" },
-        { label: "PROTEIN", value: `${Math.round(prot)}g`, color: "#3df2a8" },
-        { label: "CARB", value: `${Math.round(carbs)}g`, color: "#3db5f2" },
-        { label: "FAT", value: `${Math.round(fat)}g`, color: "#f2c93d" },
-      ].map(({ label, value, color }) => (
-        <Box key={label} sx={{ textAlign: "center" }}>
-          <Typography
-            sx={{
-              color,
-              fontFamily: "'Barlow Condensed'",
-              fontWeight: 800,
-              fontSize: 17,
-              lineHeight: 1,
-            }}
-          >
-            {value}
-          </Typography>
-          <Typography
-            variant="caption"
-            sx={{
-              fontSize: 10,
-              letterSpacing: "0.08em",
-              color: "text.disabled",
-            }}
-          >
-            {label}
-          </Typography>
-        </Box>
-      ))}
-    </Box>
-  );
-}
-
-function RecipeCard({
-  recipe,
-  onView,
-  onEdit,
-}: {
-  recipe: Recipe;
-  onView: () => void;
-  onEdit: (recipe: Recipe) => void;
-}) {
-  const toggleSaveRecipe = (recipeId: number) => {
-    // TODO:
-  };
-
-  return (
-    <Card
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        transition: "border-color 0.15s",
-        "&:hover": { borderColor: "primary.main" },
-      }}
-    >
-      <CardContent sx={{ flex: 1 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: 1,
-          }}
-        >
-          <Chip
-            label={recipe.category ?? "No category"}
-            size="small"
-            variant="outlined"
-            sx={{ fontSize: 11 }}
-          />
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Tooltip title="Edit">
-              <IconButton size="small" onClick={() => onEdit(recipe)} color="primary">
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title={recipe.isSaved ? "Unsave" : "Save recipe"}>
-              <IconButton
-                size="small"
-                onClick={() => toggleSaveRecipe(recipe.id)}
-                sx={{
-                  color: recipe.isSaved ? "primary.main" : "text.disabled",
-                }}
-              >
-                {recipe.isSaved ? (
-                  <BookmarkIcon fontSize="small" />
-                ) : (
-                  <BookmarkBorderIcon fontSize="small" />
-                )}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-
-        <Typography
-          variant="h5"
-          sx={{ fontSize: 18, mb: 0.5, lineHeight: 1.2 }}
-        >
-          {recipe.name}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "text.secondary",
-            fontSize: 12,
-            mb: 1.5,
-            height: 36,
-            overflow: "hidden",
-          }}
-        >
-          {recipe.description}
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2, color: "text.disabled" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <AccessTimeIcon sx={{ fontSize: 13 }} />
-            <Typography variant="caption">
-              {recipe.prepTime && recipe.cookTime
-                ? recipe.prepTime + recipe.cookTime + "m"
-                : "-"}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <PeopleIcon sx={{ fontSize: 13 }} />
-            <Typography variant="caption">
-              {recipe.servings ?? 1} serving(s)
-            </Typography>
-          </Box>
-        </Box>
-        <NutritionRow
-          cal={recipe.nutrition.calories}
-          prot={recipe.nutrition.macros.protein}
-          carbs={recipe.nutrition.macros.carbs}
-          fat={recipe.nutrition.macros.fat}
-        />
-      </CardContent>
-      <CardActions sx={{ pt: 0, px: 2, pb: 2 }}>
-        <Button size="small" variant="outlined" fullWidth onClick={onView}>
-          View Recipe
-        </Button>
-      </CardActions>
-    </Card>
-  );
-}
-
-function RecipeDetailDialog({
-  recipe,
-  onClose,
-  onEdit,
-  onDelete,
-}: {
-  recipe: Recipe;
-  onClose: () => void;
-  onEdit: (recipe: Recipe) => void;
-  onDelete: (recipeId: number) => void;
-}) {
-  const toggleSaveRecipe = (recipeId: number) => {
-    // TODO:
-  };
-
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-          }}
-        >
-          <Box>
-            <Chip
-              label={recipe.category ?? "No category"}
-              size="small"
-              variant="outlined"
-              sx={{ mb: 1 }}
-            />
-            <Typography variant="h4">{recipe.name}</Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 0.5 }}>
-            <Tooltip title="Edit">
-              <IconButton onClick={() => onEdit(recipe)} color="primary">
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Delete">
-              <IconButton color="error" onClick={() => setDeleteOpen(true)}>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title={recipe.isSaved ? "Unsave" : "Save"}>
-              <IconButton
-                onClick={() => toggleSaveRecipe(recipe.id)}
-                sx={{
-                  color: recipe.isSaved ? "primary.main" : "text.disabled",
-                }}
-              >
-                {recipe.isSaved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-      </DialogTitle>
-      <DialogContent>
-        <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-          {recipe.description}
-        </Typography>
-
-        <Box sx={{ display: "flex", gap: 3, mb: 2.5 }}>
-          <Box>
-            <Typography variant="caption" sx={{ color: "text.disabled" }}>
-              Prep
-            </Typography>
-            <Typography variant="body2">{recipe.prepTime} min</Typography>
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: "text.disabled" }}>
-              Cook
-            </Typography>
-            <Typography variant="body2">{recipe.cookTime} min</Typography>
-          </Box>
-          <Box>
-            <Typography variant="caption" sx={{ color: "text.disabled" }}>
-              Servings
-            </Typography>
-            <Typography variant="body2">{recipe.servings ?? 1}</Typography>
-          </Box>
-        </Box>
-
-        <NutritionRow
-          cal={recipe.nutrition.calories}
-          prot={recipe.nutrition.macros.protein}
-          carbs={recipe.nutrition.macros.carbs}
-          fat={recipe.nutrition.macros.fat}
-        />
-        <Divider sx={{ my: 2.5 }} />
-
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          INGREDIENTS
-        </Typography>
-        <List dense disablePadding>
-          {recipe.ingredients.map((ingredient, i) => (
-            <ListItem
-              key={i}
-              disablePadding
-              sx={{
-                py: 0.75,
-                borderBottom: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <ListItemText
-                primary={ingredient.food.name}
-                secondary={`${ingredient.amount} ${ingredient.unit.name}`}
-                primaryTypographyProps={{
-                  variant: "body2",
-                  color: "text.primary",
-                }}
-                secondaryTypographyProps={{ variant: "caption" }}
-              />
-            </ListItem>
-          ))}
-        </List>
-
-        {recipe.instructions && recipe.instructions.length > 0 && (
-          <>
-            <Typography variant="h6" sx={{ mb: 1.5, mt: 2.5 }}>
-              INSTRUCTIONS
-            </Typography>
-
-            <Typography
-              variant="body2"
-              sx={{
-                color: "text.secondary",
-                lineHeight: 1.8,
-                whiteSpace: "pre-line",
-              }}
-            >
-              {recipe.instructions}
-            </Typography>
-          </>
-        )}
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-
-      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-        <DialogTitle>Confirm Delete Recipe</DialogTitle>
-
-        <DialogContent>
-          <Typography>
-            Are you sure you want to delete <strong>{recipe.name}</strong>?
-          </Typography>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
-
-          <Button
-            color="error"
-            variant="contained"
-            onClick={() => {
-              onDelete(recipe.id);
-              setDeleteOpen(false);
-              onClose();
-            }}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Dialog>
-  );
-}
 
 export function Recipes() {
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
@@ -549,7 +197,7 @@ export function Recipes() {
           }}
         />
       )}
-      
+
       {createOpen && (
         <CreateRecipeDialog
           open

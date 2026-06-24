@@ -28,6 +28,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router";
+import { ConfirmDialog } from "./common/ConfirmDialog";
 
 const DRAWER_OPEN = 220;
 const DRAWER_CLOSED = 64;
@@ -287,39 +288,15 @@ export function Layout() {
         <Outlet />
       </Box>
 
-      <Dialog
-        open={logoutOpen}
-        onClose={() => setLogoutOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>
-          <Typography variant="h6">Confirm Logout</Typography>
-        </DialogTitle>
-
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            Are you sure you want to logout?
-          </Typography>
-        </DialogContent>
-
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => setLogoutOpen(false)}
-            sx={{ color: "text.secondary" }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleConfirmLogout}
-          >
-            Logout
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+              open={logoutOpen}
+              onClose={() => setLogoutOpen(false)}
+              onConfirm={handleConfirmLogout}
+              title="Confirm Logout"
+              description="Are you sure you want to logout of your account?"
+              confirmText="Logout"
+              confirmColor="error"
+            />
     </Box>
   );
 }
