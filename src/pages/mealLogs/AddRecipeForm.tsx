@@ -25,7 +25,7 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form id="recipe-form" onSubmit={handleSubmit(onSubmit)}>
       <Box sx={{ display: "grid", gridTemplateColumns: "3fr 1fr", gap: 2 }}>
         <FormControl size="small" fullWidth>
           <InputLabel>{"Recipe"}</InputLabel>

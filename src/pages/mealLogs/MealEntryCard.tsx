@@ -25,14 +25,22 @@ export function MealEntryCard({
   const calories = mealEntry.nutrition.calories;
   const [addItemOpen, setAddItemOpen] = useState(false)
 
+  const handleClose = () => {
+    setAddItemOpen(false);
+  };
+
   const handleRemoveFoodItem = async (foodId: number) => {
     // TODO:
   };
 
   const handleRemoveRecipeItem = async (recipeId: number) => {};
 
-  const handleAddFoodItem = (food: MealFoodPost) => {};
-  const handleAddRecipeItem = (recipe: MealRecipePost) => {};
+  const handleAddFoodItem = async (food: MealFoodPost) => {
+    handleClose()
+  };
+  const handleAddRecipeItem = async (recipe: MealRecipePost) => {
+    handleClose()
+  };
 
   return (
     <Card sx={{ mb: 2 }}>
@@ -221,9 +229,7 @@ export function MealEntryCard({
         {addItemOpen && (
           <AddItemDialog
             open
-            onClose={() => {
-              setAddItemOpen(false);
-            }}
+            onClose={handleClose}
             onAddFood={handleAddFoodItem}
             onAddRecipe={handleAddRecipeItem}
           />
