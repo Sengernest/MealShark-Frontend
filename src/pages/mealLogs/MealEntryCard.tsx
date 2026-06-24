@@ -19,6 +19,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { AddItemDialog } from "./AddItemDialog";
+import {
+  useAddFoodToMealEntry,
+  useAddRecipeToMealEntry,
+  useRemoveRecipeFromMealEntry,
+} from "@/hooks/mealLogs";
+import { useRemoveFoodFromMealEntry } from "../../hooks/mealLogs";
 
 export function MealEntryCard({
   mealEntry,
@@ -34,17 +40,26 @@ export function MealEntryCard({
     setAddItemOpen(false);
   };
 
-  const handleRemoveFoodItem = async (foodId: number) => {
-    // TODO:
-  };
-
-  const handleRemoveRecipeItem = async (recipeId: number) => {};
+  const addFood = useAddFoodToMealEntry();
+  const addRecipe = useAddRecipeToMealEntry();
+  const removeFood = useRemoveFoodFromMealEntry();
+  const removeRecipe = useRemoveRecipeFromMealEntry();
 
   const handleAddFoodItem = async (food: FoodItemPost) => {
+    await addFood.mutateAsync({ entryId: mealEntry.id, data: food });
     handleClose();
   };
   const handleAddRecipeItem = async (recipe: RecipeItemPost) => {
+    await addRecipe.mutateAsync({ entryId: mealEntry.id, data: recipe });
     handleClose();
+  };
+
+  const handleRemoveFoodItem = async (foodId: number) => {
+    await removeFood.mutateAsync({ entryId: mealEntry.id, foodId });
+  };
+
+  const handleRemoveRecipeItem = async (recipeId: number) => {
+    await removeRecipe.mutateAsync({ entryId: mealEntry.id, recipeId });
   };
 
   return (

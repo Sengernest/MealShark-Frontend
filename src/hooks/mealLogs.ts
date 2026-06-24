@@ -1,6 +1,11 @@
 import { mealLogApi } from "@/api/mealLogs";
-import { MealEntryPost } from "@/types";
-import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { FoodItemPost, MealEntryPost, RecipeItemPost } from "@/types";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export const useGetMealSummary = (date: Date) => {
   return useQuery({
@@ -14,7 +19,7 @@ export const useCreateMealLog = () => {
   return useMutation({
     mutationFn: (data: MealEntryPost) => mealLogApi.createMealLog(data),
     onSuccess: (data) => {
-      console.log(data.logDate)
+      console.log(data.logDate);
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
     },
   });
@@ -33,6 +38,56 @@ export const useUpdateMealLog = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
     },
+  });
+};
+
+export const useAddFoodToMealEntry = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ entryId, data }: { entryId: number; data: FoodItemPost }) =>
+      mealLogApi.addFoodToEntry(entryId, data),
+    onSuccess: (data) =>
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
+  });
+};
+
+export const useAddRecipeToMealEntry = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      data,
+    }: {
+      entryId: number;
+      data: RecipeItemPost;
+    }) => mealLogApi.addRecipeToEntry(entryId, data),
+    onSuccess: (data) =>
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
+  });
+};
+
+export const useRemoveFoodFromMealEntry = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ entryId, foodId }: { entryId: number; foodId: number }) =>
+      mealLogApi.removeFoodFromEntry(entryId, foodId),
+    onSuccess: (data) =>
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
+  });
+};
+
+export const useRemoveRecipeFromMealEntry = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      entryId,
+      recipeId,
+    }: {
+      entryId: number;
+      recipeId: number;
+    }) => mealLogApi.removeRecipeFromEntry(entryId, recipeId),
+    onSuccess: (data) =>
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
   });
 };
 
