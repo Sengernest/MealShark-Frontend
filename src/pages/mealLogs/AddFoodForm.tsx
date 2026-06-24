@@ -39,7 +39,6 @@ export function AddFoodForm({ onAdd }: AddFoodFormProps) {
   return (
     <form id="food-form" onSubmit={handleSubmit(onSubmit)}>
       <FormControl size="small" fullWidth>
-        <InputLabel>{"Food"}</InputLabel>
         <Controller
           name={"foodId"}
           control={control}
