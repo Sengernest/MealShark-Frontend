@@ -1,0 +1,90 @@
+import { FoodItemPost, RecipeItemPost } from "@/types";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Typography,
+} from "@mui/material";
+
+import { useState } from "react";
+import { AddFoodForm } from "./AddFoodForm";
+import { AddPlanForm } from "./AddPlanForm";
+import { AddRecipeForm } from "./AddRecipeForm";
+
+type AddItemDialogProps = {
+  open: boolean;
+  onClose: () => void;
+  onAddFood: (item: FoodItemPost) => void;
+  onAddRecipe: (item: RecipeItemPost) => void;
+};
+
+type AddMode = "recipe" | "food" | "plan";
+
+const MODE_TO_FORM_ID: Record<AddMode, string> = {
+  recipe: "recipe-form",
+  food: "food-form",
+  plan: "plan-form",
+};
+
+export function AddItemDialog({
+  open,
+  onClose,
+  onAddFood,
+  onAddRecipe,
+}: AddItemDialogProps) {
+  const [mode, setMode] = useState<AddMode>("recipe");
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        <Typography variant="h6">ADD TO MEAL ENTRY</Typography>
+      </DialogTitle>
+      <DialogContent
+        sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
+      >
+        {/* Mode tabs */}
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {[
+            { id: "recipe" as AddMode, label: "Recipe" },
+            { id: "food" as AddMode, label: "Food" },
+            { id: "plan" as AddMode, label: "From Plan" },
+          ].map(({ id, label }) => (
+            <Button
+              key={id}
+              variant={mode === id ? "contained" : "outlined"}
+              size="small"
+              onClick={() => {
+                setMode(id);
+              }}
+              sx={{
+                color: mode === id ? "#0d0d0d" : "text.secondary",
+                borderColor: "divider",
+              }}
+            >
+              {label}
+            </Button>
+          ))}
+        </Box>
+
+        {mode === "plan" ? (
+          <AddPlanForm />
+        ) : mode === "recipe" ? (
+          <AddRecipeForm onAdd={onAddRecipe} />
+        ) : (
+          <AddFoodForm onAdd={onAddFood} />
+        )}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2.5 }}>
+        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
+          Cancel
+        </Button>
+        <Button type="submit" variant="contained" form={MODE_TO_FORM_ID[mode]}>
+          Add
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}

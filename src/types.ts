@@ -119,7 +119,7 @@ export type Recipe = RecipeBase & {
   nutrition: Nutrition;
 };
 
-export type RecipeFoodPost = {
+export type FoodItemPost = {
   foodId: number;
   unitId: number;
   amount: number;
@@ -127,7 +127,7 @@ export type RecipeFoodPost = {
 
 export type RecipePost = {
   name: string;
-  ingredients: RecipeFoodPost[];
+  ingredients: FoodItemPost[];
   category: string | null;
   description: string | null;
   instructions: string | null;
@@ -205,37 +205,38 @@ export type MealPlan = {
   isActive: boolean;
 };
 
-export type MealLogRecipe = {
+export type MealEntryRecipe = {
   recipeId: number;
   servings: number;
   mealLogId: number;
   recipe: RecipeBase;
+  nutrition: Nutrition;
 };
 
-export type MealLogFood = {
-  foodId: number;
-  amount: number;
+export type MealEntryFood = {
   mealLogId: number;
+  foodId: number;
   food: Food;
+  unitId: number;
+  unit: Unit;
+  amount: number;
+  nutrition: Nutrition;
 };
 
-export type MealLog = {
+export type MealEntry = {
   id: number;
+  label: string | null;
   mealId: number | null;
   userId: number;
   logDate: Date;
   mealIndex: number;
-  recipeItems: MealLogRecipe[];
-  foodItems: MealLogFood[];
-};
-
-export type MealLogWithNutrition = {
-  mealLog: MealLog;
+  recipeItems: MealEntryRecipe[];
+  foodItems: MealEntryFood[];
   nutrition: Nutrition;
 };
 
 export type MealSummary = {
-  meals: MealLogWithNutrition[];
+  meals: MealEntry[];
   nutrition: Nutrition;
 };
 
@@ -260,20 +261,15 @@ export type NutritionGoalsPost = {
   goal: "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
 };
 
-type MealRecipePost = {
+export type RecipeItemPost = {
   recipeId: number;
   servings: number;
 };
 
-type MealFoodPost = {
-  foodId: number;
-  amount: number;
-};
-
 export type MealPost = {
   mealPlanIndex: number;
-  recipeItems: MealRecipePost[];
-  foodItems: MealFoodPost[];
+  recipeItems: RecipeItemPost[];
+  foodItems: FoodItemPost[];
 };
 
 export type MealPlanPost = {
@@ -283,12 +279,12 @@ export type MealPlanPost = {
   meals: MealPost[];
 };
 
-export type MealLogPost = {
+export type MealEntryPost = {
   logDate: Date;
   mealIndex: number;
-  mealId: number;
-  recipeItems: MealRecipePost[];
-  foodItems: MealFoodPost[];
+  mealId?: number;
+  recipeItems: RecipeItemPost[];
+  foodItems: FoodItemPost[];
 };
 
 export type MealLogQueryPost = {
