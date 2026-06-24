@@ -120,7 +120,7 @@ export type Recipe = RecipeBase & {
   nutrition: Nutrition;
 };
 
-export type RecipeFoodPost = {
+export type FoodItemPost = {
   foodId: number;
   unitId: number;
   amount: number;
@@ -128,7 +128,7 @@ export type RecipeFoodPost = {
 
 export type RecipePost = {
   name: string;
-  ingredients: RecipeFoodPost[];
+  ingredients: FoodItemPost[];
   category: string | null;
   description: string | null;
   instructions: string | null;
@@ -211,7 +211,7 @@ export type MealEntryRecipe = {
   servings: number;
   mealLogId: number;
   recipe: RecipeBase;
-  nutrition: Nutrition
+  nutrition: Nutrition;
 };
 
 export type MealEntryFood = {
@@ -221,7 +221,7 @@ export type MealEntryFood = {
   unitId: number;
   unit: Unit;
   amount: number;
-  nutrition: Nutrition
+  nutrition: Nutrition;
 };
 
 export type MealEntry = {
@@ -262,20 +262,15 @@ export type NutritionGoalsPost = {
   goal: "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
 };
 
-export type MealRecipePost = {
+export type RecipeItemPost = {
   recipeId: number;
   servings: number;
 };
 
-export type MealFoodPost = {
-  foodId: number;
-  amount: number;
-};
-
 export type MealPost = {
   mealPlanIndex: number;
-  recipeItems: MealRecipePost[];
-  foodItems: MealFoodPost[];
+  recipeItems: RecipeItemPost[];
+  foodItems: FoodItemPost[];
 };
 
 export type MealPlanPost = {
@@ -289,8 +284,8 @@ export type MealEntryPost = {
   logDate: Date;
   mealIndex: number;
   mealId?: number;
-  recipeItems: MealRecipePost[];
-  foodItems: MealFoodPost[];
+  recipeItems: RecipeItemPost[];
+  foodItems: FoodItemPost[];
 };
 
 export type MealLogQueryPost = {

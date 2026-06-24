@@ -1,5 +1,5 @@
 import { useGetAllRecipes } from "@/hooks/recipes";
-import { MealRecipePost } from "@/types";
+import { RecipeItemPost } from "@/types";
 import {
   Autocomplete,
   Box,
@@ -11,16 +11,16 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 type AddRecipeFormProps = {
-  onAdd: (recipe: MealRecipePost) => void;
+  onAdd: (recipe: RecipeItemPost) => void;
 };
 
 export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
   const [recipeSearch, setRecipeSearch] = useState("");
   const { data: recipes = [] } = useGetAllRecipes();
 
-  const { register, handleSubmit, control } = useForm<MealRecipePost>();
+  const { register, handleSubmit, control } = useForm<RecipeItemPost>();
 
-  const onSubmit: SubmitHandler<MealRecipePost> = (data) => {
+  const onSubmit: SubmitHandler<RecipeItemPost> = (data) => {
     onAdd(data);
   };
 

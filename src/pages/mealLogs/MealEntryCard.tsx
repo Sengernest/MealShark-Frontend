@@ -1,4 +1,9 @@
-import { MealEntry, MealEntryFood, MealFoodPost, MealRecipePost } from "@/types";
+import {
+  MealEntry,
+  MealEntryFood,
+  FoodItemPost,
+  RecipeItemPost,
+} from "@/types";
 import {
   Card,
   CardContent,
@@ -23,7 +28,7 @@ export function MealEntryCard({
   onRemoveSlot: () => void;
 }) {
   const calories = mealEntry.nutrition.calories;
-  const [addItemOpen, setAddItemOpen] = useState(false)
+  const [addItemOpen, setAddItemOpen] = useState(false);
 
   const handleClose = () => {
     setAddItemOpen(false);
@@ -35,11 +40,11 @@ export function MealEntryCard({
 
   const handleRemoveRecipeItem = async (recipeId: number) => {};
 
-  const handleAddFoodItem = async (food: MealFoodPost) => {
-    handleClose()
+  const handleAddFoodItem = async (food: FoodItemPost) => {
+    handleClose();
   };
-  const handleAddRecipeItem = async (recipe: MealRecipePost) => {
-    handleClose()
+  const handleAddRecipeItem = async (recipe: RecipeItemPost) => {
+    handleClose();
   };
 
   return (

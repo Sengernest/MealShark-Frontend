@@ -1,4 +1,4 @@
-import { MealFoodPost, MealRecipePost } from "@/types";
+import { FoodItemPost, RecipeItemPost } from "@/types";
 import {
   Box,
   Button,
@@ -17,8 +17,8 @@ import { AddRecipeForm } from "./AddRecipeForm";
 type AddItemDialogProps = {
   open: boolean;
   onClose: () => void;
-  onAddFood: (item: MealFoodPost) => void;
-  onAddRecipe: (item: MealRecipePost) => void;
+  onAddFood: (item: FoodItemPost) => void;
+  onAddRecipe: (item: RecipeItemPost) => void;
 };
 
 type AddMode = "recipe" | "food" | "plan";
