@@ -325,44 +325,20 @@ function RecipeDetailDialog({
 
         {recipe.instructions && recipe.instructions.length > 0 && (
           <>
-            <Divider sx={{ my: 2.5 }} />
-            <Typography variant="h6" sx={{ mb: 1.5 }}>
+            <Typography variant="h6" sx={{ mb: 1.5, mt: 2.5 }}>
               INSTRUCTIONS
             </Typography>
-            {recipe.instructions.map((step, i) => (
-              <Box key={i} sx={{ display: "flex", gap: 2, mb: 1.5 }}>
-                <Box
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    bgcolor: "primary.main",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    mt: 0.25,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#0d0d0d",
-                      fontSize: 12,
-                      fontWeight: 800,
-                      fontFamily: "'Barlow Condensed'",
-                    }}
-                  >
-                    {i + 1}
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "text.secondary", lineHeight: 1.6 }}
-                >
-                  {step}
-                </Typography>
-              </Box>
-            ))}
+
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                lineHeight: 1.8,
+                whiteSpace: "pre-line",
+              }}
+            >
+              {recipe.instructions}
+            </Typography>
           </>
         )}
       </DialogContent>
@@ -418,7 +394,20 @@ export function Recipes() {
         : useGetAllRecipes();
   const recipes = data ?? [];
 
+  const { data: allRecipes = [] } = useGetAllRecipes();
+
   const deleteRecipe = useDeleteRecipe();
+
+  const filteredRecipes = recipes.filter((r) => {
+    const matchesCategory = category === "All" || r.category === category;
+
+    const matchesSearch =
+      search.trim() === "" ||
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      r.description?.toLowerCase().includes(search.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
@@ -441,7 +430,10 @@ export function Recipes() {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setCreateOpen(true)}
+          onClick={() => {
+            setEditingRecipe(null);
+            setCreateOpen(true);
+          }}
         >
           Create Recipe
         </Button>
@@ -452,7 +444,7 @@ export function Recipes() {
         onChange={(_, v) => setUrlSearchParams({ tab: v })}
         sx={{ mb: 2.5 }}
       >
-        <Tab label={`All (${recipes.length})`} value={"all"} />
+        <Tab label={`All (${allRecipes.length})`} value={"all"} />
         <Tab label="Sample Recipes" value={"samples"} />
         <Tab label="My Recipes" value={"me"} />
         <Tab label="Saved" value={"saved"} />
@@ -496,7 +488,7 @@ export function Recipes() {
             </Select>
           </FormControl>
           <Typography variant="caption" sx={{ ml: "auto" }}>
-            {recipes.length} recipes
+            {filteredRecipes.length} recipes
           </Typography>
         </CardContent>
       </Card>
@@ -508,10 +500,10 @@ export function Recipes() {
           gap: 2,
         }}
       >
-        {recipes.map((r) => (
+        {filteredRecipes.map((r) => (
           <RecipeCard key={r.id} recipe={r} onView={() => setViewRecipe(r)} />
         ))}
-        {recipes.length === 0 && (
+        {filteredRecipes.length === 0 && (
           <Box sx={{ gridColumn: "1/-1", textAlign: "center", py: 8 }}>
             <Typography variant="body1" sx={{ color: "text.disabled" }}>
               No recipes found.
@@ -538,7 +530,10 @@ export function Recipes() {
         <CreateRecipeDialog
           open
           recipe={editingRecipe}
-          onClose={() => setCreateOpen(false)}
+          onClose={() => {
+            setCreateOpen(false);
+            setEditingRecipe(null);
+          }}
         />
       )}
     </Box>

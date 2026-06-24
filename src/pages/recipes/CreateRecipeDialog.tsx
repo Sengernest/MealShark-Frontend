@@ -1,5 +1,5 @@
 import { useSearchFoods } from "@/hooks/foods";
-import { useCreateRecipe } from "@/hooks/recipes";
+import { useCreateRecipe, useUpdateRecipe } from "@/hooks/recipes";
 import {
   Alert,
   Autocomplete,
@@ -55,11 +55,14 @@ type Ingredient = {
 export function CreateRecipeDialog({
   open,
   onClose,
+  recipe,
 }: {
   open: boolean;
   onClose: () => void;
+  recipe?: Recipe | null;
 }) {
   const createRecipe = useCreateRecipe();
+  const editRecipe = useUpdateRecipe();
 
   const {
     register,
@@ -67,9 +70,29 @@ export function CreateRecipeDialog({
     formState: { errors, isSubmitting },
     control,
     watch,
+    reset,
   } = useForm<CreateRecipeFormData>();
 
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
+
+  useEffect(() => {
+    if (!recipe) return;
+
+    reset({
+      name: recipe.name,
+      description: recipe.description,
+      category: recipe.category,
+      instructions: recipe.instructions,
+      prepTime: recipe.prepTime,
+      cookTime: recipe.cookTime,
+      servings: recipe.servings,
+      ingredients: recipe.ingredients.map((i) => ({
+        foodId: i.food.id,
+        unitId: i.unit.id,
+        amount: i.amount,
+      })),
+    });
+  }, [recipe, reset]);
 
   const addIngredient = async () => {
     ingredientsFieldArray.append({
@@ -92,7 +115,15 @@ export function CreateRecipeDialog({
         unitId: ingredient.unitId!,
       })),
     };
-    await createRecipe.mutateAsync(payload);
+    if (recipe) {
+      await editRecipe.mutateAsync({
+        recipeId: recipe.id,
+        data: payload,
+      });
+    } else {
+      await createRecipe.mutateAsync(payload);
+    }
+
     onClose();
   };
 
@@ -105,7 +136,7 @@ export function CreateRecipeDialog({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>
-          <Typography variant="h5">CREATE RECIPE</Typography>
+          <Typography variant="h5"> {recipe ? "EDIT RECIPE" : "CREATE RECIPE"}</Typography>
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
@@ -214,7 +245,7 @@ export function CreateRecipeDialog({
             Cancel
           </Button>
           <Button type="submit" variant="contained" disabled={isSubmitting}>
-            Create Recipe
+            {recipe ? "Edit Recipe" : "Create Recipe"}
           </Button>
         </DialogActions>
       </form>
@@ -286,7 +317,9 @@ export function IngredientRow({
               value={field.value ?? undefined}
               inputValue={foodSearch}
               onInputChange={(_, value) => setFoodSearch(value)}
-              getOptionLabel={(foodId) => foods.find(food => food.id === foodId)?.name ?? ''}
+              getOptionLabel={(foodId) =>
+                foods.find((food) => food.id === foodId)?.name ?? ""
+              }
               isOptionEqualToValue={(option, value) => option === value}
               filterOptions={(x) => x}
               renderInput={(params) => (
