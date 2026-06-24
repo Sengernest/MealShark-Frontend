@@ -105,14 +105,13 @@ type RecipeBase = {
   name: string;
   creatorId: number | null;
   ingredients: RecipeFood[];
-
   category?: string;
   description?: string;
-  instructions?: string[];
+  instructions?: string;
   prepTime?: number;
   cookTime?: number;
   servings?: number;
-  isProvided?: boolean;
+  isSample?: boolean;
   isSaved?: boolean;
 };
 

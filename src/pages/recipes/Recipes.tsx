@@ -103,9 +103,11 @@ export function NutritionRow({
 function RecipeCard({
   recipe,
   onView,
+  onEdit,
 }: {
   recipe: Recipe;
   onView: () => void;
+  onEdit: (recipe: Recipe) => void;
 }) {
   const toggleSaveRecipe = (recipeId: number) => {
     // TODO:
@@ -117,7 +119,7 @@ function RecipeCard({
         display: "flex",
         flexDirection: "column",
         transition: "border-color 0.15s",
-        "&:hover": { borderColor: "rgba(181,242,61,0.3)" },
+        "&:hover": { borderColor: "primary.main" },
       }}
     >
       <CardContent sx={{ flex: 1 }}>
@@ -135,20 +137,32 @@ function RecipeCard({
             variant="outlined"
             sx={{ fontSize: 11 }}
           />
-          <Tooltip title={recipe.isSaved ? "Unsave" : "Save recipe"}>
-            <IconButton
-              size="small"
-              onClick={() => toggleSaveRecipe(recipe.id)}
-              sx={{ color: recipe.isSaved ? "primary.main" : "text.disabled" }}
-            >
-              {recipe.isSaved ? (
-                <BookmarkIcon fontSize="small" />
-              ) : (
-                <BookmarkBorderIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Tooltip title="Edit">
+              <IconButton size="small" onClick={() => onEdit(recipe)} color="primary">
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title={recipe.isSaved ? "Unsave" : "Save recipe"}>
+              <IconButton
+                size="small"
+                onClick={() => toggleSaveRecipe(recipe.id)}
+                sx={{
+                  color: recipe.isSaved ? "primary.main" : "text.disabled",
+                }}
+              >
+                {recipe.isSaved ? (
+                  <BookmarkIcon fontSize="small" />
+                ) : (
+                  <BookmarkBorderIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
+
         <Typography
           variant="h5"
           sx={{ fontSize: 18, mb: 0.5, lineHeight: 1.2 }}
@@ -236,7 +250,7 @@ function RecipeDetailDialog({
             <Typography variant="h4">{recipe.name}</Typography>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Box sx={{ display: "flex", gap: 0.5 }}>
             <Tooltip title="Edit">
               <IconButton onClick={() => onEdit(recipe)} color="primary">
                 <EditIcon />
@@ -296,7 +310,7 @@ function RecipeDetailDialog({
         />
         <Divider sx={{ my: 2.5 }} />
 
-        <Typography variant="h6" sx={{ mb: 1.5 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
           INGREDIENTS
         </Typography>
         <List dense disablePadding>
@@ -325,44 +339,20 @@ function RecipeDetailDialog({
 
         {recipe.instructions && recipe.instructions.length > 0 && (
           <>
-            <Divider sx={{ my: 2.5 }} />
-            <Typography variant="h6" sx={{ mb: 1.5 }}>
+            <Typography variant="h6" sx={{ mb: 1.5, mt: 2.5 }}>
               INSTRUCTIONS
             </Typography>
-            {recipe.instructions.map((step, i) => (
-              <Box key={i} sx={{ display: "flex", gap: 2, mb: 1.5 }}>
-                <Box
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    bgcolor: "primary.main",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    mt: 0.25,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#0d0d0d",
-                      fontSize: 12,
-                      fontWeight: 800,
-                      fontFamily: "'Barlow Condensed'",
-                    }}
-                  >
-                    {i + 1}
-                  </Typography>
-                </Box>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "text.secondary", lineHeight: 1.6 }}
-                >
-                  {step}
-                </Typography>
-              </Box>
-            ))}
+
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                lineHeight: 1.8,
+                whiteSpace: "pre-line",
+              }}
+            >
+              {recipe.instructions}
+            </Typography>
           </>
         )}
       </DialogContent>
@@ -418,7 +408,20 @@ export function Recipes() {
         : useGetAllRecipes();
   const recipes = data ?? [];
 
+  const { data: allRecipes = [] } = useGetAllRecipes();
+
   const deleteRecipe = useDeleteRecipe();
+
+  const filteredRecipes = recipes.filter((r) => {
+    const matchesCategory = category === "All" || r.category === category;
+
+    const matchesSearch =
+      search.trim() === "" ||
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      r.description?.toLowerCase().includes(search.toLowerCase());
+
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
@@ -441,7 +444,10 @@ export function Recipes() {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => setCreateOpen(true)}
+          onClick={() => {
+            setEditingRecipe(null);
+            setCreateOpen(true);
+          }}
         >
           Create Recipe
         </Button>
@@ -452,7 +458,7 @@ export function Recipes() {
         onChange={(_, v) => setUrlSearchParams({ tab: v })}
         sx={{ mb: 2.5 }}
       >
-        <Tab label={`All (${recipes.length})`} value={"all"} />
+        <Tab label={`All (${allRecipes.length})`} value={"all"} />
         <Tab label="Sample Recipes" value={"samples"} />
         <Tab label="My Recipes" value={"me"} />
         <Tab label="Saved" value={"saved"} />
@@ -496,7 +502,7 @@ export function Recipes() {
             </Select>
           </FormControl>
           <Typography variant="caption" sx={{ ml: "auto" }}>
-            {recipes.length} recipes
+            {filteredRecipes.length} recipes
           </Typography>
         </CardContent>
       </Card>
@@ -508,10 +514,19 @@ export function Recipes() {
           gap: 2,
         }}
       >
-        {recipes.map((r) => (
-          <RecipeCard key={r.id} recipe={r} onView={() => setViewRecipe(r)} />
+        {filteredRecipes.map((r) => (
+          <RecipeCard
+            key={r.id}
+            recipe={r}
+            onView={() => setViewRecipe(r)}
+            onEdit={(recipe) => {
+              setEditingRecipe(recipe);
+              setCreateOpen(true);
+            }}
+          />
         ))}
-        {recipes.length === 0 && (
+
+        {filteredRecipes.length === 0 && (
           <Box sx={{ gridColumn: "1/-1", textAlign: "center", py: 8 }}>
             <Typography variant="body1" sx={{ color: "text.disabled" }}>
               No recipes found.
@@ -538,7 +553,10 @@ export function Recipes() {
         <CreateRecipeDialog
           open
           recipe={editingRecipe}
-          onClose={() => setCreateOpen(false)}
+          onClose={() => {
+            setCreateOpen(false);
+            setEditingRecipe(null);
+          }}
         />
       )}
     </Box>
