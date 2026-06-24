@@ -2,25 +2,9 @@ import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
-  Divider,
   Grid,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   useCreateNutritionGoals,
@@ -30,62 +14,15 @@ import {
 } from "@/hooks/nutritionGoals";
 import { useCurrentUser } from "@/hooks/auth";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
-
-const ACTIVITY_LABELS = {
-  sedentary: "Sedentary (little or no exercise)",
-  light: "Light (1-3 days/week)",
-  moderate: "Moderate (3-5 days/week)",
-  active: "Active (6-7 days/week)",
-  very_active: "Very active (physical job or 2x/day training)",
-};
-
-const WEIGHT_GOAL_LABELS = {
-  "bulk_0.25": "Bulking 0.25kg/week",
-  "bulk_0.5": "Bulking 0.5kg/week",
-  maintenance: "Maintenance",
-  "cut_0.25": "Cutting 0.25kg/week",
-  "cut_0.5": "Cutting 0.5kg/week",
-};
-
-function MacroCard({
-  label,
-  value,
-  unit,
-  color,
-}: {
-  label: string;
-  value: number;
-  unit: string;
-  color: string;
-}) {
-  return (
-    <Card variant="outlined" sx={{ flex: 1, borderColor: `${color}40` }}>
-      <CardContent
-        sx={{ textAlign: "center", py: 2, "&:last-child": { pb: 2 } }}
-      >
-        <Typography variant="h3" sx={{ color, lineHeight: 1 }}>
-          {value}
-        </Typography>
-        <Typography variant="caption" sx={{ display: "block" }}>
-          {unit}
-        </Typography>
-        <Typography
-          variant="overline"
-          sx={{ fontSize: 11, color: "text.secondary" }}
-        >
-          {label}
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
+import { NutritionGoalsCard } from "./NutritionGoalsCard";
+import { StatsForm } from "./StatsForm";
 
 export function Goals() {
   const { data: user } = useCurrentUser();
-  const [age, setAge] = useState(user?.age ?? "");
+  const [age, setAge] = useState<string>("");
   const [currentWeight, setCurrentWeight] = useState("");
   const [goalWeight, setGoalWeight] = useState("");
-  const [height, setHeight] = useState(user?.height ?? "");
+  const [height, setHeight] = useState<string>("");
   const [gender, setGender] = useState<"male" | "female" | "">(
     user?.gender ?? "",
   );
@@ -95,8 +32,7 @@ export function Goals() {
   const [goal, setGoal] = useState<
     "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5"
   >("maintenance");
-  const computedGoalWeight =
-    goal === "maintenance" ? currentWeight : goalWeight;
+
   const [saved, setSaved] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -267,233 +203,28 @@ export function Goals() {
         confirmColor="error"
       />
       <Grid container spacing={3}>
-        {/* Form */}
         <Grid size={{ xs: 12, md: 7 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2.5 }}>
-                YOUR STATS
-              </Typography>
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <TextField
-                    label="Age"
-                    value={age}
-                    InputProps={{ readOnly: true }}
-                  />
-                  <TextField
-                    label="Height (cm)"
-                    value={height}
-                    InputProps={{ readOnly: true }}
-                  />
-                  <TextField
-                    label="Gender"
-                    value={gender.charAt(0).toUpperCase() + gender.slice(1)}
-                    InputProps={{ readOnly: true }}
-                  />
-                </Box>
-
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <TextField
-                    label="Current Weight (kg)"
-                    value={currentWeight}
-                    onChange={(e) => setCurrentWeight(e.target.value)}
-                    type="number"
-                    sx={{ flex: 1 }}
-                  />
-
-                  <TextField
-                    label="Goal Weight (kg)"
-                    value={computedGoalWeight}
-                    onChange={(e) => setGoalWeight(e.target.value)}
-                    type="number"
-                    disabled={goal === "maintenance"}
-                    sx={{ flex: 1 }}
-                  />
-                </Box>
-
-                <Divider />
-
-                <Typography variant="h6">ACTIVITY & GOAL</Typography>
-
-                <FormControl fullWidth size="small">
-                  <InputLabel>Activity Level</InputLabel>
-                  <Select
-                    value={activity}
-                    label="Activity Level"
-                    onChange={(e) =>
-                      setActivity(
-                        e.target.value as
-                          | "sedentary"
-                          | "light"
-                          | "moderate"
-                          | "active"
-                          | "very_active",
-                      )
-                    }
-                  >
-                    {Object.keys(ACTIVITY_LABELS).map((k) => (
-                      <MenuItem key={k} value={k}>
-                        {ACTIVITY_LABELS[k as keyof typeof ACTIVITY_LABELS]}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl fullWidth size="small">
-                  <InputLabel>Your Goal</InputLabel>
-                  <Select
-                    value={goal}
-                    label="Your Goal"
-                    onChange={(e) =>
-                      setGoal(
-                        e.target.value as
-                          | "bulk_0.25"
-                          | "bulk_0.5"
-                          | "maintenance"
-                          | "cut_0.25"
-                          | "cut_0.5",
-                      )
-                    }
-                  >
-                    {Object.keys(WEIGHT_GOAL_LABELS).map((k) => (
-                      <MenuItem key={k} value={k}>
-                        {
-                          WEIGHT_GOAL_LABELS[
-                            k as keyof typeof WEIGHT_GOAL_LABELS
-                          ]
-                        }
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <Button
-                  variant="contained"
-                  size="large"
-                  onClick={handleSave}
-                  startIcon={<EditIcon />}
-                >
-                  {hasGoals ? "Edit Goals" : "Create Goals"}
-                </Button>
-                {hasGoals && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="large"
-                    onClick={() => setDeleteOpen(true)}
-                    disabled={deleteNutritionGoals.isPending}
-                    startIcon={<DeleteIcon />}
-                  >
-                    Delete Goals
-                  </Button>
-                )}
-              </Box>
-            </CardContent>
-          </Card>
+          <StatsForm
+            age={age}
+            height={height}
+            gender={gender}
+            currentWeight={currentWeight}
+            goalWeight={goalWeight}
+            activity={activity}
+            goal={goal}
+            setCurrentWeight={setCurrentWeight}
+            setGoalWeight={setGoalWeight}
+            setActivity={setActivity}
+            setGoal={setGoal}
+            hasGoals={hasGoals}
+            onSave={handleSave}
+            onDelete={() => setDeleteOpen(true)}
+            deleteLoading={deleteNutritionGoals.isPending}
+          />
         </Grid>
 
-        {/* goals */}
         <Grid size={{ xs: 12, md: 5 }}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}
-              >
-                <Typography variant="h6">NUTRITION GOALS </Typography>
-                <InfoOutlinedIcon
-                  sx={{ fontSize: 16, color: "text.disabled" }}
-                />
-              </Box>
-
-              {isLoading ? (
-                <Typography
-                  variant="body2"
-                  sx={{ color: "text.secondary", mt: 2 }}
-                >
-                  Loading your nutrition goals...
-                </Typography>
-              ) : goals ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  <Divider />
-
-                  <Box>
-                    <Typography
-                      variant="overline"
-                      sx={{ fontSize: 11, color: "text.secondary" }}
-                    >
-                      DAILY CALORIE TARGET
-                    </Typography>
-                    <Typography
-                      variant="h2"
-                      sx={{ color: "primary.main", lineHeight: 1.1 }}
-                    >
-                      {goals?.calories}
-                    </Typography>
-                    <Typography variant="caption">kcal / day</Typography>
-                  </Box>
-
-                  <Divider />
-
-                  <Typography
-                    variant="overline"
-                    sx={{ fontSize: 11, color: "text.secondary" }}
-                  >
-                    DAILY MACROS
-                  </Typography>
-
-                  <Box sx={{ display: "flex", gap: 1.5 }}>
-                    <MacroCard
-                      label="Protein"
-                      value={goals?.protein ?? 0}
-                      unit="g"
-                      color="#3df2a8"
-                    />
-                    <MacroCard
-                      label="Carbs"
-                      value={goals?.carbs ?? 0}
-                      unit="g"
-                      color="#3db5f2"
-                    />
-                    <MacroCard
-                      label="Fat"
-                      value={goals?.fat ?? 0}
-                      unit="g"
-                      color="#f2c93d"
-                    />
-                  </Box>
-
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "text.disabled", fontSize: 11 }}
-                  >
-                    Calculated via Mifflin-St Jeor equation.
-                  </Typography>
-
-                  <Divider />
-
-                  <Typography
-                    variant="overline"
-                    sx={{ fontSize: 12, color: "primary.main" }}
-                  >
-                    {goals?.etaWeeks != null
-                      ? `You will achieve your goal weight in ${goals.etaWeeks} weeks!`
-                      : ""}
-                  </Typography>
-                </Box>
-              ) : (
-                <Typography
-                  variant="body2"
-                  sx={{ color: "text.secondary", mt: 2 }}
-                >
-                  Fill in your current weight, goal weight and select your
-                  activity level and your goal to see your personalised
-                  nutrition goals.
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
+          <NutritionGoalsCard goals={goals} isLoading={isLoading} />
         </Grid>
       </Grid>
     </Box>
