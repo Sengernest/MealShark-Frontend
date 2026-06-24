@@ -4,7 +4,6 @@ import {
   Typography,
   Card,
   CardContent,
-  CardActions,
   Button,
   TextField,
   Chip,
@@ -16,8 +15,6 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Tabs,
-  Tab,
   Divider,
   IconButton,
   List,
@@ -25,23 +22,9 @@ import {
   ListItemText,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteIcon from "@mui/icons-material/Delete";
-import type {
-  MealPlan,
-  MealPlanPost,
-  MealPost,
-  MealWithNutrition,
-} from "../types";
-import {
-  useActivateMealPlan,
-  useCreateMealPlan,
-  useGetAllMealPlans,
-  useGetMyMealPlans,
-  useGetSampleMealPlans,
-} from "@/hooks/mealPlans";
-import { useSearchParams } from "react-router";
-
+import type { MealPost } from "../../types";
+import { useCreateMealPlan } from "@/hooks/mealPlans";
 
 function SlotView({ slot }: { slot: MealSlot }) {
   const mealCalories = slot.nutrition.calories;
@@ -118,141 +101,7 @@ function SlotView({ slot }: { slot: MealSlot }) {
   );
 }
 
-function PlanDetailDialog({
-  plan,
-  onClose,
-}: {
-  plan: MealPlan;
-  onClose: () => void;
-}) {
-  return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box>
-            <Chip
-              label={plan.creatorId ? "My Plan" : "Sample"}
-              size="small"
-              variant="outlined"
-              sx={{ mb: 1 }}
-            />
-            <Typography variant="h4">{plan.name}</Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "text.secondary", mt: 0.5 }}
-            >
-              {plan.description}
-            </Typography>
-          </Box>
-          <Chip
-            label={`${plan.targetCalories} kcal target`}
-            color="primary"
-            variant="outlined"
-          /> 
-        </Box>
-      </DialogTitle>
-
-
-      {/* <DialogContent>
-        <Box sx={{ display: "flex", gap: 1, mb: 2.5, flexWrap: "wrap" }}>
-          {DAYS.map((day) => {
-            const d = plan.days.find((d) => d.day === day);
-            const hasContent =
-              d?.slots.some((s) => s.items.length > 0) ?? false;
-            return (
-              <Button
-                key={day}
-                variant={selectedDay === day ? "contained" : "outlined"}
-                size="small"
-                onClick={() => setSelectedDay(day)}
-                sx={{
-                  position: "relative",
-                  color:
-                    selectedDay === day
-                      ? "#0d0d0d"
-                      : hasContent
-                        ? "text.primary"
-                        : "text.disabled",
-                  borderColor:
-                    selectedDay === day
-                      ? "primary.main"
-                      : hasContent
-                        ? "rgba(255,255,255,0.15)"
-                        : "divider",
-                  minWidth: 52,
-                }}
-              >
-                {day}
-                {hasContent && selectedDay !== day && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: -3,
-                      right: -3,
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      bgcolor: "primary.main",
-                    }}
-                  />
-                )}
-              </Button>
-            );
-          })}
-        </Box>
-
-        {dayData ? (
-          <Box>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 1.5,
-              }}
-            >
-              <Typography variant="h6">{DAY_FULL[selectedDay]}</Typography>
-              {dayTotal > 0 && (
-                <Typography
-                  sx={{
-                    color: "primary.main",
-                    fontFamily: "'Barlow Condensed'",
-                    fontWeight: 800,
-                  }}
-                >
-                  {dayTotal} kcal
-                </Typography>
-              )}
-            </Box>
-            {dayData.slots.map((slot) => (
-              <SlotView key={slot.id} slot={slot} />
-            ))}
-          </Box>
-        ) : (
-          <Typography
-            variant="body2"
-            sx={{ color: "text.disabled", textAlign: "center", py: 4 }}
-          >
-            No meals planned for {DAY_FULL[selectedDay]}.
-          </Typography>
-        )}
-      </DialogContent> */}
-
-      
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
-
-function CreatePlanDialog({
+export function CreatePlanDialog({
   open,
   onClose,
 }: {
@@ -265,7 +114,7 @@ function CreatePlanDialog({
     { mealPlanIndex: 0, recipeItems: [], foodItems: [] },
   ]);
   const [description, setDescription] = useState("");
-  const [targetCalories, setTargetCalories] = useState(0); 
+  const [targetCalories, setTargetCalories] = useState(0);
 
   const addMeal = () => {
     setMeals((prev) => [
@@ -386,11 +235,10 @@ function CreatePlanDialog({
       description,
       targetCalories,
       meals,
-
-    }
+    };
 
     createMealPlan.mutate(payload, {
-      onSuccess: () => onClose()
+      onSuccess: () => onClose(),
     });
   };
 
@@ -619,232 +467,5 @@ function CreatePlanDialog({
         </Button>
       </DialogActions>
     </Dialog>
-  );
-}
-
-function PlanCard({
-  plan,
-  isActive,
-  onView,
-  onSetActive,
-}: {
-  plan: MealPlan;
-  isActive: boolean;
-  onView: () => void;
-  onSetActive: () => void;
-}) {
-  const totalCalories =
-    plan.meals?.reduce((sum, m) => sum + (m.nutrition?.calories ?? 0), 0) ?? 0;
-
-  return (
-    <Card
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        borderColor: isActive ? "rgba(96,200,245,0.4)" : undefined,
-        transition: "border-color 0.15s",
-        "&:hover": {
-          borderColor: isActive
-            ? "rgba(96,200,245,0.4)"
-            : "rgba(96,200,245,0.2)",
-        },
-      }}
-    >
-      <CardContent sx={{ flex: 1 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            mb: 1.5,
-          }}
-        >
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            <Chip
-              label={plan.creatorId ? "My Plan" : "Sample"}
-              size="small"
-              variant="outlined"
-              sx={{ fontSize: 11 }}
-            />
-            {isActive && (
-              <Chip
-                label="Active"
-                size="small"
-                color="primary"
-                icon={<CheckCircleIcon />}
-                sx={{ fontSize: 11 }}
-              />
-            )}
-          </Box>
-        </Box>
-        <Typography
-          variant="h5"
-          sx={{ fontSize: 18, mb: 0.5, lineHeight: 1.2 }}
-        >
-          {plan.name}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: "text.secondary",
-            fontSize: 12,
-            mb: 2,
-            height: 32,
-            overflow: "hidden",
-          }}
-        >
-          {plan.description}
-        </Typography>
-        <Box sx={{ display: "flex", gap: 3 }}>
-          <Box>
-            <Typography
-              sx={{
-                color: "primary.main",
-                fontFamily: "'Barlow Condensed'",
-                fontWeight: 900,
-                fontSize: 22,
-                lineHeight: 1,
-              }}
-            >
-              {totalCalories}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: "text.disabled", fontSize: 10 }}
-            >
-              TOTAL KCAL
-            </Typography>
-          </Box>
-          <Box>
-           <Typography
-              sx={{
-                color: "#3db5f2",
-                fontFamily: "'Barlow Condensed'",
-                fontWeight: 800,
-                fontSize: 22,
-                lineHeight: 1,
-              }}
-            >
-               {plan.targetCalories}
-            </Typography> 
-            <Typography
-              variant="caption"
-              sx={{ color: "text.disabled", fontSize: 10 }}
-            >
-              TARGET
-            </Typography> 
-          </Box>
-        </Box>
-      </CardContent>
-      <CardActions sx={{ pt: 0, px: 2, pb: 2, gap: 1 }}>
-        <Button
-          size="small"
-          variant="outlined"
-          onClick={onView}
-          sx={{ flex: 1 }}
-        >
-          View
-        </Button>
-        {!isActive && (
-          <Button
-            size="small"
-            variant="contained"
-            onClick={onSetActive}
-            sx={{ flex: 1 }}
-          >
-            Set Active
-          </Button>
-        )}
-      </CardActions>
-    </Card>
-  );
-}
-
-export function MealPlans() {
-  const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
-  const tab = urlSearchParams.get("tab");
-
-  const { data: allMealPlans = [] } = useGetAllMealPlans();
-  const { data: mealPlans = [] } =
-    tab === "samples"
-      ? useGetSampleMealPlans()
-      : tab === "me"
-        ? useGetMyMealPlans()
-        : useGetAllMealPlans();
-
-  const activateMealPlan = useActivateMealPlan();
-
-  return (
-    <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-          mb: 4,
-        }}
-      >
-        <Box>
-          <Typography variant="overline" sx={{ color: "text.secondary" }}>
-            WEEKLY NUTRITION
-          </Typography>
-          <Typography variant="h2" sx={{ lineHeight: 1, mt: 0.5 }}>
-            MEAL PLANS
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => setCreateOpen(true)}
-        >
-          Create Plan
-        </Button>
-      </Box>
-
-      <Tabs
-        value={tab}
-        onChange={(_, v) => setUrlSearchParams({ tab: v })}
-        sx={{ mb: 2.5 }}
-      >
-        <Tab label={`All (${allMealPlans.length})`} value={"all"} />
-        <Tab label="My Plans" value={"me"} />
-        <Tab label="Sample Plans" value={"samples"} />
-      </Tabs>
-
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          gap: 2,
-        }}
-      >
-        {mealPlans.map((p) => (
-          <PlanCard
-            key={p.id}
-            plan={p}
-            isActive={p.isActive}
-            onView={() => setViewPlan(p)}
-            onSetActive={() => activateMealPlan.mutate(Number(p.id))}
-          />
-        ))}
-
-        {mealPlans.length === 0 && (
-          <Box sx={{ gridColumn: "1/-1", textAlign: "center", py: 8 }}>
-            <Typography variant="body1" sx={{ color: "text.disabled" }}>
-              No meal plans found.
-            </Typography>
-          </Box>
-        )}
-      </Box>
-
-      {viewPlan && (
-        <PlanDetailDialog plan={viewPlan} onClose={() => setViewPlan(null)} />
-      )}
-      {createOpen && (
-        <CreatePlanDialog open onClose={() => setCreateOpen(false)} />
-      )}
-    </Box>
   );
 }
