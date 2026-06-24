@@ -137,37 +137,6 @@ export type RecipePost = {
   servings: number;
 };
 
-/* export type MealItem = {
-  id: string;
-  type: "recipe" | "food";
-  recipe?: Recipe;
-  food?: Food;
-  amount: number;
-  unit: string;
-};
-
-export type MealSlot = {
-  id: string;
-  label: string; // "Meal 1", "Meal 2", etc.
-  items: MealItem[];
-};
-
-export type DayPlan = {
-  day: "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
-  slots: MealSlot[];
-}; */
-
-/* export type MealPlan = {
-  id: string;
-  name: string;
-  description: string;
-  days: DayPlan[];
-  targetCalories: number;
-  isProvided: boolean;
-  createdBy: string | null;
-  createdAt: string;
-}; */
-
 export type MealRecipe = {
   recipeId: number;
   mealId: number;
@@ -207,15 +176,17 @@ export type MealPlan = {
 };
 
 export type MealEntryRecipe = {
+  mealLogId: number;
+  itemId: number
   recipeId: number;
   servings: number;
-  mealLogId: number;
   recipe: RecipeBase;
   nutrition: Nutrition;
 };
 
 export type MealEntryFood = {
   mealLogId: number;
+  itemId: number
   foodId: number;
   food: Food;
   unitId: number;

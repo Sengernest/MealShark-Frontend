@@ -161,9 +161,7 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() =>
-                        handleRemoveRecipeItem(recipeItem.recipeId)
-                      }
+                      onClick={() => handleRemoveRecipeItem(recipeItem.itemId)}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -222,7 +220,7 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveFoodItem(foodItem.foodId)}
+                      onClick={() => handleRemoveFoodItem(foodItem.itemId)}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
