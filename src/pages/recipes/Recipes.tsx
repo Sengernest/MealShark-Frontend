@@ -103,9 +103,11 @@ export function NutritionRow({
 function RecipeCard({
   recipe,
   onView,
+  onEdit,
 }: {
   recipe: Recipe;
   onView: () => void;
+  onEdit: (recipe: Recipe) => void;
 }) {
   const toggleSaveRecipe = (recipeId: number) => {
     // TODO:
@@ -117,7 +119,7 @@ function RecipeCard({
         display: "flex",
         flexDirection: "column",
         transition: "border-color 0.15s",
-        "&:hover": { borderColor: "rgba(181,242,61,0.3)" },
+        "&:hover": { borderColor: "primary.main" },
       }}
     >
       <CardContent sx={{ flex: 1 }}>
@@ -135,20 +137,32 @@ function RecipeCard({
             variant="outlined"
             sx={{ fontSize: 11 }}
           />
-          <Tooltip title={recipe.isSaved ? "Unsave" : "Save recipe"}>
-            <IconButton
-              size="small"
-              onClick={() => toggleSaveRecipe(recipe.id)}
-              sx={{ color: recipe.isSaved ? "primary.main" : "text.disabled" }}
-            >
-              {recipe.isSaved ? (
-                <BookmarkIcon fontSize="small" />
-              ) : (
-                <BookmarkBorderIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Tooltip>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Tooltip title="Edit">
+              <IconButton size="small" onClick={() => onEdit(recipe)} color="primary">
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title={recipe.isSaved ? "Unsave" : "Save recipe"}>
+              <IconButton
+                size="small"
+                onClick={() => toggleSaveRecipe(recipe.id)}
+                sx={{
+                  color: recipe.isSaved ? "primary.main" : "text.disabled",
+                }}
+              >
+                {recipe.isSaved ? (
+                  <BookmarkIcon fontSize="small" />
+                ) : (
+                  <BookmarkBorderIcon fontSize="small" />
+                )}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
+
         <Typography
           variant="h5"
           sx={{ fontSize: 18, mb: 0.5, lineHeight: 1.2 }}
@@ -236,7 +250,7 @@ function RecipeDetailDialog({
             <Typography variant="h4">{recipe.name}</Typography>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Box sx={{ display: "flex", gap: 0.5 }}>
             <Tooltip title="Edit">
               <IconButton onClick={() => onEdit(recipe)} color="primary">
                 <EditIcon />
@@ -296,7 +310,7 @@ function RecipeDetailDialog({
         />
         <Divider sx={{ my: 2.5 }} />
 
-        <Typography variant="h6" sx={{ mb: 1.5 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
           INGREDIENTS
         </Typography>
         <List dense disablePadding>
@@ -501,8 +515,17 @@ export function Recipes() {
         }}
       >
         {filteredRecipes.map((r) => (
-          <RecipeCard key={r.id} recipe={r} onView={() => setViewRecipe(r)} />
+          <RecipeCard
+            key={r.id}
+            recipe={r}
+            onView={() => setViewRecipe(r)}
+            onEdit={(recipe) => {
+              setEditingRecipe(recipe);
+              setCreateOpen(true);
+            }}
+          />
         ))}
+
         {filteredRecipes.length === 0 && (
           <Box sx={{ gridColumn: "1/-1", textAlign: "center", py: 8 }}>
             <Typography variant="body1" sx={{ color: "text.disabled" }}>

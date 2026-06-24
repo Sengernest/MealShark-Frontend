@@ -136,7 +136,10 @@ export function CreateRecipeDialog({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>
-          <Typography variant="h5"> {recipe ? "EDIT RECIPE" : "CREATE RECIPE"}</Typography>
+          <Typography variant="h5">
+            {" "}
+            {recipe ? "EDIT RECIPE" : "CREATE RECIPE"}
+          </Typography>
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
@@ -168,16 +171,22 @@ export function CreateRecipeDialog({
               fullWidth
               sx={{ gridColumn: "1/-1" }}
             />
-            <FormControl size="small">
-              <InputLabel>Category</InputLabel>
-              <Select {...register("category")} label="Category">
-                {RECIPE_CATEGORIES.slice(1).map((c) => (
-                  <MenuItem key={c} value={c}>
-                    {c}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+            <Controller
+              name="category"
+              control={control}
+              render={({ field }) => (
+                <FormControl size="small">
+                  <InputLabel>Category</InputLabel>
+                  <Select {...field} value={field.value ?? ""} label="Category">
+                    {RECIPE_CATEGORIES.slice(1).map((c) => (
+                      <MenuItem key={c} value={c}>
+                        {c}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            />
             <TextField
               label="Servings"
               {...register("servings", {
