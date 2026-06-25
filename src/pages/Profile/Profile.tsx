@@ -50,12 +50,6 @@ export function Profile() {
   };
   if (!user) return null;
 
-  const initials = user.name
-    .split(" ")
-    .map((n) => n.charAt(0))
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 
   const { data: goals } = useGetMyNutritionGoals();
 
@@ -95,7 +89,7 @@ export function Profile() {
                   border: "3px solid rgba(96,200,245,0.3)",
                 }}
               >
-                {initials}
+                {user.name.charAt(0).toUpperCase()}
               </Avatar>
 
               <Tooltip title="Change photo (coming soon)">
@@ -128,7 +122,6 @@ export function Profile() {
               >
                 {user.email}
               </Typography>
-          
             </Box>
           </Box>
 
@@ -435,7 +428,6 @@ export function Profile() {
         confirmText="Logout"
         confirmColor="error"
       />
-      
     </Box>
   );
 }

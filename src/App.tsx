@@ -2,7 +2,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { Auth } from "./pages/Auth/Auth";
-import { Dashboard } from "./pages/Dashboard";
+import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Foods } from "./pages/Foods";
 import { Goals } from "./pages/NutritionGoals/NutritionGoals";
 import { MealLog } from "./pages/mealLogs/MealLog";
