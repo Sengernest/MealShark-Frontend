@@ -1,9 +1,4 @@
-import {
-  MealEntry,
-  MealEntryFood,
-  FoodItemPost,
-  RecipeItemPost,
-} from "@/types";
+import { MealEntry, FoodEntry, FoodItemPost, RecipeItemPost } from "@/types";
 import {
   Card,
   CardContent,

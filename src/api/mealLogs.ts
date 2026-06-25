@@ -2,12 +2,12 @@ import {
   FoodItemPost,
   MealEntry,
   MealEntryPost,
-  MealSummary,
+  MealLog,
   RecipeItemPost,
 } from "@/types";
 import { api } from "./baseApi";
 
-async function getMyDailySummary(date: Date): Promise<MealSummary> {
+async function getMyDailySummary(date: Date): Promise<MealLog> {
   const res = await api.get(`/me/meal-logs/daily-summary?date=${date}`);
   return res.data;
 }

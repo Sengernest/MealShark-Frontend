@@ -30,8 +30,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import type {
   MealPlan,
   MealPlanPost,
-  MealPost,
-  MealWithNutrition,
+  MealPlanMealPost,
+  MealPlanMealWithNutrition,
 } from "../types";
 import {
   useActivateMealPlan,
@@ -41,7 +41,6 @@ import {
   useGetSampleMealPlans,
 } from "@/hooks/mealPlans";
 import { useSearchParams } from "react-router";
-
 
 function SlotView({ slot }: { slot: MealSlot }) {
   const mealCalories = slot.nutrition.calories;
@@ -154,10 +153,9 @@ function PlanDetailDialog({
             label={`${plan.targetCalories} kcal target`}
             color="primary"
             variant="outlined"
-          /> 
+          />
         </Box>
       </DialogTitle>
-
 
       {/* <DialogContent>
         <Box sx={{ display: "flex", gap: 1, mb: 2.5, flexWrap: "wrap" }}>
@@ -244,7 +242,6 @@ function PlanDetailDialog({
         )}
       </DialogContent> */}
 
-      
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
@@ -261,11 +258,11 @@ function CreatePlanDialog({
 }) {
   const createMealPlan = useCreateMealPlan();
   const [name, setName] = useState("");
-  const [meals, setMeals] = useState<MealPost[]>([
+  const [meals, setMeals] = useState<MealPlanMealPost[]>([
     { mealPlanIndex: 0, recipeItems: [], foodItems: [] },
   ]);
   const [description, setDescription] = useState("");
-  const [targetCalories, setTargetCalories] = useState(0); 
+  const [targetCalories, setTargetCalories] = useState(0);
 
   const addMeal = () => {
     setMeals((prev) => [
@@ -386,11 +383,10 @@ function CreatePlanDialog({
       description,
       targetCalories,
       meals,
-
-    }
+    };
 
     createMealPlan.mutate(payload, {
-      onSuccess: () => onClose()
+      onSuccess: () => onClose(),
     });
   };
 
@@ -716,7 +712,7 @@ function PlanCard({
             </Typography>
           </Box>
           <Box>
-           <Typography
+            <Typography
               sx={{
                 color: "#3db5f2",
                 fontFamily: "'Barlow Condensed'",
@@ -725,14 +721,14 @@ function PlanCard({
                 lineHeight: 1,
               }}
             >
-               {plan.targetCalories}
-            </Typography> 
+              {plan.targetCalories}
+            </Typography>
             <Typography
               variant="caption"
               sx={{ color: "text.disabled", fontSize: 10 }}
             >
               TARGET
-            </Typography> 
+            </Typography>
           </Box>
         </Box>
       </CardContent>

@@ -92,19 +92,20 @@ export type FoodUnit = {
   gramsPerUnit: number;
 };
 
-export type RecipeFood = {
+export type Ingredient = {
   foodId: number;
   recipeId: number;
   amount: number;
   unit: Unit;
   food: Food;
+  nutrition: Nutrition;
 };
 
-type RecipeBase = {
+export type Recipe = {
   id: number;
   name: string;
   creatorId: number | null;
-  ingredients: RecipeFood[];
+  ingredients: Ingredient[];
   category?: string;
   description?: string;
   instructions?: string;
@@ -113,16 +114,7 @@ type RecipeBase = {
   servings?: number;
   isSample?: boolean;
   isSaved?: boolean;
-};
-
-export type Recipe = RecipeBase & {
   nutrition: Nutrition;
-};
-
-export type FoodItemPost = {
-  foodId: number;
-  unitId: number;
-  amount: number;
 };
 
 export type RecipePost = {
@@ -136,56 +128,7 @@ export type RecipePost = {
   servings: number;
 };
 
-export type MealRecipe = {
-  recipeId: number;
-  mealId: number;
-  servings: number;
-  recipe: RecipeBase;
-};
-
-export type MealFood = {
-  foodId: number;
-  amount: number;
-  mealId: number;
-  food: Food;
-};
-
-export type Meal = {
-  id: number;
-  mealPlanId: number;
-  mealPlanIndex: number;
-  recipeItems: MealRecipe[];
-  foodItems: MealFood[];
-};
-
-export type MealWithNutrition = {
-  meal: Meal;
-  nutrition: Nutrition;
-};
-
-export type MealPlan = {
-  id: number;
-  name: string;
-  creatorId: number | null;
-  meals: MealWithNutrition[];
-  nutrition: Nutrition;
-  targetCalories: number;
-  description: string | null;
-  isActive: boolean;
-};
-
-export type MealEntryRecipe = {
-  mealLogId: number;
-  itemId: number
-  recipeId: number;
-  servings: number;
-  recipe: RecipeBase;
-  nutrition: Nutrition;
-};
-
-export type MealEntryFood = {
-  mealLogId: number;
-  itemId: number
+export type FoodItem = {
   foodId: number;
   food: Food;
   unitId: number;
@@ -194,21 +137,125 @@ export type MealEntryFood = {
   nutrition: Nutrition;
 };
 
-export type MealEntry = {
-  id: number;
-  label: string | null;
-  mealId: number | null;
-  userId: number;
-  logDate: Date;
-  mealIndex: number;
-  recipeItems: MealEntryRecipe[];
-  foodItems: MealEntryFood[];
+export type RecipeItem = {
+  recipeId: number;
+  recipe: Recipe;
+  servings: number;
   nutrition: Nutrition;
 };
 
-export type MealSummary = {
-  meals: MealEntry[];
+export type FoodItemPost = {
+  foodId: number;
+  unitId: number;
+  amount: number;
+};
+
+export type RecipeItemPost = {
+  recipeId: number;
+  servings: number;
+};
+
+export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
+
+export type FoodEntry = {
+  id: number;
+  userId: number;
+  logDate: string;
+  mealSlot: MealSlot;
+  foodId: number;
+  food: Food;
+  unitId: number;
+  unit: Unit;
+  amount: number;
   nutrition: Nutrition;
+};
+
+export type RecipeEntry = {
+  id: number;
+  userId: number;
+  logDate: string;
+  mealSlot: MealSlot;
+  recipeId: number;
+  recipe: Recipe;
+  servings: number;
+  nutrition: Nutrition;
+};
+
+export type MealEntry = {
+  foodItems: FoodEntry[];
+  recipeItems: RecipeEntry[];
+  nutrition: Nutrition;
+};
+
+export type MealLog = {
+  nutrition: Nutrition;
+  breakfast: MealEntry;
+  lunch: MealEntry;
+  dinner: MealEntry;
+  snack: MealEntry;
+};
+
+// export type MealPlanMeal = {
+//   id: number;
+//   mealPlanId: number;
+//   mealPlanIndex: number;
+//   recipeItems: MealPlanRecipe[];
+//   foodItems: MealPlanFood[];
+// };
+
+// export type MealPlanRecipe = {
+//   recipeId: number;
+//   mealId: number;
+//   servings: number;
+//   recipe: RecipeBase;
+// };
+
+// export type MealPlanFood = {
+//   foodId: number;
+//   amount: number;
+//   mealId: number;
+//   food: Food;
+// };
+
+// export type MealPlanMealWithNutrition = {
+//   meal: MealPlanMeal;
+//   nutrition: Nutrition;
+// };
+
+// export type MealPlan = {
+//   id: number;
+//   name: string;
+//   creatorId: number | null;
+//   meals: MealPlanMealWithNutrition[];
+//   nutrition: Nutrition;
+//   targetCalories: number;
+//   description: string | null;
+//   isActive: boolean;
+// };
+
+export type MealPlanMealPost = {
+  mealPlanIndex: number;
+  recipeItems: RecipeItemPost[];
+  foodItems: FoodItemPost[];
+};
+
+export type MealPlanPost = {
+  name: string;
+  description: string | null;
+  targetCalories: number;
+  meals: MealPlanMealPost[];
+};
+
+export type MealEntryPost = {
+  logDate: Date;
+  mealIndex: number;
+  mealId?: number;
+  recipeItems: RecipeItemPost[];
+  foodItems: FoodItemPost[];
+};
+
+export type MealLogQueryPost = {
+  logDate: Date;
 };
 
 export type SignupPost = {
@@ -231,46 +278,3 @@ export type NutritionGoalsPost = {
   activityLevel: "sedentary" | "light" | "moderate" | "active" | "very_active";
   goal: "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
 };
-
-export type RecipeItemPost = {
-  recipeId: number;
-  servings: number;
-};
-
-export type MealPost = {
-  mealPlanIndex: number;
-  recipeItems: RecipeItemPost[];
-  foodItems: FoodItemPost[];
-};
-
-export type MealPlanPost = {
-  name: string;
-  description: string | null;
-  targetCalories: number;
-  meals: MealPost[];
-};
-
-export type MealEntryPost = {
-  logDate: Date;
-  mealIndex: number;
-  mealId?: number;
-  recipeItems: RecipeItemPost[];
-  foodItems: FoodItemPost[];
-};
-
-export type MealLogQueryPost = {
-  logDate: Date;
-};
-
-/* export type MealLogSlot = {
-  id: string;
-  label: string;
-  items: MealItem[];
-};
-
-export type MealLogEntry = {
-  id: string;
-  date: string; // YYYY-MM-DD
-  slots: MealLogSlot[];
-  userId: string;
-}; */
