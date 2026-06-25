@@ -7,5 +7,3 @@ export const api = axios.create({
   },
   withCredentials: true
 })
-
-// TODO: Attach token using interceptors

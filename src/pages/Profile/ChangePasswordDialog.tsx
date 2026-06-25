@@ -28,7 +28,7 @@ export function ChangePasswordDialog({
   onClose: () => void;
 }) {
   const [saved, setSaved] = useState(false);
-  const [serverError, setServerError] = useState("");
+  const [error, setError] = useState("");
 
   const changePassword = useChangePassword();
 
@@ -51,13 +51,13 @@ export function ChangePasswordDialog({
   useEffect(() => {
     if (!open) {
       reset();
-      setServerError("");
+      setError("");
       setSaved(false);
     }
   }, [open, reset]);
 
   const onSubmit = (data: FormValues) => {
-    setServerError("");
+    setError("");
 
     changePassword.mutate(
       {
@@ -75,7 +75,7 @@ export function ChangePasswordDialog({
           }, 1200);
         },
         onError: (err: any) => {
-          setServerError(err?.response?.data?.error ?? "Something went wrong");
+          setError(err?.response?.data?.error ?? "Failed to change password.");
         },
       },
     );
@@ -96,9 +96,9 @@ export function ChangePasswordDialog({
           </Alert>
         )}
 
-        {serverError && (
+        {error && (
           <Alert severity="error">
-            {serverError}
+            {error}
           </Alert>
         )}
 

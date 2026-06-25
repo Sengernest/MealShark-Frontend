@@ -16,7 +16,6 @@ async function changePassword(data: ChangePasswordInput): Promise<User> {
   return res.data; 
 } 
 
-
 async function logout() {
   const res = await api.post("/logout");
   return res.data;

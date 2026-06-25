@@ -34,7 +34,7 @@ export function RegisterForm() {
     signup.mutate(data, {
       onSuccess: () => navigate("/"),
       onError: (err: any) =>
-        setError(err?.message ?? "Failed to create account."),
+        setError(err?.response?.data?.error ?? "Failed to login."),
     });
   };
 
