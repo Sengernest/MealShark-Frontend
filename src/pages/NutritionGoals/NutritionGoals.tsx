@@ -13,10 +13,6 @@ import {
   Divider,
   Grid,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,6 +25,7 @@ import {
   useUpdateNutritionGoals,
 } from "@/hooks/nutritionGoals";
 import { useCurrentUser } from "@/hooks/auth";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 const ACTIVITY_LABELS = {
   sedentary: "Sedentary (little or no exercise)",
@@ -49,12 +46,10 @@ const WEIGHT_GOAL_LABELS = {
 function MacroCard({
   label,
   value,
-  unit,
   color,
 }: {
   label: string;
   value: number;
-  unit: string;
   color: string;
 }) {
   return (
@@ -64,9 +59,6 @@ function MacroCard({
       >
         <Typography variant="h3" sx={{ color, lineHeight: 1 }}>
           {value}
-        </Typography>
-        <Typography variant="caption" sx={{ display: "block" }}>
-          {unit}
         </Typography>
         <Typography
           variant="overline"
@@ -102,15 +94,6 @@ export function Goals() {
   const [edited, setEdited] = useState(false);
   const [error, setError] = useState("");
   const createNutritionGoals = useCreateNutritionGoals();
-
-  /* const Preview = calcNutritionGoal({
-      age: +age,
-      gender,
-      height: +height,
-      weight: +weight,
-      activityLevel: activity,
-      weightGoal: goal,
-    }); */
 
   const { data: goals, isLoading } = useGetMyNutritionGoals();
   const hasGoals = !!goals;
@@ -265,41 +248,15 @@ export function Goals() {
         </Alert>
       )}
 
-      <Dialog
+      <ConfirmDialog
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>
-          <Typography variant="h6">Confirm Delete Goals</Typography>
-        </DialogTitle>
-
-        <DialogContent>
-          <Typography variant="body2" color="text.secondary">
-            Are you sure you want to delete your nutrition goals?
-          </Typography>
-        </DialogContent>
-
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button
-            onClick={() => setDeleteOpen(false)}
-            sx={{ color: "text.secondary" }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleConfirmDelete}
-            disabled={deleteNutritionGoals.isPending}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete Goals"
+        description="Are you sure you want to delete your nutrition goals?"
+        confirmText="Delete"
+        confirmColor="error"
+      />
       <Grid container spacing={3}>
         {/* Form */}
         <Grid size={{ xs: 12, md: 7 }}>
@@ -474,26 +431,23 @@ export function Goals() {
                     variant="overline"
                     sx={{ fontSize: 11, color: "text.secondary" }}
                   >
-                    DAILY MACROS
+                    DAILY MACROS/GRAMS
                   </Typography>
 
                   <Box sx={{ display: "flex", gap: 1.5 }}>
                     <MacroCard
                       label="Protein"
                       value={goals?.protein ?? 0}
-                      unit="g"
                       color="#3df2a8"
                     />
                     <MacroCard
                       label="Carbs"
                       value={goals?.carbs ?? 0}
-                      unit="g"
                       color="#3db5f2"
                     />
                     <MacroCard
                       label="Fat"
                       value={goals?.fat ?? 0}
-                      unit="g"
                       color="#f2c93d"
                     />
                   </Box>
