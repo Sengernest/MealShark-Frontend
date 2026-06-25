@@ -3,7 +3,6 @@ import {
   Typography,
   Card,
   CardContent,
-  LinearProgress,
   Button,
   Grid,
   Chip,
@@ -19,60 +18,25 @@ import { useCurrentUser } from "@/hooks/auth";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import { useGetMyMealPlans } from "@/hooks/mealPlans";
 import { StatCard } from "./StatCard";
+import { useGetMealLog } from "@/hooks/mealLogs";
+import { useState } from "react";
+import { MacroBar } from "./MacroBar";
 
-const logCarbs = 0;
-const logFat = 0;
-const logProt = 0;
-
-export function MacroBar({
-  label,
-  value,
-  target,
-  color,
-}: {
-  label: string;
-  value: number;
-  target: number;
-  color: string;
-}) {
-  const pct = target > 0 ? Math.min(100, (value / target) * 100) : 0;
-  return (
-    <Box>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-        <Typography
-          variant="overline"
-          sx={{ fontSize: 11, color: "text.secondary" }}
-        >
-          {label}
-        </Typography>
-        <Typography variant="caption" sx={{ color: "text.primary" }}>
-          <Box component="span" sx={{ color, fontWeight: 700 }}>
-            {Math.round(value)}g
-          </Box>
-          <Box component="span" sx={{ color: "text.disabled" }}>
-            {" "}
-            / {target}g
-          </Box>
-        </Typography>
-      </Box>
-      <LinearProgress
-        variant="determinate"
-        value={pct}
-        sx={{
-          bgcolor: "#222",
-          "& .MuiLinearProgress-bar": { bgcolor: color },
-        }}
-      />
-    </Box>
-  );
-}
+const TODAY = new Date();
 
 export function Dashboard() {
   const { data: user } = useCurrentUser();
   const { data: goals } = useGetMyNutritionGoals();
-  const { data: mealPlans = [] } = useGetMyMealPlans();
-  // const todayLog = getLogEntry(TODAY);
-  const activePlan = mealPlans.find((p) => p.isActive);
+  //const { data: mealPlans = [] } = useGetMyMealPlans();
+  //const activePlan = mealPlans.find((p) => p.isActive);
+  const [selectedDate, setSelectedDate] = useState(TODAY);
+
+  const selectedDateString = selectedDate.toISOString().slice(0, 10);
+  const { data: mealLog } = useGetMealLog(selectedDateString);
+  const mealLogCalories = mealLog?.nutrition.calories ?? 0;
+  const mealLogProtein = mealLog?.nutrition.macros.protein ?? 0;
+  const mealLogCarbs = mealLog?.nutrition.macros.carbs ?? 0;
+  const mealLogFat = mealLog?.nutrition.macros.fat ?? 0;
 
   const profileChanged =
     goals &&
@@ -81,30 +45,9 @@ export function Dashboard() {
       goals.height !== user.height ||
       goals.gender !== user.gender);
 
-  // Sum today's logged nutrition
-  /*=let logCal = 0,
-    logProt = 0,
-    logCarbs = 0,
-    logFat = 0;
-  todayLog?.slots.forEach((slot) => {
-    slot.items.forEach((item) => {
-      if (item.type === "recipe" && item.recipe) {
-        logCal += item.recipe.calories * item.amount;
-        logProt += item.recipe.protein * item.amount;
-        logCarbs += item.recipe.carbs * item.amount;
-        logFat += item.recipe.fat * item.amount;
-      } else if (item.type === "food" && item.food) {
-        const g = item.unit === "tbsp" ? item.amount * 15 : item.amount;
-        logCal += (item.food.caloriesPer100g * g) / 100;
-        logProt += (item.food.proteinPer100g * g) / 100;
-        logCarbs += (item.food.carbsPer100g * g) / 100;
-        logFat += (item.food.fatPer100g * g) / 100;
-      }
-    });
-  }); */
-  const logCal = Math.round(0);
-
-  const calPct = goals ? Math.min(100, (logCal / goals.calories) * 100) : 0;
+  const calPct = goals
+    ? Math.min(100, (mealLogCalories / goals.calories) * 100)
+    : 0;
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1100 }}>
@@ -167,24 +110,11 @@ export function Dashboard() {
         <StatCard
           icon={<LocalFireDepartmentIcon />}
           label="Calories Today"
-          value={`${logCal}`}
+          value={`${mealLog?.nutrition.calories}`}
           sub={`/ ${goals?.calories ?? "—"} kcal`}
           color="#60c8f5"
         />
-        <StatCard
-          icon={<HistoryIcon />}
-          label="Meals Logged"
-          value="0" //`${todayLog?.slots.length ?? 0}`//
-          sub="today"
-          color="#f2c93d"
-        />
-        <StatCard
-          icon={<CalendarMonthIcon />}
-          label="Active Meal Plan"
-          value={activePlan ? `${activePlan.nutrition.calories}` : "None"}
-          sub={activePlan ? `kcal in ${activePlan.name}` : "No active plan"}
-          color="#3db5f2"
-        />
+
         <StatCard
           icon={<TrackChangesIcon />}
           label="Nutrition Goals"
@@ -192,6 +122,14 @@ export function Dashboard() {
           sub="kcal / day"
           color="#3df2a8"
         />
+
+        {/* <StatCard
+          icon={<CalendarMonthIcon />}
+          label="Active Meal Plan"
+          value={activePlan ? `${activePlan.nutrition.calories}` : "None"}
+          sub={activePlan ? `kcal in ${activePlan.name}` : "No active plan"}
+          color="#3db5f2"
+        /> */}
       </Box>
 
       <Grid container spacing={2.5}>
@@ -288,7 +226,7 @@ export function Dashboard() {
                     variant="h3"
                     sx={{ color: "primary.main", lineHeight: 1 }}
                   >
-                    {logCal}
+                    {mealLog?.nutrition.calories}
                   </Typography>
                   <Typography variant="caption">kcal consumed</Typography>
                   {goals && (
@@ -296,7 +234,8 @@ export function Dashboard() {
                       variant="body2"
                       sx={{ mt: 0.5, color: "text.secondary", fontSize: 12 }}
                     >
-                      {Math.max(0, goals.calories - logCal)} kcal remaining
+                      {Math.max(0, goals.calories - mealLogCalories)} kcal
+                      remaining
                     </Typography>
                   )}
                 </Box>
@@ -308,19 +247,19 @@ export function Dashboard() {
                 >
                   <MacroBar
                     label="Protein"
-                    value={logProt}
+                    value={mealLogProtein}
                     target={goals.protein}
                     color="#3df2a8"
                   />
                   <MacroBar
                     label="Carbohydrates"
-                    value={logCarbs}
+                    value={mealLogCarbs}
                     target={goals.carbs}
                     color="#3db5f2"
                   />
                   <MacroBar
                     label="Fat"
-                    value={logFat}
+                    value={mealLogFat}
                     target={goals.fat}
                     color="#f2c93d"
                   />
@@ -338,7 +277,7 @@ export function Dashboard() {
         </Grid>
 
         {/* Active meal plan preview */}
-
+        {/*
         <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
@@ -385,8 +324,8 @@ export function Dashboard() {
                   </Box>
                   <Divider sx={{ mb: 2 }} />
 
-                  {/* Today's plan slots */}
-                  {/* {(() => {
+                  Today's plan slots 
+                   {(() => {
                     const dayNames = [
                       "Sun",
                       "Mon",
@@ -504,7 +443,7 @@ export function Dashboard() {
                         No meals planned for today.
                       </Typography>
                     );
-                  })()} */}
+                  })()} 
                 </>
               ) : (
                 <Box sx={{ textAlign: "center", py: 4 }}>
@@ -521,7 +460,7 @@ export function Dashboard() {
               )}
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
 
         {/* Quick links */}
         <Grid size={12}>
