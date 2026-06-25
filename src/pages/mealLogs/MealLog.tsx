@@ -167,12 +167,34 @@ export function MealLog() {
         }}
       >
         {/* Meal slots */}
-        <Box>
-          <MealEntryCard key={"breakfast"} mealEntry={mealLog?.breakfast} />
-          <MealEntryCard key={"lunch"} mealEntry={mealLog?.lunch} />
-          <MealEntryCard key={"dinner"} mealEntry={mealLog?.dinner} />
-          <MealEntryCard key={"snack"} mealEntry={mealLog?.snack} />
-        </Box>
+        {mealLog && (
+          <Box>
+            <MealEntryCard
+              mealSlot="breakfast"
+              key={"breakfast"}
+              mealEntry={mealLog.breakfast}
+              logDate={selectedDate.toISOString()}
+            />
+            <MealEntryCard
+              mealSlot="lunch"
+              key={"lunch"}
+              mealEntry={mealLog.lunch}
+              logDate={selectedDate.toISOString()}
+            />
+            <MealEntryCard
+              mealSlot="dinner"
+              key={"dinner"}
+              mealEntry={mealLog.dinner}
+              logDate={selectedDate.toISOString()}
+            />
+            <MealEntryCard
+              mealSlot="snack"
+              key={"snack"}
+              mealEntry={mealLog.snack}
+              logDate={selectedDate.toISOString()}
+            />
+          </Box>
+        )}
 
         {/* Day summary */}
         <Box sx={{ position: "sticky", top: 24 }}>

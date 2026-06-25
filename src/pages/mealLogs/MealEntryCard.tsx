@@ -1,4 +1,10 @@
-import { MealEntry, FoodEntry, FoodItemPost, RecipeItemPost } from "@/types";
+import {
+  MealEntry,
+  FoodEntry,
+  FoodItemPost,
+  RecipeItemPost,
+  MealSlot,
+} from "@/types";
 import {
   Card,
   CardContent,
@@ -23,8 +29,12 @@ import { useRemoveFoodEntry } from "../../hooks/mealLogs";
 
 export function MealEntryCard({
   mealEntry,
+  mealSlot,
+  logDate,
 }: {
-  mealEntry: MealEntry | undefined;
+  mealEntry: MealEntry;
+  mealSlot: MealSlot;
+  logDate: string;
 }) {
   const calories = mealEntry.nutrition.calories;
   const [addItemOpen, setAddItemOpen] = useState(false);
@@ -33,26 +43,26 @@ export function MealEntryCard({
     setAddItemOpen(false);
   };
 
-  const addFood = useAddFoodEntry();
-  const addRecipe = useAddRecipeEntry();
-  const removeFood = useRemoveFoodEntry();
-  const removeRecipe = useRemoveRecipeEntry();
+  const addFoodEntry = useAddFoodEntry();
+  const addRecipeEntry = useAddRecipeEntry();
+  const removeFoodEntry = useRemoveFoodEntry();
+  const removeRecipeEntry = useRemoveRecipeEntry();
 
-  const handleAddFoodItem = async (food: FoodItemPost) => {
-    await addFood.mutateAsync({ entryId: mealEntry.id, data: food });
+  const handleAddFoodEntry = async (foodItem: FoodItemPost) => {
+    await addFoodEntry.mutateAsync({ ...foodItem, logDate, mealSlot });
     handleClose();
   };
-  const handleAddRecipeItem = async (recipe: RecipeItemPost) => {
-    await addRecipe.mutateAsync({ entryId: mealEntry.id, data: recipe });
+  const handleAddRecipeEntry = async (recipeItem: RecipeItemPost) => {
+    await addRecipeEntry.mutateAsync({ ...recipeItem, logDate, mealSlot });
     handleClose();
   };
 
-  const handleRemoveFoodItem = async (itemId: number) => {
-    await removeFood.mutateAsync({ entryId: mealEntry.id, itemId });
+  const handleRemoveFoodEntry = async (entryId: number) => {
+    await removeFoodEntry.mutateAsync(entryId);
   };
 
-  const handleRemoveRecipeItem = async (itemId: number) => {
-    await removeRecipe.mutateAsync({ entryId: mealEntry.id, itemId });
+  const handleRemoveRecipeEntry = async (entryId: number) => {
+    await removeRecipeEntry.mutateAsync(entryId);
   };
 
   return (
@@ -67,7 +77,7 @@ export function MealEntryCard({
           }}
         >
           <Typography variant="h6" sx={{ fontSize: 16 }}>
-            {mealEntry.label ?? `Meal ${mealEntry.mealIndex + 1}`}
+            {mealSlot}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             {
@@ -82,19 +92,6 @@ export function MealEntryCard({
                 {Math.round(calories)} kcal
               </Typography>
             }
-            <Tooltip title="Remove slot">
-              <IconButton
-                size="small"
-                onClick={onRemoveSlot}
-                sx={{
-                  color: "error.main",
-                  opacity: 0.6,
-                  "&:hover": { opacity: 1 },
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
           </Box>
         </Box>
 
@@ -154,7 +151,7 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveRecipeItem(recipeItem.itemId)}
+                      onClick={() => handleRemoveRecipeEntry(recipeItem.id)}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -213,7 +210,7 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveFoodItem(foodItem.itemId)}
+                      onClick={() => handleRemoveFoodEntry(foodItem.id)}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -241,8 +238,8 @@ export function MealEntryCard({
           <AddItemDialog
             open
             onClose={handleClose}
-            onAddFood={handleAddFoodItem}
-            onAddRecipe={handleAddRecipeItem}
+            onAddFood={handleAddFoodEntry}
+            onAddRecipe={handleAddRecipeEntry}
           />
         )}
       </CardContent>
