@@ -15,11 +15,11 @@ import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { AddItemDialog } from "./AddItemDialog";
 import {
-  useAddFoodToMealEntry,
-  useAddRecipeToMealEntry,
-  useRemoveRecipeFromMealEntry,
+  useAddFoodEntry,
+  useAddRecipeEntry,
+  useRemoveRecipeEntry,
 } from "@/hooks/mealLogs";
-import { useRemoveFoodFromMealEntry } from "../../hooks/mealLogs";
+import { useRemoveFoodEntry } from "../../hooks/mealLogs";
 
 export function MealEntryCard({
   mealEntry,
@@ -35,10 +35,10 @@ export function MealEntryCard({
     setAddItemOpen(false);
   };
 
-  const addFood = useAddFoodToMealEntry();
-  const addRecipe = useAddRecipeToMealEntry();
-  const removeFood = useRemoveFoodFromMealEntry();
-  const removeRecipe = useRemoveRecipeFromMealEntry();
+  const addFood = useAddFoodEntry();
+  const addRecipe = useAddRecipeEntry();
+  const removeFood = useRemoveFoodEntry();
+  const removeRecipe = useRemoveRecipeEntry();
 
   const handleAddFoodItem = async (food: FoodItemPost) => {
     await addFood.mutateAsync({ entryId: mealEntry.id, data: food });

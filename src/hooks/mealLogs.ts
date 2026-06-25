@@ -1,57 +1,54 @@
 import { mealLogApi } from "@/api/mealLogs";
-import { FoodItemPost, MealEntryPost, RecipeItemPost } from "@/types";
 import {
-  QueryClient,
+  FoodEntryPost,
+  FoodItemPost,
+  MealEntryPost,
+  RecipeItemPost,
+} from "@/types";
+import {
   useMutation,
   useQuery,
   useQueryClient,
+  QueryClient,
 } from "@tanstack/react-query";
+import { RecipeEntryPost } from "../types";
 
-export const useGetMealSummary = (date: Date) => {
+export const useGetMealSummary = (date: string) => {
   return useQuery({
-    queryKey: ["meal-logs", date.toISOString()],
+    queryKey: ["meal-logs", date],
     queryFn: () => mealLogApi.getMealLog(date),
   });
 };
 
-export const useCreateMealLog = () => {
+export const useAddFoodEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: MealEntryPost) => mealLogApi.createMealLog(data),
-    onSuccess: (data) => {
-      console.log(data.logDate);
-      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
-    },
-  });
-};
-
-export const useUpdateMealLog = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      mealLogId,
-      data,
-    }: {
-      mealLogId: number;
-      data: MealEntryPost;
-    }) => mealLogApi.updateMealLog(mealLogId, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
-    },
-  });
-};
-
-export const useAddFoodToMealEntry = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ entryId, data }: { entryId: number; data: FoodItemPost }) =>
-      mealLogApi.addFoodToEntry(entryId, data),
+    mutationFn: (data: FoodEntryPost) => mealLogApi.addFoodEntry(data),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
   });
 };
 
-export const useAddRecipeToMealEntry = () => {
+export const useAddRecipeEntry = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: RecipeEntryPost) => mealLogApi.addRecipeEntry(data),
+    onSuccess: (data) =>
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
+  });
+};
+
+export const useUpdateFoodEntry = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ entryId, data }: { entryId: number; data: FoodEntryPost }) =>
+      mealLogApi.updateFoodEntry(entryId, data),
+    onSuccess: (data) =>
+      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
+  });
+};
+
+export const useUpdateRecipeEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -59,39 +56,27 @@ export const useAddRecipeToMealEntry = () => {
       data,
     }: {
       entryId: number;
-      data: RecipeItemPost;
-    }) => mealLogApi.addRecipeToEntry(entryId, data),
+      data: RecipeEntryPost;
+    }) => mealLogApi.updateRecipeEntry(entryId, data),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
   });
 };
 
-export const useRemoveFoodFromMealEntry = () => {
+export const useRemoveFoodEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ entryId, itemId }: { entryId: number; itemId: number }) =>
-      mealLogApi.removeFoodFromEntry(entryId, itemId),
+    mutationFn: (entryId: number) => mealLogApi.removeFoodEntry(entryId),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
   });
 };
 
-export const useRemoveRecipeFromMealEntry = () => {
+export const useRemoveRecipeEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ entryId, itemId }: { entryId: number; itemId: number }) =>
-      mealLogApi.removeRecipeFromEntry(entryId, itemId),
+    mutationFn: (entryId: number) => mealLogApi.removeRecipeEntry(entryId),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
-  });
-};
-
-export const useDeleteMealLog = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (mealLogId: number) => mealLogApi.deleteMealLog(mealLogId),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] });
-    },
   });
 };

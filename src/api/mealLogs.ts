@@ -39,10 +39,7 @@ async function updateRecipeEntry(
   return res.data;
 }
 
-async function removeFoodEntry(
-  entryId: number,
-  itemId: number,
-): Promise<FoodEntry> {
+async function removeFoodEntry(entryId: number): Promise<FoodEntry> {
   const res = await api.delete(`/meal-logs/food-entries/${entryId}`);
   return res.data;
 }
