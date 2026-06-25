@@ -190,15 +190,15 @@ export type RecipeEntry = {
 };
 
 export type RecipeEntryPost = {
-  logDate: string
-  mealSlot: MealSlot
-  recipeId: number
-  servings: number
-}
+  logDate: string;
+  mealSlot: MealSlot;
+  recipeId: number;
+  servings: number;
+};
 
 export type MealEntry = {
-  foodItems: FoodEntry[];
-  recipeItems: RecipeEntry[];
+  foodEntries: FoodEntry[];
+  recipeEntries: RecipeEntry[];
   nutrition: Nutrition;
 };
 

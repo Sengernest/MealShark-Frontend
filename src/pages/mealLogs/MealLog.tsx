@@ -1,6 +1,5 @@
 import { useGetMealLog } from "@/hooks/mealLogs";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
-import AddIcon from "@mui/icons-material/Add";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TodayIcon from "@mui/icons-material/Today";
@@ -80,7 +79,8 @@ export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
 
   const [selectedDate, setSelectedDate] = useState(TODAY);
-  const { data: mealLog } = useGetMealLog(selectedDate.toISOString());
+  const selectedDateString = selectedDate.toISOString()
+  const { data: mealLog } = useGetMealLog(selectedDateString);
 
   const totalCalories = mealLog?.nutrition.calories ?? 0;
   const caloriePercent = goals
@@ -173,25 +173,25 @@ export function MealLog() {
               mealSlot="breakfast"
               key={"breakfast"}
               mealEntry={mealLog.breakfast}
-              logDate={selectedDate.toISOString()}
+              logDate={selectedDateString}
             />
             <MealEntryCard
               mealSlot="lunch"
               key={"lunch"}
               mealEntry={mealLog.lunch}
-              logDate={selectedDate.toISOString()}
+              logDate={selectedDateString}
             />
             <MealEntryCard
               mealSlot="dinner"
               key={"dinner"}
               mealEntry={mealLog.dinner}
-              logDate={selectedDate.toISOString()}
+              logDate={selectedDateString}
             />
             <MealEntryCard
               mealSlot="snack"
               key={"snack"}
               mealEntry={mealLog.snack}
-              logDate={selectedDate.toISOString()}
+              logDate={selectedDateString}
             />
           </Box>
         )}

@@ -95,8 +95,8 @@ export function MealEntryCard({
           </Box>
         </Box>
 
-        {mealEntry.foodItems.length === 0 &&
-        mealEntry.recipeItems.length === 0 ? (
+        {mealEntry.foodEntries.length === 0 &&
+        mealEntry.recipeEntries.length === 0 ? (
           <Typography
             variant="body2"
             sx={{ color: "text.disabled", mb: 1.5, fontSize: 13 }}
@@ -105,7 +105,7 @@ export function MealEntryCard({
           </Typography>
         ) : (
           <>
-            {mealEntry.recipeItems.map((recipeItem) => {
+            {mealEntry.recipeEntries.map((recipeItem) => {
               const name = recipeItem.recipe?.name;
               const cal = recipeItem.nutrition.calories;
               return (
@@ -164,7 +164,7 @@ export function MealEntryCard({
               );
             })}
 
-            {mealEntry.foodItems.map((foodItem) => {
+            {mealEntry.foodEntries.map((foodItem) => {
               const name = foodItem.food?.name;
               const cal = foodItem.nutrition.calories;
               return (
