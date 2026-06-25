@@ -1,3 +1,5 @@
+import { useGetMealLog } from "@/hooks/mealLogs";
+import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import AddIcon from "@mui/icons-material/Add";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -14,16 +16,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-//import type { MealLogEntry, MealLogSlot, MealItem } from "../types";
-import { useCurrentUser } from "@/hooks/auth";
-import {
-  useCreateMealLog,
-  useDeleteMealLog,
-  useGetMealSummary,
-  useUpdateMealLog,
-} from "@/hooks/mealLogs";
-import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
-import { AddItemDialog } from "./AddItemDialog";
 import { MealEntryCard } from "./MealEntryCard";
 
 function addDays(date: Date, n: number): Date {
@@ -88,28 +80,9 @@ export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
 
   const [selectedDate, setSelectedDate] = useState(TODAY);
-  const { data: mealSummary } = useGetMealSummary(selectedDate);
-  const meals = mealSummary?.meals ?? [];
+  const { data: mealLog } = useGetMealLog(selectedDate.toISOString());
 
-  const createMealEntry = useCreateMealLog();
-  const deleteMealEntry = useDeleteMealLog();
-
-  const numMealEntries = mealSummary?.meals.length ?? 0;
-
-  const addMeal = async () => {
-    await createMealEntry.mutateAsync({
-      logDate: selectedDate,
-      mealIndex: numMealEntries,
-      recipeItems: [],
-      foodItems: [],
-    });
-  };
-
-  const removeMeal = async (mealLogId: number) => {
-    await deleteMealEntry.mutateAsync(mealLogId);
-  };
-
-  const totalCalories = mealSummary?.nutrition.calories ?? 0;
+  const totalCalories = mealLog?.nutrition.calories ?? 0;
   const caloriePercent = goals
     ? Math.min(100, (totalCalories / goals.calories) * 100)
     : 0;
@@ -195,36 +168,10 @@ export function MealLog() {
       >
         {/* Meal slots */}
         <Box>
-          {meals.length === 0 && (
-            <Card sx={{ mb: 2 }}>
-              <CardContent sx={{ textAlign: "center", py: 4 }}>
-                <Typography
-                  variant="body2"
-                  sx={{ color: "text.disabled", mb: 2 }}
-                >
-                  No meal entries for this day. Add one to start logging.
-                </Typography>
-              </CardContent>
-            </Card>
-          )}
-
-          {meals.map((slot) => (
-            <MealEntryCard
-              key={slot.id}
-              mealEntry={slot}
-              onRemoveSlot={() => removeMeal(slot.id)}
-            />
-          ))}
-
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={addMeal}
-            fullWidth
-            sx={{ borderStyle: "dashed", color: "text.secondary" }}
-          >
-            Add Meal Entry
-          </Button>
+          <MealEntryCard key={"breakfast"} mealEntry={mealLog?.breakfast} />
+          <MealEntryCard key={"lunch"} mealEntry={mealLog?.lunch} />
+          <MealEntryCard key={"dinner"} mealEntry={mealLog?.dinner} />
+          <MealEntryCard key={"snack"} mealEntry={mealLog?.snack} />
         </Box>
 
         {/* Day summary */}
@@ -321,19 +268,19 @@ export function MealLog() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <MacroBar
                   label="Protein"
-                  value={mealSummary?.nutrition.macros.protein ?? 0}
+                  value={mealLog?.nutrition.macros.protein ?? 0}
                   target={goals?.protein ?? 0}
                   color="#3df2a8"
                 />
                 <MacroBar
                   label="Carbohydrates"
-                  value={mealSummary?.nutrition.macros.carbs ?? 0}
+                  value={mealLog?.nutrition.macros.carbs ?? 0}
                   target={goals?.carbs ?? 0}
                   color="#3db5f2"
                 />
                 <MacroBar
                   label="Fat"
-                  value={mealSummary?.nutrition.macros.fat ?? 0}
+                  value={mealLog?.nutrition.macros.fat ?? 0}
                   target={goals?.fat ?? 0}
                   color="#f2c93d"
                 />

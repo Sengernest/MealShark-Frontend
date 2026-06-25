@@ -23,10 +23,8 @@ import { useRemoveFoodEntry } from "../../hooks/mealLogs";
 
 export function MealEntryCard({
   mealEntry,
-  onRemoveSlot,
 }: {
-  mealEntry: MealEntry;
-  onRemoveSlot: () => void;
+  mealEntry: MealEntry | undefined;
 }) {
   const calories = mealEntry.nutrition.calories;
   const [addItemOpen, setAddItemOpen] = useState(false);

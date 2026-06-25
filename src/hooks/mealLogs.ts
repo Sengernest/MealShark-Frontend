@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-query";
 import { RecipeEntryPost } from "../types";
 
-export const useGetMealSummary = (date: string) => {
+export const useGetMealLog = (date: string) => {
   return useQuery({
     queryKey: ["meal-logs", date],
     queryFn: () => mealLogApi.getMealLog(date),
