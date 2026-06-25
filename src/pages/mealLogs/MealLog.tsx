@@ -79,7 +79,7 @@ export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
 
   const [selectedDate, setSelectedDate] = useState(TODAY);
-  const selectedDateString = selectedDate.toISOString()
+  const selectedDateString = selectedDate.toISOString().slice(0, 10)
   const { data: mealLog } = useGetMealLog(selectedDateString);
 
   const totalCalories = mealLog?.nutrition.calories ?? 0;

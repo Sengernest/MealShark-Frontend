@@ -14,12 +14,12 @@ async function getMealLog(date: string): Promise<MealLog> {
 }
 
 async function addFoodEntry(data: FoodEntryPost): Promise<FoodEntry> {
-  const res = await api.post(`/meal-logs//foods`, data);
+  const res = await api.post(`/meal-logs/food-entries`, data);
   return res.data;
 }
 
 async function addRecipeEntry(data: RecipeEntryPost): Promise<RecipeEntry> {
-  const res = await api.post(`/meal-logs/recipes`, data);
+  const res = await api.post(`/meal-logs/recipe-entries`, data);
   return res.data;
 }
 
