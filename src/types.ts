@@ -170,6 +170,14 @@ export type FoodEntry = {
   nutrition: Nutrition;
 };
 
+export type FoodEntryPost = {
+  logDate: string;
+  mealSlot: MealSlot;
+  foodId: number;
+  unitId: number;
+  amount: number;
+};
+
 export type RecipeEntry = {
   id: number;
   userId: number;
@@ -180,6 +188,13 @@ export type RecipeEntry = {
   servings: number;
   nutrition: Nutrition;
 };
+
+export type RecipeEntryPost = {
+  logDate: string
+  mealSlot: MealSlot
+  recipeId: number
+  servings: number
+}
 
 export type MealEntry = {
   foodItems: FoodEntry[];

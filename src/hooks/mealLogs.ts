@@ -10,7 +10,7 @@ import {
 export const useGetMealSummary = (date: Date) => {
   return useQuery({
     queryKey: ["meal-logs", date.toISOString()],
-    queryFn: () => mealLogApi.getMyDailySummary(date),
+    queryFn: () => mealLogApi.getMealLog(date),
   });
 };
 

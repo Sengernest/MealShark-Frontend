@@ -1,74 +1,63 @@
 import {
-  FoodItemPost,
+  FoodEntry,
+  FoodEntryPost,
   MealEntry,
-  MealEntryPost,
   MealLog,
-  RecipeItemPost,
+  RecipeEntry,
+  RecipeEntryPost,
 } from "@/types";
 import { api } from "./baseApi";
 
-async function getMyDailySummary(date: Date): Promise<MealLog> {
-  const res = await api.get(`/me/meal-logs/daily-summary?date=${date}`);
+async function getMealLog(date: string): Promise<MealLog> {
+  const res = await api.get(`/meal-logs?date=${date}`);
   return res.data;
 }
 
-async function createMealLog(data: MealEntryPost): Promise<MealEntry> {
-  const res = await api.post("/meal-logs", data);
+async function addFoodEntry(data: FoodEntryPost): Promise<FoodEntry> {
+  const res = await api.post(`/meal-logs//foods`, data);
   return res.data;
 }
 
-async function updateMealLog(
-  mealLogId: number,
-  data: MealEntryPost,
-): Promise<MealEntry> {
-  const res = await api.put(`/meal-logs/${mealLogId}`, data);
+async function addRecipeEntry(data: RecipeEntryPost): Promise<RecipeEntry> {
+  const res = await api.post(`/meal-logs/recipes`, data);
   return res.data;
 }
 
-async function addRecipeToEntry(
+async function updateFoodEntry(
   entryId: number,
-  data: RecipeItemPost,
-): Promise<MealEntry> {
-  const res = await api.post(`/meal-logs/${entryId}/recipes`, data);
+  data: FoodEntryPost,
+): Promise<FoodEntry> {
+  const res = await api.put(`/meal-logs/food-entries/${entryId}`, data);
   return res.data;
 }
 
-async function addFoodToEntry(
+async function updateRecipeEntry(
   entryId: number,
-  data: FoodItemPost,
-): Promise<MealEntry> {
-  const res = await api.post(`/meal-logs/${entryId}/foods`, data);
+  data: RecipeEntryPost,
+): Promise<RecipeEntry> {
+  const res = await api.put(`/meal-logs/recipe-entries/${entryId}`, data);
   return res.data;
 }
 
-async function removeRecipeFromEntry(
+async function removeFoodEntry(
   entryId: number,
   itemId: number,
-): Promise<MealEntry> {
-  const res = await api.delete(`/meal-logs/${entryId}/recipes/${itemId}`);
+): Promise<FoodEntry> {
+  const res = await api.delete(`/meal-logs/food-entries/${entryId}`);
   return res.data;
 }
 
-async function removeFoodFromEntry(
-  entryId: number,
-  itemId: number,
-): Promise<MealEntry> {
-  const res = await api.delete(`/meal-logs/${entryId}/foods/${itemId}`);
-  return res.data;
-}
-
-async function deleteMealLog(mealLogId: number): Promise<MealEntry> {
-  const res = await api.delete(`/meal-logs/${mealLogId}`);
+async function removeRecipeEntry(entryId: number): Promise<RecipeEntry> {
+  const res = await api.delete(`/meal-logs/recipe-entries/${entryId}`);
   return res.data;
 }
 
 export const mealLogApi = {
-  getMyDailySummary,
-  createMealLog,
-  updateMealLog,
-  addRecipeToEntry,
-  addFoodToEntry,
-  removeRecipeFromEntry,
-  removeFoodFromEntry,
-  deleteMealLog,
+  getMealLog,
+  addRecipeEntry,
+  addFoodEntry,
+  updateFoodEntry,
+  updateRecipeEntry,
+  removeRecipeEntry,
+  removeFoodEntry,
 };
