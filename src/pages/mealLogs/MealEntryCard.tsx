@@ -76,7 +76,10 @@ export function MealEntryCard({
             mb: 1.5,
           }}
         >
-          <Typography variant="h6" sx={{ fontSize: 16 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontSize: 16, textTransform: "capitalize" }}
+          >
             {mealSlot}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
