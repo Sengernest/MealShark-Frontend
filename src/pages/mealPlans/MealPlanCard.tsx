@@ -7,21 +7,18 @@ import {
   Button,
   Chip,
   Tooltip,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import type {
-  MealPlan,
-} from "../../types";
+import type { MealPlan } from "../../types";
 import EditIcon from "@mui/icons-material/Edit";
-
 
 export function PlanCard({
   plan,
   isActive,
   onView,
   onSetActive,
-  onEdit
+  onEdit,
 }: {
   plan: MealPlan;
   isActive: boolean;
@@ -29,10 +26,7 @@ export function PlanCard({
   onSetActive: () => void;
   onEdit: (plan: MealPlan) => void;
 }) {
-
-
-  const totalCalories =
-    plan.meals?.reduce((sum, m) => sum + (m.nutrition?.calories ?? 0), 0) ?? 0;
+  const totalCalories = plan.nutrition.calories;
 
   return (
     <Card
@@ -75,15 +69,17 @@ export function PlanCard({
             )}
           </Box>
 
-           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <Tooltip title="Edit">
-              <IconButton size="small" onClick={() => onEdit(plan)} color="primary">
+              <IconButton
+                size="small"
+                onClick={() => onEdit(plan)}
+                color="primary"
+              >
                 <EditIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           </Box>
-
-
         </Box>
         <Typography
           variant="h5"
@@ -124,7 +120,7 @@ export function PlanCard({
             </Typography>
           </Box>
           <Box>
-           <Typography
+            <Typography
               sx={{
                 color: "#3db5f2",
                 fontFamily: "'Barlow Condensed'",
@@ -133,14 +129,14 @@ export function PlanCard({
                 lineHeight: 1,
               }}
             >
-               {plan.targetCalories}
-            </Typography> 
+              {plan.targetCalories}
+            </Typography>
             <Typography
               variant="caption"
               sx={{ color: "text.disabled", fontSize: 10 }}
             >
               TARGET
-            </Typography> 
+            </Typography>
           </Box>
         </Box>
       </CardContent>
