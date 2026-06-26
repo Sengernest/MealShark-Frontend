@@ -246,8 +246,8 @@ export type MealPlanRecipePost = {
 };
 
 export type MealPlanMeal = {
-  recipeItems: MealPlanRecipe[];
   foodItems: MealPlanFood[];
+  recipeItems: MealPlanRecipe[];
   nutrition: Nutrition;
 };
 

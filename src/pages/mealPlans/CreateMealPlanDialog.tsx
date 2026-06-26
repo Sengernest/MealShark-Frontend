@@ -1,105 +1,28 @@
-import { useState } from "react";
+import { useCreateMealPlan } from "@/hooks/mealPlans";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
-  Typography,
+  Button,
   Card,
   CardContent,
-  Button,
-  TextField,
-  Chip,
   Dialog,
-  DialogTitle,
-  DialogContent,
   DialogActions,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  DialogContent,
+  DialogTitle,
   Divider,
+  FormControl,
   IconButton,
+  InputLabel,
   List,
   ListItem,
   ListItemText,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import type { MealPost } from "../../types";
-import { useCreateMealPlan } from "@/hooks/mealPlans";
-
-function SlotView({ slot }: { slot: MealSlot }) {
-  const mealCalories = slot.nutrition.calories;
-  return (
-    <Box sx={{ py: 1, borderBottom: "1px solid", borderColor: "divider" }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 0.5,
-        }}
-      >
-        <Typography
-          variant="overline"
-          sx={{ fontSize: 10, color: "text.disabled" }}
-        >
-          {slot.label}
-        </Typography>
-        {mealCalories > 0 && (
-          <Typography
-            sx={{
-              color: "primary.main",
-              fontFamily: "'Barlow Condensed'",
-              fontWeight: 800,
-              fontSize: 13,
-            }}
-          >
-            {mealCalories} kcal
-          </Typography>
-        )}
-      </Box>
-      {slot.items.length === 0 ? (
-        <Typography
-          variant="body2"
-          sx={{ color: "text.disabled", fontSize: 12 }}
-        >
-          Empty slot
-        </Typography>
-      ) : (
-        slot.items.map((item) => (
-          <Box
-            key={item.id}
-            sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.25 }}
-          >
-            <Chip
-              label={item.type.toUpperCase()}
-              size="small"
-              variant="outlined"
-              sx={{
-                height: 16,
-                fontSize: 9,
-                color: item.type === "recipe" ? "primary.main" : "#3db5f2",
-                borderColor:
-                  item.type === "recipe" ? "primary.main" : "#3db5f2",
-              }}
-            />
-            <Typography
-              variant="body2"
-              sx={{ fontSize: 13, color: "text.primary" }}
-            >
-              {item.type === "recipe" ? item.recipe?.name : item.food?.name}
-              {item.amount !== 1 && (
-                <Box component="span" sx={{ color: "text.disabled" }}>
-                  {" "}
-                  ×{item.amount}
-                </Box>
-              )}
-            </Typography>
-          </Box>
-        ))
-      )}
-    </Box>
-  );
-}
+import { useState } from "react";
 
 export function CreatePlanDialog({
   open,
