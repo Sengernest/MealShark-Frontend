@@ -31,10 +31,12 @@ import {
   UseFormRegister,
   useWatch,
 } from "react-hook-form";
-import type { Food, Recipe, RecipePost, Unit } from "../../types";
+import type { Food, FoodItemPost, Recipe, RecipePost, Unit } from "../../types";
 import { RECIPE_CATEGORIES } from "./Recipes";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NutritionRow } from "./NutritionRow";
+import { FoodSelector } from "@/components/common/FoodSelector";
+import { AddIngredientDialog } from "./AddIngredientsDialog";
 
 type CreateRecipeFormData = {
   name: string;
@@ -64,6 +66,7 @@ export function CreateRecipeDialog({
 }) {
   const createRecipe = useCreateRecipe();
   const editRecipe = useUpdateRecipe();
+  const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false);
 
   const {
     register,
@@ -219,21 +222,44 @@ export function CreateRecipeDialog({
           <Typography variant="h6">INGREDIENTS</Typography>
           <Button
             variant="outlined"
-            onClick={addIngredient}
-            sx={{ height: 40 }}
+            onClick={() => setIngredientDialogOpen(true)}
           >
             Add
           </Button>
           <Stack gap={2}>
             {ingredientsFieldArray.fields.map((ingredient, index) => (
-              <IngredientRow
+              <FoodSelector
                 key={ingredient.id}
-                index={index}
                 control={control}
                 register={register}
                 errors={errors}
-                onRemove={removeIngredient}
-                ingredients={ingredients}
+                foodName={`ingredients.${index}.foodId`}
+                amountName={`ingredients.${index}.amount`}
+                unitName={`ingredients.${index}.unitId`}
+                foodRules={{
+                  required: "Required",
+                  validate: (foodId) => {
+                    if (!foodId) return true;
+
+                    const duplicates = ingredients.filter(
+                      (ingredient) => ingredient.foodId === foodId,
+                    );
+
+                    return (
+                      duplicates.length <= 1 ||
+                      "This food has been added more than once"
+                    );
+                  },
+                }}
+                amountRules={{
+                  required: "Required",
+                  valueAsNumber: true,
+                  validate: (v) => Number(v) > 0 || "Must be positive",
+                }}
+                unitRules={{
+                  required: "Required",
+                }}
+                onRemove={() => removeIngredient(index)}
               />
             ))}
           </Stack>
@@ -259,132 +285,20 @@ export function CreateRecipeDialog({
           </Button>
         </DialogActions>
       </form>
+
+      <AddIngredientDialog
+        open={ingredientDialogOpen}
+        onClose={() => setIngredientDialogOpen(false)}
+        onAdd={(food: FoodItemPost) => {
+          ingredientsFieldArray.append({
+            foodId: food.foodId,
+            amount: food.amount,
+            unitId: food.unitId,
+          });
+
+          setIngredientDialogOpen(false);
+        }}
+      />
     </Dialog>
-  );
-}
-
-type IngredientRowProps = {
-  index: number;
-  control: Control<CreateRecipeFormData>;
-  register: UseFormRegister<CreateRecipeFormData>;
-  errors: FieldErrors<CreateRecipeFormData>;
-  onRemove: (index: number) => void;
-  ingredients: Ingredient[];
-};
-
-export function IngredientRow({
-  index,
-  control,
-  register,
-  errors,
-  onRemove,
-  ingredients,
-}: IngredientRowProps) {
-  const [foodSearch, setFoodSearch] = useState("");
-
-  const { data } = useSearchFoods(foodSearch, 20);
-  const foods = data ?? [];
-
-  const selectedFoodId = useWatch({
-    control,
-    name: `ingredients.${index}.foodId`,
-  });
-
-  const selectedFood = foods.find((f) => f.id === selectedFoodId) ?? null;
-
-  return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: "1fr 90px 80px auto",
-        gap: 1.5,
-        alignItems: "start",
-      }}
-    >
-      <Controller
-        name={`ingredients.${index}.foodId`}
-        control={control}
-        rules={{
-          required: "Required",
-          validate: (foodId) => {
-            if (!foodId) return true;
-            const duplicates = ingredients.filter(
-              (ingredient) => ingredient.foodId === foodId,
-            );
-            return (
-              duplicates.length <= 1 ||
-              "This food has been added more than once"
-            );
-          },
-        }}
-        render={({ field }) => {
-          return (
-            <Autocomplete
-              options={foods.map((food) => food.id)}
-              onChange={(_, value) => {
-                field.onChange(value);
-              }}
-              value={field.value ?? undefined}
-              inputValue={foodSearch}
-              onInputChange={(_, value) => setFoodSearch(value)}
-              getOptionLabel={(foodId) =>
-                foods.find((food) => food.id === foodId)?.name ?? ""
-              }
-              isOptionEqualToValue={(option, value) => option === value}
-              filterOptions={(x) => x}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Food"
-                  size="small"
-                  error={!!errors.ingredients?.[index]?.foodId}
-                  helperText={errors.ingredients?.[index]?.foodId?.message}
-                />
-              )}
-            />
-          );
-        }}
-      />
-
-      <TextField
-        label="Amount"
-        size="small"
-        type="number"
-        {...register(`ingredients.${index}.amount`, {
-          required: "Required",
-          valueAsNumber: true,
-          validate: (v) => (v && v > 0) || "Must be positive",
-        })}
-        error={!!errors.ingredients?.[index]?.amount}
-        helperText={errors.ingredients?.[index]?.amount?.message}
-      />
-
-      <FormControl size="small" error={!!errors.ingredients?.[index]?.unitId}>
-        <InputLabel>Unit</InputLabel>
-
-        <Controller
-          name={`ingredients.${index}.unitId`}
-          control={control}
-          rules={{ required: "Required" }}
-          render={({ field }) => (
-            <Select {...field} label="Unit">
-              {selectedFood?.units?.map((unit) => (
-                <MenuItem key={unit.unit.id} value={unit.unit.id}>
-                  {unit.unit.name}
-                </MenuItem>
-              ))}
-            </Select>
-          )}
-        />
-
-        <FormHelperText>
-          {errors.ingredients?.[index]?.unitId?.message}
-        </FormHelperText>
-      </FormControl>
-
-      <IconButton edge="end" size="small" onClick={() => onRemove(index)}>
-        <DeleteIcon fontSize="small" />
-      </IconButton>
-    </Box>
   );
 }

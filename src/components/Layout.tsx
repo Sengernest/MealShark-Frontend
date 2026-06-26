@@ -11,11 +11,6 @@ import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import {
   Avatar,
   Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   Drawer,
   IconButton,
@@ -29,6 +24,7 @@ import {
 import { useState } from "react";
 import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router";
 import { ConfirmDialog } from "./common/ConfirmDialog";
+import { LoadingScreen } from "./common/LoadingScreen";
 
 const DRAWER_OPEN = 220;
 const DRAWER_CLOSED = 64;
@@ -60,8 +56,9 @@ export function Layout() {
     setLogoutOpen(false);
     navigate("/auth");
   };
+  
   if (isLoadingUser) {
-    return <div>Loading...</div>;
+    return <LoadingScreen />; 
   }
 
   if (!user) {
