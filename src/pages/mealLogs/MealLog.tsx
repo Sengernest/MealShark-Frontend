@@ -2,7 +2,6 @@ import { useGetMealLog } from "@/hooks/mealLogs";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import TodayIcon from "@mui/icons-material/Today";
 import {
   Box,
   Button,
@@ -14,6 +13,10 @@ import {
   LinearProgress,
   Typography,
 } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { MealEntryCard } from "./MealEntryCard";
 
@@ -79,7 +82,7 @@ export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
 
   const [selectedDate, setSelectedDate] = useState(TODAY);
-  const selectedDateString = selectedDate.toISOString().slice(0, 10)
+  const selectedDateString = selectedDate.toISOString().slice(0, 10);
   const { data: mealLog } = useGetMealLog(selectedDateString);
 
   const totalCalories = mealLog?.nutrition.calories ?? 0;
@@ -125,7 +128,29 @@ export function MealLog() {
           >
             <ChevronLeftIcon />
           </IconButton>
-          <TodayIcon sx={{ color: "text.disabled", fontSize: 18 }} />
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              value={dayjs(selectedDate)}
+              format="DD/MM/YYYY"
+              onChange={(date) => {
+                if (date) {
+                  setSelectedDate(date.toDate());
+                }
+              }}
+              slotProps={{
+                textField: {
+                  variant: "standard",
+                  sx: {
+                    width: 0,
+                    "& .MuiSvgIcon-root": {
+                      fontSize: 20,
+                    },
+                  },
+                },
+              }}
+            />
+          </LocalizationProvider>
           <Typography
             variant="body1"
             sx={{ fontWeight: 600, flex: 1, textAlign: "center" }}
