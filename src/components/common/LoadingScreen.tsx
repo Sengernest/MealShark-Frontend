@@ -1,5 +1,5 @@
 // components/common/LoadingScreen.tsx
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 
 export function LoadingScreen() {
   return (
@@ -10,24 +10,12 @@ export function LoadingScreen() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: 3,
-        bgcolor: "background.default",
+        gap: 50,
       }}
     >
-      <Typography
-        variant="h3"
-        sx={{
-          fontWeight: 800,
-          letterSpacing: "0.05em",
-        }}
-      >
-        MEAL
-        <Box component="span" sx={{ color: "primary.main" }}>
-          SHARK
-        </Box>
-      </Typography>
+      <img src="/mealshark-logo.svg" width={250} style={{ filter: 'invert(100%)' }}/>
 
-      <CircularProgress size={32} />
+      <CircularProgress style={{ color: 'white' }}/>
     </Box>
   );
 }
