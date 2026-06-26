@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 
 import { useState } from "react";
-import { AddFoodForm } from "./AddFoodForm";
+import { AddFoodForm } from "../../components/common/AddFoodForm";
 import { AddPlanForm } from "./AddPlanForm";
 import { AddRecipeForm } from "./AddRecipeForm";
 

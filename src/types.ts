@@ -67,7 +67,6 @@ export type Food = {
   protein: number;
   carbs: number;
   fat: number;
-
   units: FoodUnit[];
 };
 

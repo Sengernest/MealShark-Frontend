@@ -14,6 +14,9 @@ import {
   FormHelperText,
   IconButton,
   InputLabel,
+  List,
+  ListItem,
+  ListItemText,
   MenuItem,
   Select,
   Stack,
@@ -33,10 +36,12 @@ import {
 } from "react-hook-form";
 import type { Food, FoodItemPost, Recipe, RecipePost, Unit } from "../../types";
 import { RECIPE_CATEGORIES } from "./Recipes";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { NutritionRow } from "./NutritionRow";
-import { FoodSelector } from "@/components/common/FoodSelector";
 import { AddIngredientDialog } from "./AddIngredientsDialog";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 type CreateRecipeFormData = {
   name: string;
@@ -67,7 +72,9 @@ export function CreateRecipeDialog({
   const createRecipe = useCreateRecipe();
   const editRecipe = useUpdateRecipe();
   const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false);
-
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+  const { data: foods = [] } = useSearchFoods("");
   const {
     register,
     handleSubmit,
@@ -97,18 +104,6 @@ export function CreateRecipeDialog({
       })),
     });
   }, [recipe, reset]);
-
-  const addIngredient = async () => {
-    ingredientsFieldArray.append({
-      foodId: null,
-      unitId: null,
-      amount: null,
-    });
-  };
-
-  const removeIngredient = (i: number) => {
-    ingredientsFieldArray.remove(i);
-  };
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
     const payload: RecipePost = {
@@ -219,62 +214,107 @@ export function CreateRecipeDialog({
             />
           </Box>
           <Divider />
-          <Typography variant="h6">INGREDIENTS</Typography>
-          <Button
-            variant="outlined"
-            onClick={() => setIngredientDialogOpen(true)}
-          >
-            Add
-          </Button>
-          <Stack gap={2}>
-            {ingredientsFieldArray.fields.map((ingredient, index) => (
-              <FoodSelector
-                key={ingredient.id}
-                control={control}
-                register={register}
-                errors={errors}
-                foodName={`ingredients.${index}.foodId`}
-                amountName={`ingredients.${index}.amount`}
-                unitName={`ingredients.${index}.unitId`}
-                foodRules={{
-                  required: "Required",
-                  validate: (foodId) => {
-                    if (!foodId) return true;
+          <Box alignItems="center">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography variant="h6">INGREDIENTS</Typography>
 
-                    const duplicates = ingredients.filter(
-                      (ingredient) => ingredient.foodId === foodId,
-                    );
+              <Button
+                startIcon={<AddIcon />}
+                size="small"
+                onClick={() => setIngredientDialogOpen(true)}
+              >
+                Add Ingredient
+              </Button>
+            </Box>
+            <List dense disablePadding>
+              {ingredientsFieldArray.fields.map((field, index) => {
+                const ingredient = ingredients?.[index];
 
-                    return (
-                      duplicates.length <= 1 ||
-                      "This food has been added more than once"
-                    );
-                  },
-                }}
-                amountRules={{
-                  required: "Required",
-                  valueAsNumber: true,
-                  validate: (v) => Number(v) > 0 || "Must be positive",
-                }}
-                unitRules={{
-                  required: "Required",
-                }}
-                onRemove={() => removeIngredient(index)}
-              />
-            ))}
-          </Stack>
+                return (
+                  <ListItem
+                    key={field.id}
+                    disablePadding
+                    sx={{
+                      py: 0.75,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                    }}
+                    secondaryAction={
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <IconButton
+                          edge="end"
+                          color="primary"
+                          onClick={() => {
+                            setEditingIndex(index);
+                            setIngredientDialogOpen(true);
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+
+                        <IconButton
+                          edge="end"
+                          color="error"
+                          onClick={() => setDeleteIndex(index)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    }
+                  >
+                    <ListItemText
+                      primary={
+                        ingredient?.foodId
+                          ? (foods?.find((f) => f.id === ingredient.foodId)
+                              ?.name ?? "Unknown food")
+                          : "No food selected"
+                      }
+                      secondary={
+                        ingredient?.unitId
+                          ? `${ingredient.amount} ${
+                              foods
+                                ?.find((f) => f.id === ingredient.foodId)
+                                ?.units.find(
+                                  (u) => u.unitId === ingredient.unitId,
+                                )?.unit.name ?? ""
+                            }`
+                          : ""
+                      }
+                      primaryTypographyProps={{
+                        variant: "body2",
+                        color: "text.primary",
+                      }}
+                      secondaryTypographyProps={{ variant: "caption" }}
+                    />
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Box>
           <Box sx={{ pt: 1 }}>
+            <Typography variant="h6">NUTRITION INFO</Typography>
             <NutritionRow cal={900} prot={40} carbs={30} fat={30} />
           </Box>
 
           <Divider />
-          <TextField
-            label="Instructions"
-            {...register("instructions", { maxLength: 2000 })}
-            multiline
-            rows={4}
-            fullWidth
-          />
+          <Box sx={{ pt: 1 }} alignItems="center">
+            <Typography variant="h6">INSTRUCTIONS</Typography>
+
+            <TextField
+              label="Instructions"
+              {...register("instructions", { maxLength: 2000 })}
+              multiline
+              rows={4}
+              fullWidth
+              sx={{ mt: 3 }}
+            />
+          </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button onClick={onClose} sx={{ color: "text.secondary" }}>
@@ -288,15 +328,53 @@ export function CreateRecipeDialog({
 
       <AddIngredientDialog
         open={ingredientDialogOpen}
-        onClose={() => setIngredientDialogOpen(false)}
+        onClose={() => {
+          setIngredientDialogOpen(false);
+          setEditingIndex(null);
+        }}
+        title={editingIndex !== null ? "EDIT INGREDIENT" : "ADD INGREDIENT"}
+        button={editingIndex !== null ? "Edit" : "Add"}
+        initialValue={
+          editingIndex !== null && ingredients?.[editingIndex]
+            ? {
+                foodId: ingredients[editingIndex].foodId!,
+                unitId: ingredients[editingIndex].unitId!,
+                amount: ingredients[editingIndex].amount!,
+              }
+            : undefined
+        }
         onAdd={(food: FoodItemPost) => {
-          ingredientsFieldArray.append({
-            foodId: food.foodId,
-            amount: food.amount,
-            unitId: food.unitId,
-          });
+          if (editingIndex !== null) {
+            ingredientsFieldArray.update(editingIndex, {
+              foodId: food.foodId,
+              amount: food.amount,
+              unitId: food.unitId,
+            });
+            setEditingIndex(null);
+          } else {
+            ingredientsFieldArray.append({
+              foodId: food.foodId,
+              amount: food.amount,
+              unitId: food.unitId,
+            });
+          }
 
           setIngredientDialogOpen(false);
+        }}
+      />
+
+      <ConfirmDialog
+        open={deleteIndex !== null}
+        title="Confirm Delete Ingredient"
+        description="Are you sure you want to delete this ingredient?"
+        confirmText="Delete"
+        confirmColor="error"
+        onClose={() => setDeleteIndex(null)}
+        onConfirm={() => {
+          if (deleteIndex !== null) {
+            ingredientsFieldArray.remove(deleteIndex);
+            setDeleteIndex(null);
+          }
         }}
       />
     </Dialog>

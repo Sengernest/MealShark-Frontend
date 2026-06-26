@@ -15,9 +15,10 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 type AddFoodFormProps = {
   onAdd: (food: FoodItemPost) => void;
+  initialValue?: FoodItemPost;
 };
 
-export function AddFoodForm({ onAdd }: AddFoodFormProps) {
+export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
   const [foodSearch, setFoodSearch] = useState("");
   const { data: foods = [] } = useSearchFoods(foodSearch, 20);
 
@@ -67,6 +68,7 @@ export function AddFoodForm({ onAdd }: AddFoodFormProps) {
                     size="small"
                     error={!!errors.foodId}
                     helperText={errors.foodId?.message}
+                    sx={{ mt: 1 }}
                   />
                 )}
               />
