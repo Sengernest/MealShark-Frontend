@@ -88,21 +88,23 @@ export function CreatePlanDialog({
       ...foodItem,
       mealSlot,
     });
+    setAddItemOpen(false)
   };
 
   const handleAddRecipe = (mealSlot: MealSlot, recipeItem: RecipeItem) => {
     recipesFieldArray.append({ ...recipeItem, mealSlot });
+    setAddItemOpen(false);
   };
 
   const handleRemoveFood = (mealSlot: MealSlot, fieldId: string) => {
     const index = foodsFieldArray.fields.findIndex((f) => f.id === fieldId);
     foodsFieldArray.remove(index);
-  }
+  };
 
   const handleRemoveRecipe = (mealSlot: MealSlot, fieldId: string) => {
-  const index = recipesFieldArray.fields.findIndex((f) => f.id === fieldId);
-  recipesFieldArray.remove(index);
-  }
+    const index = recipesFieldArray.fields.findIndex((f) => f.id === fieldId);
+    recipesFieldArray.remove(index);
+  };
 
   const breakfastItems = {
     foodItems: foodsFieldArray.fields.filter(

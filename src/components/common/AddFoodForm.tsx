@@ -13,6 +13,12 @@ import {
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
+type AddFoodFormData = {
+  foodId: number;
+  unitId: number;
+  amount: number;
+};
+
 type AddFoodFormProps = {
   onAdd: (food: FoodItem) => void;
   initialValue?: FoodItem;
@@ -28,20 +34,22 @@ export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
     control,
     watch,
     formState: { errors },
-  } = useForm<FoodItem>();
+  } = useForm<AddFoodFormData>();
 
-  const onSubmit: SubmitHandler<FoodItem> = (data) => {
-    onAdd(data);
+  const onSubmit: SubmitHandler<AddFoodFormData> = (data) => {
+    const food = foods.find((food) => food.id === data.foodId)!;
+    const unit = food?.units.find((unit) => unit.unitId === data.unitId)!.unit;
+    onAdd({ food, unit, amount: data.amount });
   };
 
-  const selectedFoodId = watch("food.id");
+  const selectedFoodId = watch("foodId");
   const selectedFood = foods.find((f) => f.id === selectedFoodId) ?? null;
 
   return (
     <form id="food-form" onSubmit={handleSubmit(onSubmit)}>
       <FormControl size="small" fullWidth>
         <Controller
-          name={"food.id"}
+          name={"foodId"}
           control={control}
           rules={{
             required: "Required",
@@ -66,8 +74,8 @@ export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
                     {...params}
                     label="Food"
                     size="small"
-                    error={!!errors.food?.id}
-                    helperText={errors.food?.id?.message}
+                    error={!!errors.foodId}
+                    helperText={errors.foodId?.message}
                     sx={{ mt: 1 }}
                   />
                 )}
@@ -97,11 +105,11 @@ export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
           helperText={errors.amount?.message}
         />
 
-        <FormControl size="small" error={!!errors.unit?.id}>
+        <FormControl size="small" error={!!errors.unitId}>
           <InputLabel>Unit</InputLabel>
 
           <Controller
-            name={"unit.id"}
+            name={"unitId"}
             control={control}
             rules={{ required: "Required" }}
             render={({ field }) => (
@@ -115,7 +123,7 @@ export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
             )}
           />
 
-          <FormHelperText>{errors.unit?.id?.message}</FormHelperText>
+          <FormHelperText>{errors.unitId?.message}</FormHelperText>
         </FormControl>
       </Box>
     </form>
