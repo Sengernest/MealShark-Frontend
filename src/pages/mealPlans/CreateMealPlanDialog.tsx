@@ -121,6 +121,7 @@ export function CreateMealPlanDialog({
   );
   // When edit food button is clicked
   const handleEditFood = (fieldId: string) => {
+    setEditingRecipeId(null)
     setEditingFoodId(fieldId);
     setItemDialogOpen(true);
   };
@@ -128,10 +129,11 @@ export function CreateMealPlanDialog({
   // The current recipe item being edited
   const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
   const editingRecipeItem = recipesFieldArray.fields.find(
-    (f) => f.id === editingFoodId,
+    (f) => f.id === editingRecipeId,
   );
   // When edit recipe button is clicked
   const handleEditRecipe = (fieldId: string) => {
+    setEditingFoodId(null)
     setEditingRecipeId(fieldId);
     setItemDialogOpen(true);
   };

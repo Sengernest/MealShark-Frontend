@@ -80,7 +80,10 @@ export function AddOrEditItemDialog({
             onAdd={initialFood ? onEditFood : onAddFood}
           />
         ) : (
-          <AddRecipeForm onAdd={onAddRecipe} />
+          <AddRecipeForm
+            initialRecipe={initialRecipe}
+            onAdd={initialRecipe ? onEditRecipe : onAddRecipe}
+          />
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
