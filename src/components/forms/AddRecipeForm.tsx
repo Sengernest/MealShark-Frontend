@@ -10,6 +10,11 @@ import {
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
+type AddRecipeFormData = {
+  recipeId: number;
+  servings: number;
+};
+
 type AddRecipeFormProps = {
   onAdd: (recipe: RecipeItem) => void;
 };
@@ -23,10 +28,11 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<RecipeItem>();
+  } = useForm<AddRecipeFormData>();
 
-  const onSubmit: SubmitHandler<RecipeItem> = (data) => {
-    onAdd(data);
+  const onSubmit: SubmitHandler<AddRecipeFormData> = (data) => {
+    const recipe = recipes.find((recipe) => recipe.id === data.recipeId)!;
+    onAdd({ recipe, servings: data.servings });
   };
 
   return (
@@ -35,7 +41,7 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
         <FormControl size="small" fullWidth>
           <Controller
             control={control}
-            name={"recipe.id"}
+            name={"recipeId"}
             rules={{ required: "Required" }}
             render={({ field }) => (
               <Autocomplete
@@ -52,8 +58,8 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
                     {...params}
                     label={"Recipe"}
                     size="small"
-                    error={!!errors.recipe?.id}
-                    helperText={errors.recipe?.id?.message}
+                    error={!!errors.recipeId}
+                    helperText={errors.recipeId?.message}
                   />
                 )}
               />

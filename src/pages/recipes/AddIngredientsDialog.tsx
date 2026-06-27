@@ -7,7 +7,7 @@ import {
   DialogTitle,
   Typography,
 } from "@mui/material";
-import { AddFoodForm } from "../../components/common/AddFoodForm";
+import { AddFoodForm } from "../../components/forms/AddFoodForm";
 
 type AddIngredientDialogProps = {
   open: boolean;

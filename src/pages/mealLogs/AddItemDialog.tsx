@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 
 import { useState } from "react";
-import { AddFoodForm } from "../../components/common/AddFoodForm";
-import { AddRecipeForm } from "./AddRecipeForm";
+import { AddFoodForm } from "../../components/forms/AddFoodForm";
+import { AddRecipeForm } from "../../components/forms/AddRecipeForm";
 
 type AddItemDialogProps = {
   open: boolean;
