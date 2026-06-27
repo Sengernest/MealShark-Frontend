@@ -67,6 +67,7 @@ export function CreateMealPlanDialog({
   initialPlan?: MealPlan;
 }) {
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
+
   // To determine which meal slot to add to
   const [selectedMealSlot, setSelectedMealSlot] =
     useState<MealSlot>("breakfast");
@@ -121,7 +122,7 @@ export function CreateMealPlanDialog({
   );
   // When edit food button is clicked
   const handleEditFood = (fieldId: string) => {
-    setEditingRecipeId(null)
+    setEditingRecipeId(null);
     setEditingFoodId(fieldId);
     setItemDialogOpen(true);
   };
@@ -133,9 +134,15 @@ export function CreateMealPlanDialog({
   );
   // When edit recipe button is clicked
   const handleEditRecipe = (fieldId: string) => {
-    setEditingFoodId(null)
+    setEditingFoodId(null);
     setEditingRecipeId(fieldId);
     setItemDialogOpen(true);
+  };
+
+  const handleCloseItemDialog = () => {
+    setItemDialogOpen(false);
+    setEditingFoodId(null);
+    setEditingRecipeId(null);
   };
 
   const addFood = (foodItem: FoodItem) => {
@@ -143,12 +150,12 @@ export function CreateMealPlanDialog({
       ...foodItem,
       mealSlot: selectedMealSlot,
     });
-    setItemDialogOpen(false);
+    handleCloseItemDialog();
   };
 
   const addRecipe = (recipeItem: RecipeItem) => {
     recipesFieldArray.append({ ...recipeItem, mealSlot: selectedMealSlot });
-    setItemDialogOpen(false);
+    handleCloseItemDialog();
   };
 
   const editFood = (foodItem: FoodItem) => {
@@ -157,7 +164,7 @@ export function CreateMealPlanDialog({
     );
     const mealSlot = foodsFieldArray.fields[index].mealSlot;
     foodsFieldArray.update(index, { ...foodItem, mealSlot });
-    setItemDialogOpen(false);
+    handleCloseItemDialog();
   };
 
   const editRecipe = (recipeItem: RecipeItem) => {
@@ -166,7 +173,7 @@ export function CreateMealPlanDialog({
     );
     const mealSlot = recipesFieldArray.fields[index].mealSlot;
     recipesFieldArray.update(index, { ...recipeItem, mealSlot });
-    setItemDialogOpen(false);
+    handleCloseItemDialog();
   };
 
   const removeFood = (fieldId: string) => {
@@ -326,7 +333,7 @@ export function CreateMealPlanDialog({
       </form>
       <AddOrEditItemDialog
         open={itemDialogOpen}
-        onClose={() => setItemDialogOpen(false)}
+        onClose={handleCloseItemDialog}
         onAddFood={addFood}
         onAddRecipe={addRecipe}
         initialFood={editingFoodItem}
