@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Box, Typography, Button, Tabs, Tab } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Tabs,
+  Tab,
+  Card,
+  CardContent,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 import type { MealPlan } from "../../types";
@@ -15,12 +23,14 @@ import { CreatePlanDialog } from "./CreateMealPlanDialog";
 import { PlanDetailDialog } from "./MealPlanDetailDialog";
 import { PlanCard } from "./MealPlanCard";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { SearchBar } from "@/components/common/SearchBar";
 
 export function MealPlans() {
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editPlan, setEditPlan] = useState<MealPlan | null>(null);
   const [deletePlan, setDeletePlan] = useState<MealPlan | null>(null);
+  const [search, setSearch] = useState("");
   const isEditMode = !!editPlan;
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
   const tab = urlSearchParams.get("tab");
@@ -36,7 +46,17 @@ export function MealPlans() {
   const activateMealPlan = useActivateMealPlan();
   const deleteMealPlan = useDeleteMealPlan();
 
-  const sortedMealPlans = [...mealPlans].sort((a, b) => {
+  const filteredMealPlans = mealPlans.filter((p) => {
+    const query = search.toLowerCase().trim();
+
+    return (
+      query === "" ||
+      p.name.toLowerCase().includes(query) ||
+      p.description?.toLowerCase().includes(query)
+    );
+  });
+
+  const sortedMealPlans = [...filteredMealPlans].sort((a, b) => {
     if (a.isActive === b.isActive) return 0;
     return a.isActive ? -1 : 1;
   });
@@ -76,7 +96,27 @@ export function MealPlans() {
         <Tab label="My Plans" value={"me"} />
         <Tab label="Sample Plans" value={"samples"} />
       </Tabs>
+      <Card sx={{ mb: 2.5 }}>
+        <CardContent
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            py: "12px !important",
+            alignItems: "center",
+          }}
+        >
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder="Search meal plans..."
+          />
 
+          <Typography variant="caption" sx={{ ml: "auto" }}>
+            {filteredMealPlans.length} meal plans
+          </Typography>
+        </CardContent>
+      </Card>
       <Box
         sx={{
           display: "grid",
@@ -140,7 +180,9 @@ export function MealPlans() {
           if (!deletePlan) return;
 
           deleteMealPlan.mutate(deletePlan.id);
+
           setDeletePlan(null);
+          setViewPlan(null); 
         }}
       />
     </Box>
