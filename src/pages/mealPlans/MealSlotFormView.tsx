@@ -1,15 +1,18 @@
 import { MealPlanMeal, MealSlot } from "@/types";
-import { Box, Button, Chip, Typography } from "@mui/material";
+import { Box, Button, Chip, IconButton, Typography } from "@mui/material";
 import { MealPlanFormMeal } from "./CreateMealPlanDialog";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 type MealSlotProps = {
   mealSlot: MealSlot;
   meal: MealPlanFormMeal;
-  onAddItem: () => void
+  onAddItem: () => void;
+  onRemoveFoodItem: (id: string) => void
+  onRemoveRecipeItem: (id: string) => void
 };
 
-export function MealSlotFormView({ meal, mealSlot, onAddItem }: MealSlotProps) {
+export function MealSlotFormView({ meal, mealSlot, onAddItem, onRemoveFoodItem, onRemoveRecipeItem }: MealSlotProps) {
   return (
     <Box sx={{ py: 1, borderBottom: "1px solid", borderColor: "divider" }}>
       <Box
@@ -70,6 +73,16 @@ export function MealSlotFormView({ meal, mealSlot, onAddItem }: MealSlotProps) {
                   </Box>
                 }
               </Typography>
+              <IconButton
+                size="small"
+                onClick={() => onRemoveFoodItem(foodItem.id)}
+                sx={{
+                  color: "text.disabled",
+                  "&:hover": { color: "error.main" },
+                }}
+              >
+                <DeleteIcon sx={{ fontSize: 14 }} />
+              </IconButton>
             </Box>
           ))}
           {meal.recipeItems.map((recipeItem) => (
@@ -100,6 +113,16 @@ export function MealSlotFormView({ meal, mealSlot, onAddItem }: MealSlotProps) {
                   </Box>
                 }
               </Typography>
+              <IconButton
+                size="small"
+                onClick={() => onRemoveRecipeItem(recipeItem.id)}
+                sx={{
+                  color: "text.disabled",
+                  "&:hover": { color: "error.main" },
+                }}
+              >
+                <DeleteIcon sx={{ fontSize: 14 }} />
+              </IconButton>
             </Box>
           ))}
         </>

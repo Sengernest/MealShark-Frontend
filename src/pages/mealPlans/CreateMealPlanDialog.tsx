@@ -94,6 +94,16 @@ export function CreatePlanDialog({
     recipesFieldArray.append({ ...recipeItem, mealSlot });
   };
 
+  const handleRemoveFood = (mealSlot: MealSlot, fieldId: string) => {
+    const index = foodsFieldArray.fields.findIndex((f) => f.id === fieldId);
+    foodsFieldArray.remove(index);
+  }
+
+  const handleRemoveRecipe = (mealSlot: MealSlot, fieldId: string) => {
+  const index = recipesFieldArray.fields.findIndex((f) => f.id === fieldId);
+  recipesFieldArray.remove(index);
+  }
+
   const breakfastItems = {
     foodItems: foodsFieldArray.fields.filter(
       (item) => item.mealSlot === "breakfast",
@@ -188,21 +198,29 @@ export function CreatePlanDialog({
             meal={breakfastItems}
             mealSlot="breakfast"
             onAddItem={() => handleAddItem("breakfast")}
+            onRemoveFoodItem={(id) => handleRemoveFood("breakfast", id)}
+            onRemoveRecipeItem={(id) => handleRemoveRecipe("breakfast", id)}
           />
           <MealSlotFormView
             meal={lunchItems}
             mealSlot="lunch"
             onAddItem={() => handleAddItem("lunch")}
+            onRemoveFoodItem={(id) => handleRemoveFood("lunch", id)}
+            onRemoveRecipeItem={(id) => handleRemoveRecipe("lunch", id)}
           />
           <MealSlotFormView
             meal={dinnerItems}
             mealSlot="dinner"
             onAddItem={() => handleAddItem("dinner")}
+            onRemoveFoodItem={(id) => handleRemoveFood("dinner", id)}
+            onRemoveRecipeItem={(id) => handleRemoveRecipe("dinner", id)}
           />
           <MealSlotFormView
             meal={snackItems}
             mealSlot="snack"
             onAddItem={() => handleAddItem("snack")}
+            onRemoveFoodItem={(id) => handleRemoveFood("snack", id)}
+            onRemoveRecipeItem={(id) => handleRemoveRecipe("snack", id)}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
