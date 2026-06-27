@@ -1,16 +1,8 @@
 import { useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Tabs,
-  Tab,
-} from "@mui/material";
+import { Box, Typography, Button, Tabs, Tab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-import type {
-  MealPlan,
-} from "../../types";
+import type { MealPlan } from "../../types";
 import {
   useActivateMealPlan,
   useGetAllMealPlans,
@@ -20,13 +12,11 @@ import {
 import { useSearchParams } from "react-router";
 import { CreatePlanDialog } from "./CreateMealPlanDialog";
 import { PlanDetailDialog } from "./MealPlanDetailDialog";
-import { PlanCard } from "./MealPlanCard";
+import { MealPlanCard } from "./MealPlanCard";
 
 export function MealPlans() {
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-  const [editPlan, setEditPlan] = useState<MealPlan | null>(null);
-   const isEditMode = !!editPlan;
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
   const tab = urlSearchParams.get("tab");
 
@@ -85,12 +75,11 @@ export function MealPlans() {
         }}
       >
         {mealPlans.map((p) => (
-          <PlanCard
+          <MealPlanCard
             key={p.id}
             plan={p}
             isActive={p.isActive}
             onView={() => setViewPlan(p)}
-            onEdit={(p) => setEditPlan(p)}
             onSetActive={() => activateMealPlan.mutate(Number(p.id))}
           />
         ))}
@@ -107,7 +96,7 @@ export function MealPlans() {
       {viewPlan && (
         <PlanDetailDialog plan={viewPlan} onClose={() => setViewPlan(null)} />
       )}
-      {(createOpen || editPlan) && (
+      {createOpen && (
         <CreatePlanDialog open onClose={() => setCreateOpen(false)} />
       )}
     </Box>
