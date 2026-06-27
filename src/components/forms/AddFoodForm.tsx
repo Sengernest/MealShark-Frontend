@@ -10,7 +10,7 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 type AddFoodFormData = {
@@ -21,11 +21,11 @@ type AddFoodFormData = {
 
 type AddFoodFormProps = {
   onAdd: (food: FoodItem) => void;
-  initialValue?: FoodItemPost;
+  initialFood?: FoodItem;
 };
 
-export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
-  const [foodSearch, setFoodSearch] = useState("");
+export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
+  const [foodSearch, setFoodSearch] = useState(initialFood?.food.name ?? '');
   const { data: foods = [] } = useSearchFoods(foodSearch, 20);
 
   const {
@@ -33,8 +33,15 @@ export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
-  } = useForm<AddFoodFormData>();
+  } = useForm<AddFoodFormData>({
+    defaultValues: {
+      foodId: initialFood?.food.id,
+      unitId: initialFood?.unit.id,
+      amount: initialFood?.amount,
+    },
+  });
 
   const onSubmit: SubmitHandler<AddFoodFormData> = (data) => {
     const food = foods.find((food) => food.id === data.foodId)!;
@@ -61,7 +68,7 @@ export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
                 onChange={(_, value) => {
                   field.onChange(value);
                 }}
-                value={field.value}
+                value={field.value ?? null}
                 inputValue={foodSearch}
                 onInputChange={(_, value) => setFoodSearch(value)}
                 getOptionLabel={(foodId) =>

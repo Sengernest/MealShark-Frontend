@@ -304,8 +304,8 @@ export function CreateRecipeDialog({
         initialValue={
           editingIndex !== null && ingredients?.[editingIndex]
             ? {
-                foodId: ingredients[editingIndex].food.id,
-                unitId: ingredients[editingIndex].unit.id,
+                food: ingredients[editingIndex].food,
+                unit: ingredients[editingIndex].unit,
                 amount: ingredients[editingIndex].amount,
               }
             : undefined
