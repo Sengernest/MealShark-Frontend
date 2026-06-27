@@ -1,6 +1,7 @@
 import { MealPlanMeal, MealSlot } from "@/types";
-import { Box, Chip, Typography } from "@mui/material";
+import { Box, Button, Chip, Typography } from "@mui/material";
 import { MealPlanFormMeal } from "./CreateMealPlanDialog";
+import AddIcon from '@mui/icons-material/Add';
 
 type MealSlotProps = {
   mealSlot: MealSlot;
@@ -19,12 +20,18 @@ export function MealSlotFormView({ meal, mealSlot, onAddItem }: MealSlotProps) {
           mb: 0.5,
         }}
       >
-        <Typography
-          variant="overline"
-          sx={{ fontSize: 10, color: "text.disabled" }}
-        >
+        <Typography variant="overline" sx={{ color: "text.disabled" }}>
           {mealSlot}
         </Typography>
+
+        <Button
+          size="small"
+          startIcon={<AddIcon />}
+          onClick={onAddItem}
+          sx={{ color: "primary.main" }}
+        >
+          Add item
+        </Button>
       </Box>
       {meal.recipeItems.length === 0 && meal.recipeItems.length ? (
         <Typography

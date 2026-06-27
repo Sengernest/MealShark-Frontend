@@ -38,7 +38,7 @@ export function AddItemDialog({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Typography variant="h6">ADD TO MEAL ENTRY</Typography>
+        <Typography variant="h6">ADD ITEM</Typography>
       </DialogTitle>
       <DialogContent
         sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
@@ -48,7 +48,6 @@ export function AddItemDialog({
           {[
             { id: "recipe" as AddMode, label: "Recipe" },
             { id: "food" as AddMode, label: "Food" },
-            { id: "plan" as AddMode, label: "From Plan" },
           ].map(({ id, label }) => (
             <Button
               key={id}
