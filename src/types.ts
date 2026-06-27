@@ -118,7 +118,7 @@ export type Recipe = {
 
 export type RecipePost = {
   name: string;
-  ingredients: FoodItemPost[];
+  ingredients: IngredientPost[];
   category: string | null;
   description: string | null;
   instructions: string | null;
@@ -128,30 +128,20 @@ export type RecipePost = {
 };
 
 export type FoodItem = {
-  foodId: number;
   food: Food;
-  unitId: number;
   unit: Unit;
   amount: number;
-  nutrition: Nutrition;
 };
 
 export type RecipeItem = {
-  recipeId: number;
   recipe: Recipe;
   servings: number;
-  nutrition: Nutrition;
 };
 
-export type FoodItemPost = {
+export type IngredientPost = {
   foodId: number;
   unitId: number;
   amount: number;
-};
-
-export type RecipeItemPost = {
-  recipeId: number;
-  servings: number;
 };
 
 export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";

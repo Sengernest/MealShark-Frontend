@@ -1,31 +1,30 @@
 import {
+  FoodItem,
+  IngredientPost,
   MealEntry,
-  FoodEntry,
-  FoodItemPost,
-  RecipeItemPost,
   MealSlot,
+  RecipeItem,
 } from "@/types";
 import {
+  Box,
+  Button,
   Card,
   CardContent,
-  Typography,
-  IconButton,
   Chip,
-  Box,
-  Tooltip,
-  Button,
+  IconButton,
+  Typography,
 } from "@mui/material";
 
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import { useState } from "react";
-import { AddItemDialog } from "./AddItemDialog";
 import {
   useAddFoodEntry,
   useAddRecipeEntry,
   useRemoveRecipeEntry,
 } from "@/hooks/mealLogs";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useState } from "react";
 import { useRemoveFoodEntry } from "../../hooks/mealLogs";
+import { AddItemDialog } from "./AddItemDialog";
 
 export function MealEntryCard({
   mealEntry,
@@ -48,12 +47,23 @@ export function MealEntryCard({
   const removeFoodEntry = useRemoveFoodEntry();
   const removeRecipeEntry = useRemoveRecipeEntry();
 
-  const handleAddFoodEntry = async (foodItem: FoodItemPost) => {
-    await addFoodEntry.mutateAsync({ ...foodItem, logDate, mealSlot });
+  const handleAddFoodEntry = async (foodItem: FoodItem) => {
+    await addFoodEntry.mutateAsync({
+      foodId: foodItem.food.id,
+      unitId: foodItem.unit.id,
+      amount: foodItem.amount,
+      logDate,
+      mealSlot,
+    });
     handleClose();
   };
-  const handleAddRecipeEntry = async (recipeItem: RecipeItemPost) => {
-    await addRecipeEntry.mutateAsync({ ...recipeItem, logDate, mealSlot });
+  const handleAddRecipeEntry = async (recipeItem: RecipeItem) => {
+    await addRecipeEntry.mutateAsync({
+      recipeId: recipeItem.recipe.id,
+      servings: recipeItem.servings,
+      logDate,
+      mealSlot,
+    });
     handleClose();
   };
 

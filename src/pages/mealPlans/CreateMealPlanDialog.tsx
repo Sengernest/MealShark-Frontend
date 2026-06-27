@@ -1,5 +1,14 @@
 import { useCreateMealPlan } from "@/hooks/mealPlans";
-import { Food, MealPlanPost, MealSlot, Recipe, Unit } from "@/types";
+import {
+  Food,
+  FoodItem,
+  IngredientPost,
+  MealPlanPost,
+  MealSlot,
+  Recipe,
+  RecipeItem,
+  Unit,
+} from "@/types";
 import {
   Box,
   Button,
@@ -13,6 +22,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import { AddItemDialog } from "../mealLogs/AddItemDialog";
 
 type MealPlanFormFood = {
   food: Food;
@@ -52,6 +62,12 @@ export function CreatePlanDialog({
 
   const foodsFieldArray = useFieldArray({ control, name: "foodItems" });
   const recipesFieldArray = useFieldArray({ control, name: "recipeItems" });
+
+  const handleAddFood = (foodItem: FoodItem) => {};
+
+  const handleAddRecipe = (recipeItem: RecipeItem) => {};
+
+  const [addItemOpen, setAddItemOpen] = useState(false);
 
   const onSubmit: SubmitHandler<MealPlanForm> = async (data) => {
     const payload: MealPlanPost = {
@@ -124,6 +140,12 @@ export function CreatePlanDialog({
           </Button>
         </DialogActions>
       </form>
+      <AddItemDialog
+        open={addItemOpen}
+        onClose={() => setAddItemOpen(false)}
+        onAddFood={handleAddFood}
+        onAddRecipe={handleAddRecipe}
+      />
     </Dialog>
   );
 }

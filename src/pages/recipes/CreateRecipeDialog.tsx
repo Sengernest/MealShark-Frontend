@@ -1,8 +1,11 @@
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useSearchFoods } from "@/hooks/foods";
 import { useCreateRecipe, useUpdateRecipe } from "@/hooks/recipes";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import {
   Alert,
-  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -11,7 +14,6 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  FormHelperText,
   IconButton,
   InputLabel,
   List,
@@ -25,23 +27,16 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import {
-  Control,
   Controller,
-  FieldErrors,
   SubmitHandler,
   useFieldArray,
   useForm,
-  UseFormRegister,
   useWatch,
 } from "react-hook-form";
-import type { Food, FoodItemPost, Recipe, RecipePost, Unit } from "../../types";
-import { RECIPE_CATEGORIES } from "./Recipes";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { NutritionRow } from "./NutritionRow";
+import type { IngredientPost, Recipe, RecipePost } from "../../types";
 import { AddIngredientDialog } from "./AddIngredientsDialog";
-import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { NutritionRow } from "./NutritionRow";
+import { RECIPE_CATEGORIES } from "./Recipes";
 
 type CreateRecipeFormData = {
   name: string;
@@ -343,7 +338,7 @@ export function CreateRecipeDialog({
               }
             : undefined
         }
-        onAdd={(food: FoodItemPost) => {
+        onAdd={(food: IngredientPost) => {
           if (editingIndex !== null) {
             ingredientsFieldArray.update(editingIndex, {
               foodId: food.foodId,

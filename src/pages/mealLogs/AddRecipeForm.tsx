@@ -1,5 +1,5 @@
 import { useGetAllRecipes } from "@/hooks/recipes";
-import { RecipeItemPost } from "@/types";
+import { RecipeItem } from "@/types";
 import {
   Autocomplete,
   Box,
@@ -11,7 +11,7 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 type AddRecipeFormProps = {
-  onAdd: (recipe: RecipeItemPost) => void;
+  onAdd: (recipe: RecipeItem) => void;
 };
 
 export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
@@ -23,9 +23,9 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<RecipeItemPost>();
+  } = useForm<RecipeItem>();
 
-  const onSubmit: SubmitHandler<RecipeItemPost> = (data) => {
+  const onSubmit: SubmitHandler<RecipeItem> = (data) => {
     onAdd(data);
   };
 
@@ -35,7 +35,7 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
         <FormControl size="small" fullWidth>
           <Controller
             control={control}
-            name={"recipeId"}
+            name={"recipe.id"}
             rules={{ required: "Required" }}
             render={({ field }) => (
               <Autocomplete
@@ -52,8 +52,8 @@ export function AddRecipeForm({ onAdd }: AddRecipeFormProps) {
                     {...params}
                     label={"Recipe"}
                     size="small"
-                    error={!!errors.recipeId}
-                    helperText={errors.recipeId?.message}
+                    error={!!errors.recipe?.id}
+                    helperText={errors.recipe?.id?.message}
                   />
                 )}
               />

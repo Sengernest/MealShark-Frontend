@@ -1,4 +1,4 @@
-import { FoodItemPost, RecipeItemPost } from "@/types";
+import { FoodItem, RecipeItem } from "@/types";
 import {
   Box,
   Button,
@@ -11,22 +11,20 @@ import {
 
 import { useState } from "react";
 import { AddFoodForm } from "../../components/common/AddFoodForm";
-import { AddPlanForm } from "./AddPlanForm";
 import { AddRecipeForm } from "./AddRecipeForm";
 
 type AddItemDialogProps = {
   open: boolean;
   onClose: () => void;
-  onAddFood: (item: FoodItemPost) => void;
-  onAddRecipe: (item: RecipeItemPost) => void;
+  onAddFood: (item: FoodItem) => void;
+  onAddRecipe: (item: RecipeItem) => void;
 };
 
-type AddMode = "recipe" | "food" | "plan";
+type AddMode = "recipe" | "food";
 
 const MODE_TO_FORM_ID: Record<AddMode, string> = {
   recipe: "recipe-form",
   food: "food-form",
-  plan: "plan-form",
 };
 
 export function AddItemDialog({
@@ -69,9 +67,7 @@ export function AddItemDialog({
           ))}
         </Box>
 
-        {mode === "plan" ? (
-          <AddPlanForm />
-        ) : mode === "recipe" ? (
+        {mode === "recipe" ? (
           <AddRecipeForm onAdd={onAddRecipe} />
         ) : (
           <AddFoodForm onAdd={onAddFood} />
