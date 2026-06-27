@@ -20,8 +20,8 @@ type AddOrEditItemDialogProps = {
   onAddRecipe: (item: RecipeItem) => void;
   initialFood?: FoodItem;
   initialRecipe?: RecipeItem;
-  onEditFood: (item: FoodItem) => void;
-  onEditRecipe: (item: RecipeItem) => void;
+  onEditFood?: (item: FoodItem) => void;
+  onEditRecipe?: (item: RecipeItem) => void;
 };
 
 type AddMode = "recipe" | "food";
@@ -77,12 +77,12 @@ export function AddOrEditItemDialog({
         {mode === "food" ? (
           <AddFoodForm
             initialFood={initialFood}
-            onAdd={initialFood ? onEditFood : onAddFood}
+            onAdd={onEditFood ? onEditFood : onAddFood}
           />
         ) : (
           <AddRecipeForm
             initialRecipe={initialRecipe}
-            onAdd={initialRecipe ? onEditRecipe : onAddRecipe}
+            onAdd={onEditRecipe ? onEditRecipe : onAddRecipe}
           />
         )}
       </DialogContent>
