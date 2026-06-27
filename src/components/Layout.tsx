@@ -59,8 +59,8 @@ export function Layout() {
   
   if (isLoadingUser) {
     return <LoadingScreen />; 
-  }
-
+  } 
+  
   if (!user) {
     return <Navigate to={"/auth"} replace />;
   }

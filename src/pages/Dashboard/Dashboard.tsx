@@ -27,8 +27,8 @@ const TODAY = new Date();
 export function Dashboard() {
   const { data: user } = useCurrentUser();
   const { data: goals } = useGetMyNutritionGoals();
-  //const { data: mealPlans = [] } = useGetMyMealPlans();
-  //const activePlan = mealPlans.find((p) => p.isActive);
+  const { data: mealPlans = [] } = useGetMyMealPlans();
+  const activePlan = mealPlans.find((p) => p.isActive);
   const [selectedDate, setSelectedDate] = useState(TODAY);
 
   const selectedDateString = selectedDate.toISOString().slice(0, 10);
@@ -123,13 +123,13 @@ export function Dashboard() {
           color="#3df2a8"
         />
 
-        {/* <StatCard
+         <StatCard
           icon={<CalendarMonthIcon />}
           label="Active Meal Plan"
           value={activePlan ? `${activePlan.nutrition.calories}` : "None"}
           sub={activePlan ? `kcal in ${activePlan.name}` : "No active plan"}
           color="#3db5f2"
-        /> */}
+        /> 
       </Box>
 
       <Grid container spacing={2.5}>
@@ -275,6 +275,7 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
+        
 
         {/* Active meal plan preview */}
         {/*

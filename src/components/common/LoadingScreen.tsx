@@ -10,7 +10,7 @@ export function LoadingScreen() {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: 50,
+        gap: 30,
       }}
     >
       <img src="/mealshark-logo.svg" width={250} style={{ filter: 'invert(100%)' }}/>
