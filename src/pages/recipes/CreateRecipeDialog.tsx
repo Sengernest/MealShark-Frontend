@@ -63,7 +63,7 @@ export function CreateRecipeDialog({
   const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
-  const { data: foods = [] } = useSearchFoods("");
+
   const {
     register,
     handleSubmit,
@@ -71,22 +71,13 @@ export function CreateRecipeDialog({
     control,
     watch,
     reset,
-  } = useForm<CreateRecipeFormData>();
+  } = useForm<CreateRecipeFormData>({
+    defaultValues: {
+      ingredients: recipe?.ingredients,
+    },
+  });
 
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
-
-  useEffect(() => {
-    if (!recipe) return;
-
-    reset({
-      ...recipe,
-      ingredients: recipe.ingredients.map((i) => ({
-        foodId: i.food.id,
-        unitId: i.unit.id,
-        amount: i.amount,
-      })),
-    });
-  }, [recipe, reset]);
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
     const payload: RecipePost = {
@@ -302,12 +293,8 @@ export function CreateRecipeDialog({
         title={editingIndex !== null ? "EDIT INGREDIENT" : "ADD INGREDIENT"}
         button={editingIndex !== null ? "Edit" : "Add"}
         initialValue={
-          editingIndex !== null && ingredients?.[editingIndex]
-            ? {
-                food: ingredients[editingIndex].food,
-                unit: ingredients[editingIndex].unit,
-                amount: ingredients[editingIndex].amount,
-              }
+          editingIndex !== null && ingredients[editingIndex]
+            ? ingredients[editingIndex]
             : undefined
         }
         onAdd={(foodItem: FoodItem) => {

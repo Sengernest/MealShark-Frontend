@@ -25,7 +25,7 @@ type AddFoodFormProps = {
 };
 
 export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
-  const [foodSearch, setFoodSearch] = useState(initialFood?.food.name ?? '');
+  const [foodSearch, setFoodSearch] = useState(initialFood?.food.name ?? "");
   const { data: foods = [] } = useSearchFoods(foodSearch, 20);
 
   const {
@@ -33,7 +33,6 @@ export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
     handleSubmit,
     control,
     watch,
-    setValue,
     formState: { errors },
   } = useForm<AddFoodFormData>({
     defaultValues: {
@@ -70,7 +69,9 @@ export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
                 }}
                 value={field.value ?? null}
                 inputValue={foodSearch}
-                onInputChange={(_, value) => setFoodSearch(value)}
+                onInputChange={(_, value, reason) => {
+                  if (reason === "input") setFoodSearch(value);
+                }}
                 getOptionLabel={(foodId) =>
                   foods.find((food) => food.id === foodId)?.name ?? ""
                 }
