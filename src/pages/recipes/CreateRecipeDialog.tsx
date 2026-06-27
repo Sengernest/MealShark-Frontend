@@ -33,7 +33,7 @@ import {
   useForm,
   useWatch,
 } from "react-hook-form";
-import type { IngredientPost, Recipe, RecipePost } from "../../types";
+import type { FoodItem, FoodItemPost, Recipe, RecipePost } from "../../types";
 import { AddIngredientDialog } from "./AddIngredientsDialog";
 import { NutritionRow } from "./NutritionRow";
 import { RECIPE_CATEGORIES } from "./Recipes";
@@ -46,13 +46,7 @@ type CreateRecipeFormData = {
   prepTime: number | null;
   cookTime: number | null;
   servings: number;
-  ingredients: Ingredient[];
-};
-
-type Ingredient = {
-  foodId: number | null;
-  unitId: number | null;
-  amount: number | null;
+  ingredients: FoodItem[];
 };
 
 export function CreateRecipeDialog({
@@ -85,13 +79,7 @@ export function CreateRecipeDialog({
     if (!recipe) return;
 
     reset({
-      name: recipe.name,
-      description: recipe.description,
-      category: recipe.category,
-      instructions: recipe.instructions,
-      prepTime: recipe.prepTime,
-      cookTime: recipe.cookTime,
-      servings: recipe.servings,
+      ...recipe,
       ingredients: recipe.ingredients.map((i) => ({
         foodId: i.food.id,
         unitId: i.unit.id,
@@ -104,9 +92,9 @@ export function CreateRecipeDialog({
     const payload: RecipePost = {
       ...formData,
       ingredients: formData.ingredients.map((ingredient) => ({
-        foodId: ingredient.foodId!,
-        amount: ingredient.amount!,
-        unitId: ingredient.unitId!,
+        foodId: ingredient.food.id,
+        amount: ingredient.amount,
+        unitId: ingredient.unit.id,
       })),
     };
     if (recipe) {
@@ -229,8 +217,7 @@ export function CreateRecipeDialog({
             </Box>
             <List dense disablePadding>
               {ingredientsFieldArray.fields.map((field, index) => {
-                const ingredient = ingredients?.[index];
-
+                const ingredient = field;
                 return (
                   <ListItem
                     key={field.id}
@@ -264,23 +251,8 @@ export function CreateRecipeDialog({
                     }
                   >
                     <ListItemText
-                      primary={
-                        ingredient?.foodId
-                          ? (foods?.find((f) => f.id === ingredient.foodId)
-                              ?.name ?? "Unknown food")
-                          : "No food selected"
-                      }
-                      secondary={
-                        ingredient?.unitId
-                          ? `${ingredient.amount} ${
-                              foods
-                                ?.find((f) => f.id === ingredient.foodId)
-                                ?.units.find(
-                                  (u) => u.unitId === ingredient.unitId,
-                                )?.unit.name ?? ""
-                            }`
-                          : ""
-                      }
+                      primary={ingredient.food.name}
+                      secondary={`${ingredient.amount} ${ingredient.unit.name}`}
                       primaryTypographyProps={{
                         variant: "body2",
                         color: "text.primary",
@@ -332,26 +304,18 @@ export function CreateRecipeDialog({
         initialValue={
           editingIndex !== null && ingredients?.[editingIndex]
             ? {
-                foodId: ingredients[editingIndex].foodId!,
-                unitId: ingredients[editingIndex].unitId!,
-                amount: ingredients[editingIndex].amount!,
+                foodId: ingredients[editingIndex].food.id,
+                unitId: ingredients[editingIndex].unit.id,
+                amount: ingredients[editingIndex].amount,
               }
             : undefined
         }
-        onAdd={(food: IngredientPost) => {
+        onAdd={(foodItem: FoodItem) => {
           if (editingIndex !== null) {
-            ingredientsFieldArray.update(editingIndex, {
-              foodId: food.foodId,
-              amount: food.amount,
-              unitId: food.unitId,
-            });
+            ingredientsFieldArray.update(editingIndex, foodItem);
             setEditingIndex(null);
           } else {
-            ingredientsFieldArray.append({
-              foodId: food.foodId,
-              amount: food.amount,
-              unitId: food.unitId,
-            });
+            ingredientsFieldArray.append(foodItem);
           }
 
           setIngredientDialogOpen(false);

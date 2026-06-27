@@ -2,7 +2,7 @@ import { useCreateMealPlan } from "@/hooks/mealPlans";
 import {
   Food,
   FoodItem,
-  IngredientPost,
+  FoodItemPost,
   MealPlanPost,
   MealSlot,
   Recipe,
@@ -88,7 +88,7 @@ export function CreatePlanDialog({
       ...foodItem,
       mealSlot,
     });
-    setAddItemOpen(false)
+    setAddItemOpen(false);
   };
 
   const handleAddRecipe = (mealSlot: MealSlot, recipeItem: RecipeItem) => {

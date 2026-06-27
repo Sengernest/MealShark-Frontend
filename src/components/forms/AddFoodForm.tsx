@@ -1,5 +1,5 @@
 import { useSearchFoods } from "@/hooks/foods";
-import { FoodItem } from "@/types";
+import { FoodItem, FoodItemPost } from "@/types";
 import {
   Autocomplete,
   Box,
@@ -21,7 +21,7 @@ type AddFoodFormData = {
 
 type AddFoodFormProps = {
   onAdd: (food: FoodItem) => void;
-  initialValue?: FoodItem;
+  initialValue?: FoodItemPost;
 };
 
 export function AddFoodForm({ onAdd, initialValue }: AddFoodFormProps) {
