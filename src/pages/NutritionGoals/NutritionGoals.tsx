@@ -257,6 +257,7 @@ export function Goals() {
         confirmText="Delete"
         confirmColor="error"
       />
+      
       <Grid container spacing={3}>
         {/* Form */}
         <Grid size={{ xs: 12, md: 7 }}>

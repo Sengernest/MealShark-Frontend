@@ -13,6 +13,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import type { MealPlan } from "../../types";
 import EditIcon from "@mui/icons-material/Edit";
 
+
 export function PlanCard({
   plan,
   isActive,

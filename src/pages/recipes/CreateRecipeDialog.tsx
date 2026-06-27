@@ -316,7 +316,7 @@ export function CreateRecipeDialog({
             Cancel
           </Button>
           <Button type="submit" variant="contained" disabled={isSubmitting}>
-            {recipe ? "Edit Recipe" : "Create Recipe"}
+            {recipe ? "Save Changes" : "Create Recipe"}
           </Button>
         </DialogActions>
       </form>

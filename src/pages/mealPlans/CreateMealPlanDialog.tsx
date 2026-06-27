@@ -1,8 +1,9 @@
-import { useCreateMealPlan } from "@/hooks/mealPlans";
+import { useCreateMealPlan, useUpdateMealPlan } from "@/hooks/mealPlans";
 import {
   Food,
   FoodItem,
   IngredientPost,
+  MealPlan,
   MealPlanPost,
   MealSlot,
   Recipe,
@@ -59,11 +60,16 @@ type MealPlanForm = {
 export function CreatePlanDialog({
   open,
   onClose,
+  plan,
+  isEditMode,
 }: {
   open: boolean;
   onClose: () => void;
+  plan?: MealPlan;
+  isEditMode: boolean;
 }) {
   const createMealPlan = useCreateMealPlan();
+  const editMealPlan = useUpdateMealPlan();
   const [addItemOpen, setAddItemOpen] = useState(false);
   const [selectedMealSlot, setSelectedMealSlot] =
     useState<MealSlot>("breakfast");
@@ -78,7 +84,44 @@ export function CreatePlanDialog({
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<MealPlanForm>();
+  } = useForm<MealPlanForm>({
+    defaultValues: plan
+      ? {
+          name: plan.name,
+          description: plan.description,
+          targetCalories: plan.targetCalories,
+
+          foodItems: [
+            ...plan.breakfast.foodItems,
+            ...plan.lunch.foodItems,
+            ...plan.dinner.foodItems,
+            ...plan.snack.foodItems,
+          ].map((item) => ({
+            food: item.food,
+            unit: item.unit,
+            amount: item.amount,
+            mealSlot: item.mealSlot,
+          })),
+
+          recipeItems: [
+            ...plan.breakfast.recipeItems,
+            ...plan.lunch.recipeItems,
+            ...plan.dinner.recipeItems,
+            ...plan.snack.recipeItems,
+          ].map((item) => ({
+            recipe: item.recipe,
+            servings: item.servings,
+            mealSlot: item.mealSlot,
+          })),
+        }
+      : {
+          name: "",
+          description: "",
+          targetCalories: 0,
+          foodItems: [],
+          recipeItems: [],
+        },
+  });
 
   const foodsFieldArray = useFieldArray({ control, name: "foodItems" });
   const recipesFieldArray = useFieldArray({ control, name: "recipeItems" });
@@ -88,7 +131,7 @@ export function CreatePlanDialog({
       ...foodItem,
       mealSlot,
     });
-    setAddItemOpen(false)
+    setAddItemOpen(false);
   };
 
   const handleAddRecipe = (mealSlot: MealSlot, recipeItem: RecipeItem) => {
@@ -155,16 +198,22 @@ export function CreatePlanDialog({
       })),
     };
 
-    createMealPlan.mutate(payload, {
-      onSuccess: () => onClose(),
-    });
+    if (isEditMode && plan) {
+      editMealPlan.mutate({ mealPlanId: plan.id, data: payload });
+    } else {
+      createMealPlan.mutate(payload);
+    }
+    onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>
-          <Typography variant="h5">CREATE MEAL PLAN</Typography>
+          <Typography variant="h5">
+            {" "}
+            {isEditMode ? "EDIT MEAL PLAN" : "CREATE MEAL PLAN"}
+          </Typography>
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
@@ -174,7 +223,7 @@ export function CreatePlanDialog({
               {...register("name", { required: "Required" })}
               label="Plan Name"
               fullWidth
-              sx={{ gridColumn: "1/-1" }}
+              sx={{ gridColumn: "1/-1", mt: 1 }}
               error={!!errors.name}
               helperText={errors.name?.message}
             />
@@ -190,6 +239,7 @@ export function CreatePlanDialog({
               type="number"
               error={!!errors.targetCalories}
               helperText={errors.targetCalories?.message}
+              sx={{ width: "200px" }}
             />
           </Box>
 
@@ -230,7 +280,7 @@ export function CreatePlanDialog({
             Cancel
           </Button>
           <Button type="submit" variant="contained">
-            Create Plan
+            {isEditMode ? "  Save Changes" : "Create Plan"}
           </Button>
         </DialogActions>
       </form>
