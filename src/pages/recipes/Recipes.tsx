@@ -27,6 +27,7 @@ import type { Recipe } from "../../types";
 import { CreateRecipeDialog } from "./CreateRecipeDialog";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeDetailDialog } from "./RecipeDetailDialog";
+import { SearchBar } from "@/components/common/SearchBar";
 
 export const RECIPE_CATEGORIES = [
   "All",
@@ -122,18 +123,10 @@ export function Recipes() {
             alignItems: "center",
           }}
         >
-          <TextField
-            placeholder="Search recipes..."
+          <SearchBar
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            sx={{ width: 260 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: "text.disabled", fontSize: 18 }} />
-                </InputAdornment>
-              ),
-            }}
+            onChange={setSearch}
+            placeholder="Search recipes..."
           />
           <FormControl sx={{ minWidth: 160 }} size="small">
             <InputLabel>Category</InputLabel>

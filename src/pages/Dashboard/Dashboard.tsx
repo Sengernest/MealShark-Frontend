@@ -21,6 +21,8 @@ import { StatCard } from "./StatCard";
 import { useGetMealLog } from "@/hooks/mealLogs";
 import { useState } from "react";
 import { MacroBar } from "./MacroBar";
+import { ActivitySquare } from "lucide-react";
+import { MealSlotView } from "../mealPlans/MealSlotView";
 
 const TODAY = new Date();
 
@@ -123,13 +125,13 @@ export function Dashboard() {
           color="#3df2a8"
         />
 
-         <StatCard
+        <StatCard
           icon={<CalendarMonthIcon />}
           label="Active Meal Plan"
           value={activePlan ? `${activePlan.nutrition.calories}` : "None"}
           sub={activePlan ? `kcal in ${activePlan.name}` : "No active plan"}
           color="#3db5f2"
-        /> 
+        />
       </Box>
 
       <Grid container spacing={2.5}>
@@ -275,10 +277,8 @@ export function Dashboard() {
             </CardContent>
           </Card>
         </Grid>
-        
 
         {/* Active meal plan preview */}
-        {/*
         <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height: "100%" }}>
             <CardContent>
@@ -291,160 +291,61 @@ export function Dashboard() {
                 }}
               >
                 <Typography variant="h6">ACTIVE MEAL PLAN</Typography>
-                <Link to={"/meal-plans"}>
+
+                <Link to="/meal-plans">
                   <Button size="small" endIcon={<ArrowForwardIcon />}>
                     View All
                   </Button>
                 </Link>
               </Box>
+
               {activePlan ? (
                 <>
                   <Typography variant="h5" sx={{ mb: 0.5 }}>
                     {activePlan.name}
                   </Typography>
+
                   <Typography
                     variant="body2"
                     sx={{ color: "text.secondary", mb: 2, fontSize: 13 }}
                   >
                     {activePlan.description}
                   </Typography>
+
                   <Box
-                    sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}
+                    sx={{
+                      display: "flex",
+                      gap: 1,
+                      mb: 2,
+                      flexWrap: "wrap",
+                    }}
                   >
                     <Chip
-                      label={`${activePlan.nutrition.calories} kcal `}
+                      label={`${activePlan.nutrition.calories} kcal`}
                       size="small"
                       color="primary"
                       variant="outlined"
                     />
+
                     <Chip
-                      label={`${activePlan.targetCalories} kcal target `}
+                      label={`${activePlan.targetCalories} kcal target`}
                       size="small"
                       variant="outlined"
                     />
                   </Box>
+
                   <Divider sx={{ mb: 2 }} />
 
-                  Today's plan slots 
-                   {(() => {
-                    const dayNames = [
-                      "Sun",
-                      "Mon",
-                      "Tue",
-                      "Wed",
-                      "Thu",
-                      "Fri",
-                      "Sat",
-                    ];
-                    const todayDay =
-                      dayNames[new Date(TODAY + "T12:00:00").getDay()];
-                    const todayPlan = activePlan.days.find(
-                      (d) => d.day === todayDay,
-                    );
-                    return todayPlan ? (
-                      <Box>
-                        <Typography
-                          variant="overline"
-                          sx={{
-                            fontSize: 11,
-                            color: "text.secondary",
-                            display: "block",
-                            mb: 1,
-                          }}
-                        >
-                          TODAY — {todayDay.toUpperCase()}
-                        </Typography>
-                        {todayPlan.slots.map((slot) => {
-                          const slotCal = Math.round(
-                            slot.items.reduce((s, item) => {
-                              if (item.type === "recipe" && item.recipe)
-                                return s + item.recipe.calories * item.amount;
-                              if (item.type === "food" && item.food)
-                                return (
-                                  s +
-                                  (item.food.caloriesPer100g * item.amount) /
-                                    100
-                                );
-                              return s;
-                            }, 0),
-                          );
-                          return (
-                            <Box
-                              key={slot.id}
-                              sx={{
-                                py: 1,
-                                borderBottom: "1px solid",
-                                borderColor: "divider",
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Typography
-                                  variant="overline"
-                                  sx={{ fontSize: 11, color: "text.disabled" }}
-                                >
-                                  {slot.label}
-                                </Typography>
-                                {slotCal > 0 && (
-                                  <Typography
-                                    variant="body2"
-                                    sx={{
-                                      color: "primary.main",
-                                      fontWeight: 700,
-                                      fontSize: 13,
-                                    }}
-                                  >
-                                    {slotCal} kcal
-                                  </Typography>
-                                )}
-                              </Box>
-                              {slot.items.length === 0 ? (
-                                <Typography
-                                  variant="body2"
-                                  sx={{ color: "text.disabled", fontSize: 12 }}
-                                >
-                                  Empty
-                                </Typography>
-                              ) : (
-                                slot.items.map((item) => (
-                                  <Typography
-                                    key={item.id}
-                                    variant="body2"
-                                    sx={{ color: "text.primary", fontSize: 13 }}
-                                  >
-                                    {item.type === "recipe"
-                                      ? item.recipe?.name
-                                      : item.food?.name}
-                                    {item.amount !== 1 && (
-                                      <Box
-                                        component="span"
-                                        sx={{ color: "text.disabled" }}
-                                      >
-                                        {" "}
-                                        ×{item.amount}
-                                      </Box>
-                                    )}
-                                  </Typography>
-                                ))
-                              )}
-                            </Box>
-                          );
-                        })}
-                      </Box>
-                    ) : (
-                      <Typography
-                        variant="body2"
-                        sx={{ color: "text.disabled" }}
-                      >
-                        No meals planned for today.
-                      </Typography>
-                    );
-                  })()} 
+                  <MealSlotView
+                    mealSlot="breakfast"
+                    meal={activePlan.breakfast}
+                  />
+
+                  <MealSlotView mealSlot="lunch" meal={activePlan.lunch} />
+
+                  <MealSlotView mealSlot="dinner" meal={activePlan.dinner} />
+
+                  <MealSlotView mealSlot="snack" meal={activePlan.snack} />
                 </>
               ) : (
                 <Box sx={{ textAlign: "center", py: 4 }}>
@@ -454,14 +355,15 @@ export function Dashboard() {
                   >
                     No active meal plan.
                   </Typography>
-                  <Link to={"/meal-plans"}>
+
+                  <Link to="/meal-plans">
                     <Button variant="outlined">Browse Plans</Button>
                   </Link>
                 </Box>
               )}
             </CardContent>
           </Card>
-        </Grid> */}
+        </Grid>
 
         {/* Quick links */}
         <Grid size={12}>

@@ -1,10 +1,19 @@
 import { useState } from "react";
-import { Box, Typography, Button, Tabs, Tab } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Tabs,
+  Tab,
+  Card,
+  CardContent,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 import type { MealPlan } from "../../types";
 import {
   useActivateMealPlan,
+  useDeleteMealPlan,
   useGetAllMealPlans,
   useGetMyMealPlans,
   useGetSampleMealPlans,
@@ -13,10 +22,16 @@ import { useSearchParams } from "react-router";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
 import { PlanDetailDialog } from "./MealPlanDetailDialog";
 import { MealPlanCard } from "./MealPlanCard";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { SearchBar } from "@/components/common/SearchBar";
 
 export function MealPlans() {
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
+  
+  const [deletePlan, setDeletePlan] = useState<MealPlan | null>(null);
+  const [search, setSearch] = useState("");
+  
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
   const tab = urlSearchParams.get("tab");
 
@@ -29,7 +44,22 @@ export function MealPlans() {
         : useGetAllMealPlans();
 
   const activateMealPlan = useActivateMealPlan();
+  const deleteMealPlan = useDeleteMealPlan();
 
+  const filteredMealPlans = mealPlans.filter((p) => {
+    const query = search.toLowerCase().trim();
+
+    return (
+      query === "" ||
+      p.name.toLowerCase().includes(query) ||
+      p.description?.toLowerCase().includes(query)
+    );
+  });
+
+  const sortedMealPlans = [...filteredMealPlans].sort((a, b) => {
+    if (a.isActive === b.isActive) return 0;
+    return a.isActive ? -1 : 1;
+  });
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
       <Box
@@ -66,7 +96,27 @@ export function MealPlans() {
         <Tab label="My Plans" value={"me"} />
         <Tab label="Sample Plans" value={"samples"} />
       </Tabs>
+      <Card sx={{ mb: 2.5 }}>
+        <CardContent
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            py: "12px !important",
+            alignItems: "center",
+          }}
+        >
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder="Search meal plans..."
+          />
 
+          <Typography variant="caption" sx={{ ml: "auto" }}>
+            {filteredMealPlans.length} meal plans
+          </Typography>
+        </CardContent>
+      </Card>
       <Box
         sx={{
           display: "grid",
@@ -74,7 +124,7 @@ export function MealPlans() {
           gap: 2,
         }}
       >
-        {mealPlans.map((p) => (
+        {sortedMealPlans.map((p) => (
           <MealPlanCard
             key={p.id}
             plan={p}
@@ -84,7 +134,7 @@ export function MealPlans() {
           />
         ))}
 
-        {mealPlans.length === 0 && (
+        {sortedMealPlans.length === 0 && (
           <Box sx={{ gridColumn: "1/-1", textAlign: "center", py: 8 }}>
             <Typography variant="body1" sx={{ color: "text.disabled" }}>
               No meal plans found.
@@ -94,11 +144,38 @@ export function MealPlans() {
       </Box>
 
       {viewPlan && (
-        <PlanDetailDialog plan={viewPlan} onClose={() => setViewPlan(null)} />
+        <PlanDetailDialog
+          plan={viewPlan}
+          onClose={() => setViewPlan(null)}
+          onEdit={(plan) => {
+            setViewPlan(null);
+            // TODO: Move this thing into MealPlanCard where it should be
+          }}
+          onDelete={(plan) => {
+            setDeletePlan(plan);
+          }}
+        />
       )}
       {createOpen && (
         <CreateMealPlanDialog open onClose={() => setCreateOpen(false)} />
       )}
+
+      <ConfirmDialog
+        open={!!deletePlan}
+        title="Confirm Delete Meal Plan"
+        description={`Are you sure you want to delete ${deletePlan?.name}?`}
+        confirmText="Delete"
+        confirmColor="error"
+        onClose={() => setDeletePlan(null)}
+        onConfirm={() => {
+          if (!deletePlan) return;
+
+          deleteMealPlan.mutate(deletePlan.id);
+
+          setDeletePlan(null);
+          setViewPlan(null); 
+        }}
+      />
     </Box>
   );
 }

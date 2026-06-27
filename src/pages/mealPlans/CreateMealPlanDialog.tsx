@@ -65,6 +65,7 @@ export function CreateMealPlanDialog({
   open: boolean;
   onClose: () => void;
   initialPlan?: MealPlan;
+  isEditMode?: boolean;
 }) {
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
 
@@ -263,7 +264,7 @@ export function CreateMealPlanDialog({
               {...register("name", { required: "Required" })}
               label="Plan Name"
               fullWidth
-              sx={{ gridColumn: "1/-1" }}
+              sx={{ gridColumn: "1/-1", mt: 1 }}
               error={!!errors.name}
               helperText={errors.name?.message}
             />
@@ -279,6 +280,7 @@ export function CreateMealPlanDialog({
               type="number"
               error={!!errors.targetCalories}
               helperText={errors.targetCalories?.message}
+              sx={{ width: "200px" }}
             />
           </Box>
 
@@ -327,7 +329,7 @@ export function CreateMealPlanDialog({
             Cancel
           </Button>
           <Button type="submit" variant="contained">
-            Create Plan
+            {initialPlan ? "Save Changes" : "Create Plan"}
           </Button>
         </DialogActions>
       </form>

@@ -6,49 +6,85 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import type { MealPlan } from "../../types";
-import { MealSlot } from '../../types';
+import { MealSlot } from "../../types";
 import { MealSlotView } from "./MealSlotView";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export function PlanDetailDialog({
   plan,
   onClose,
+  onEdit,
+  onDelete,
 }: {
   plan: MealPlan;
   onClose: () => void;
+  onEdit: (plan: MealPlan) => void;
+  onDelete: (plan: MealPlan) => void;
 }) {
   return (
     <Dialog open onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "flex-start",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box>
-            <Chip
-              label={plan.creatorId ? "My Plan" : "Sample"}
-              size="small"
-              variant="outlined"
-              sx={{ mb: 1 }}
-            />
-            <Typography variant="h4">{plan.name}</Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "text.secondary", mt: 0.5 }}
-            >
-              {plan.description}
-            </Typography>
+        <Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Chip
+                label={plan.creatorId ? "My Plan" : "Sample"}
+                size="small"
+                variant="outlined"
+              />
+
+              <Chip
+                label={`${plan.targetCalories} kcal target`}
+                size="small"
+                color="primary"
+                variant="outlined"
+              />
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 0.5 }}>
+              <Tooltip title="Edit">
+                <IconButton
+                  color="primary"
+                  onClick={() => {
+                    onClose();
+                    onEdit(plan);
+                  }}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Delete">
+                <IconButton
+                  color="error"
+                  onClick={() => {
+                    onDelete(plan);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
-          <Chip
-            label={`${plan.targetCalories} kcal target`}
-            color="primary"
-            variant="outlined"
-          />
+
+          <Typography variant="h4">{plan.name}</Typography>
+
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
+            {plan.description}
+          </Typography>
         </Box>
       </DialogTitle>
 
@@ -80,21 +116,9 @@ export function PlanDetailDialog({
             mealSlot="breakfast"
             meal={plan.breakfast}
           />
-          <MealSlotView
-            key={"lunch"}
-            mealSlot="lunch"
-            meal={plan.lunch}
-          />
-          <MealSlotView
-            key={"dinner"}
-            mealSlot="dinner"
-            meal={plan.dinner}
-          />
-          <MealSlotView
-            key={"snack"}
-            mealSlot="snack"
-            meal={plan.snack}
-          />
+          <MealSlotView key={"lunch"} mealSlot="lunch" meal={plan.lunch} />
+          <MealSlotView key={"dinner"} mealSlot="dinner" meal={plan.dinner} />
+          <MealSlotView key={"snack"} mealSlot="snack" meal={plan.snack} />
         </Box>
       </DialogContent>
 
