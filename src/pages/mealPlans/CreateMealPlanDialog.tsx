@@ -28,7 +28,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { AddItemDialog } from "../mealLogs/AddItemDialog";
+import { AddOrEditItemDialog } from "../mealLogs/AddItemDialog";
 import { MealSlotFormView } from "./MealSlotFormView";
 
 type MealPlanFormFood = {
@@ -51,13 +51,13 @@ export type MealPlanFormMeal = {
 
 type MealPlanForm = {
   name: string;
-  description: string | null;
+  description: string;
   targetCalories: number;
   foodItems: MealPlanFormFood[];
   recipeItems: MealPlanFormRecipe[];
 };
 
-export function CreatePlanDialog({
+export function CreateMealPlanDialog({
   open,
   onClose,
   initialPlan,
@@ -66,16 +66,12 @@ export function CreatePlanDialog({
   onClose: () => void;
   initialPlan?: MealPlan;
 }) {
-  const [addItemOpen, setAddItemOpen] = useState(false);
+  const [itemDialogOpen, setItemDialogOpen] = useState(false);
+  // To determine which meal slot to add to
   const [selectedMealSlot, setSelectedMealSlot] =
     useState<MealSlot>("breakfast");
   const createMealPlan = useCreateMealPlan();
   const updateMealPlan = useUpdateMealPlan();
-
-  const handleAddItem = (mealSlot: MealSlot) => {
-    setSelectedMealSlot(mealSlot);
-    setAddItemOpen(true);
-  };
 
   // Pre-population for edit mode
   const initialFoodItems = !initialPlan
@@ -103,7 +99,7 @@ export function CreatePlanDialog({
   } = useForm<MealPlanForm>({
     defaultValues: {
       name: initialPlan?.name,
-      description: initialPlan?.description,
+      description: initialPlan?.description ?? "",
       targetCalories: initialPlan?.targetCalories,
       foodItems: initialFoodItems,
       recipeItems: initialRecipeItems,
@@ -113,25 +109,70 @@ export function CreatePlanDialog({
   const foodsFieldArray = useFieldArray({ control, name: "foodItems" });
   const recipesFieldArray = useFieldArray({ control, name: "recipeItems" });
 
-  const handleAddFood = (mealSlot: MealSlot, foodItem: FoodItem) => {
+  const handleAddItem = (mealSlot: MealSlot) => {
+    setSelectedMealSlot(mealSlot);
+    setItemDialogOpen(true);
+  };
+
+  // The current food item being edited
+  const [editingFoodId, setEditingFoodId] = useState<string | null>(null);
+  const editingFoodItem = foodsFieldArray.fields.find(
+    (f) => f.id === editingFoodId,
+  );
+  // When edit food button is clicked
+  const handleEditFood = (fieldId: string) => {
+    setEditingFoodId(fieldId);
+    setItemDialogOpen(true);
+  };
+
+  // The current recipe item being edited
+  const [editingRecipeId, setEditingRecipeId] = useState<string | null>(null);
+  const editingRecipeItem = recipesFieldArray.fields.find(
+    (f) => f.id === editingFoodId,
+  );
+  // When edit recipe button is clicked
+  const handleEditRecipe = (fieldId: string) => {
+    setEditingRecipeId(fieldId);
+    setItemDialogOpen(true);
+  };
+
+  const addFood = (foodItem: FoodItem) => {
     foodsFieldArray.append({
       ...foodItem,
-      mealSlot,
+      mealSlot: selectedMealSlot,
     });
-    setAddItemOpen(false);
+    setItemDialogOpen(false);
   };
 
-  const handleAddRecipe = (mealSlot: MealSlot, recipeItem: RecipeItem) => {
-    recipesFieldArray.append({ ...recipeItem, mealSlot });
-    setAddItemOpen(false);
+  const addRecipe = (recipeItem: RecipeItem) => {
+    recipesFieldArray.append({ ...recipeItem, mealSlot: selectedMealSlot });
+    setItemDialogOpen(false);
   };
 
-  const handleRemoveFood = (fieldId: string) => {
+  const editFood = (foodItem: FoodItem) => {
+    const index = foodsFieldArray.fields.findIndex(
+      (f) => f.id === editingFoodId,
+    );
+    const mealSlot = foodsFieldArray.fields[index].mealSlot;
+    foodsFieldArray.update(index, { ...foodItem, mealSlot });
+    setItemDialogOpen(false);
+  };
+
+  const editRecipe = (recipeItem: RecipeItem) => {
+    const index = recipesFieldArray.fields.findIndex(
+      (f) => f.id === editingRecipeId,
+    );
+    const mealSlot = recipesFieldArray.fields[index].mealSlot;
+    recipesFieldArray.update(index, { ...recipeItem, mealSlot });
+    setItemDialogOpen(false);
+  };
+
+  const removeFood = (fieldId: string) => {
     const index = foodsFieldArray.fields.findIndex((f) => f.id === fieldId);
     foodsFieldArray.remove(index);
   };
 
-  const handleRemoveRecipe = (fieldId: string) => {
+  const removeRecipe = (fieldId: string) => {
     const index = recipesFieldArray.fields.findIndex((f) => f.id === fieldId);
     recipesFieldArray.remove(index);
   };
@@ -201,7 +242,9 @@ export function CreatePlanDialog({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>
-          <Typography variant="h5">CREATE MEAL PLAN</Typography>
+          <Typography variant="h5">
+            {initialPlan ? "EDIT" : "CREATE"} MEAL PLAN
+          </Typography>
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
@@ -237,29 +280,37 @@ export function CreatePlanDialog({
             meal={breakfastItems}
             mealSlot="breakfast"
             onAddItem={() => handleAddItem("breakfast")}
-            onRemoveFoodItem={handleRemoveFood}
-            onRemoveRecipeItem={handleRemoveRecipe}
+            onRemoveFoodItem={removeFood}
+            onRemoveRecipeItem={removeRecipe}
+            onEditFoodItem={handleEditFood}
+            onEditRecipeItem={handleEditRecipe}
           />
           <MealSlotFormView
             meal={lunchItems}
             mealSlot="lunch"
             onAddItem={() => handleAddItem("lunch")}
-            onRemoveFoodItem={handleRemoveFood}
-            onRemoveRecipeItem={handleRemoveRecipe}
+            onRemoveFoodItem={removeFood}
+            onRemoveRecipeItem={removeRecipe}
+            onEditFoodItem={handleEditFood}
+            onEditRecipeItem={handleEditRecipe}
           />
           <MealSlotFormView
             meal={dinnerItems}
             mealSlot="dinner"
             onAddItem={() => handleAddItem("dinner")}
-            onRemoveFoodItem={handleRemoveFood}
-            onRemoveRecipeItem={handleRemoveRecipe}
+            onRemoveFoodItem={removeFood}
+            onRemoveRecipeItem={removeRecipe}
+            onEditFoodItem={handleEditFood}
+            onEditRecipeItem={handleEditRecipe}
           />
           <MealSlotFormView
             meal={snackItems}
             mealSlot="snack"
             onAddItem={() => handleAddItem("snack")}
-            onRemoveFoodItem={handleRemoveFood}
-            onRemoveRecipeItem={handleRemoveRecipe}
+            onRemoveFoodItem={removeFood}
+            onEditFoodItem={handleEditFood}
+            onEditRecipeItem={handleEditRecipe}
+            onRemoveRecipeItem={removeRecipe}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
@@ -271,13 +322,15 @@ export function CreatePlanDialog({
           </Button>
         </DialogActions>
       </form>
-      <AddItemDialog
-        open={addItemOpen}
-        onClose={() => setAddItemOpen(false)}
-        onAddFood={(foodItem) => handleAddFood(selectedMealSlot, foodItem)}
-        onAddRecipe={(recipeItem) =>
-          handleAddRecipe(selectedMealSlot, recipeItem)
-        }
+      <AddOrEditItemDialog
+        open={itemDialogOpen}
+        onClose={() => setItemDialogOpen(false)}
+        onAddFood={addFood}
+        onAddRecipe={addRecipe}
+        initialFood={editingFoodItem}
+        initialRecipe={editingRecipeItem}
+        onEditFood={editFood}
+        onEditRecipe={editRecipe}
       />
     </Dialog>
   );

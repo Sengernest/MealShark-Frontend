@@ -13,11 +13,15 @@ import { useState } from "react";
 import { AddFoodForm } from "../../components/forms/AddFoodForm";
 import { AddRecipeForm } from "../../components/forms/AddRecipeForm";
 
-type AddItemDialogProps = {
+type AddOrEditItemDialogProps = {
   open: boolean;
   onClose: () => void;
   onAddFood: (item: FoodItem) => void;
   onAddRecipe: (item: RecipeItem) => void;
+  initialFood?: FoodItem;
+  initialRecipe?: RecipeItem;
+  onEditFood: (item: FoodItem) => void;
+  onEditRecipe: (item: RecipeItem) => void;
 };
 
 type AddMode = "recipe" | "food";
@@ -27,13 +31,17 @@ const MODE_TO_FORM_ID: Record<AddMode, string> = {
   food: "food-form",
 };
 
-export function AddItemDialog({
+export function AddOrEditItemDialog({
   open,
   onClose,
   onAddFood,
   onAddRecipe,
-}: AddItemDialogProps) {
-  const [mode, setMode] = useState<AddMode>("recipe");
+  initialFood,
+  initialRecipe,
+  onEditFood,
+  onEditRecipe,
+}: AddOrEditItemDialogProps) {
+  const [mode, setMode] = useState<AddMode>(initialFood ? "food" : "recipe");
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -66,10 +74,13 @@ export function AddItemDialog({
           ))}
         </Box>
 
-        {mode === "recipe" ? (
-          <AddRecipeForm onAdd={onAddRecipe} />
+        {mode === "food" ? (
+          <AddFoodForm
+            initialFood={initialFood}
+            onAdd={initialFood ? onEditFood : onAddFood}
+          />
         ) : (
-          <AddFoodForm onAdd={onAddFood} />
+          <AddRecipeForm onAdd={onAddRecipe} />
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2.5 }}>

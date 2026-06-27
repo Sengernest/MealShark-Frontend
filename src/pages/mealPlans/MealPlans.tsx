@@ -10,7 +10,7 @@ import {
   useGetSampleMealPlans,
 } from "@/hooks/mealPlans";
 import { useSearchParams } from "react-router";
-import { CreatePlanDialog } from "./CreateMealPlanDialog";
+import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
 import { PlanDetailDialog } from "./MealPlanDetailDialog";
 import { MealPlanCard } from "./MealPlanCard";
 
@@ -97,7 +97,7 @@ export function MealPlans() {
         <PlanDetailDialog plan={viewPlan} onClose={() => setViewPlan(null)} />
       )}
       {createOpen && (
-        <CreatePlanDialog open onClose={() => setCreateOpen(false)} />
+        <CreateMealPlanDialog open onClose={() => setCreateOpen(false)} />
       )}
     </Box>
   );

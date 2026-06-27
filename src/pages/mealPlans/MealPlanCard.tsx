@@ -13,7 +13,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import type { MealPlan } from "../../types";
 import EditIcon from "@mui/icons-material/Edit";
 import { useState } from "react";
-import { CreatePlanDialog } from "./CreateMealPlanDialog";
+import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
 
 export function MealPlanCard({
   plan,
@@ -28,7 +28,7 @@ export function MealPlanCard({
 }) {
   const totalCalories = plan.nutrition.calories;
 
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   return (
     <Card
@@ -163,7 +163,11 @@ export function MealPlanCard({
         )}
       </CardActions>
       {editDialogOpen && (
-        <CreatePlanDialog open onClose={() => setEditDialogOpen(false)} initialPlan={plan}/>
+        <CreateMealPlanDialog
+          open
+          onClose={() => setEditDialogOpen(false)}
+          initialPlan={plan}
+        />
       )}
     </Card>
   );

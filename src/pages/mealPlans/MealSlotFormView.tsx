@@ -1,20 +1,40 @@
 import { MealPlanMeal, MealSlot } from "@/types";
-import { Box, Button, Chip, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import { MealPlanFormMeal } from "./CreateMealPlanDialog";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 type MealSlotProps = {
   mealSlot: MealSlot;
   meal: MealPlanFormMeal;
   onAddItem: () => void;
-  onRemoveFoodItem: (id: string) => void
-  onRemoveRecipeItem: (id: string) => void
+  onRemoveFoodItem: (id: string) => void;
+  onRemoveRecipeItem: (id: string) => void;
+  onEditFoodItem: (id: string) => void;
+  onEditRecipeItem: (id: string) => void;
 };
 
-export function MealSlotFormView({ meal, mealSlot, onAddItem, onRemoveFoodItem, onRemoveRecipeItem }: MealSlotProps) {
+export function MealSlotFormView({
+  meal,
+  mealSlot,
+  onAddItem,
+  onRemoveFoodItem,
+  onRemoveRecipeItem,
+  onEditFoodItem,
+  onEditRecipeItem,
+}: MealSlotProps) {
   return (
-    <Box sx={{ py: 1, borderBottom: "1px solid", borderColor: "divider" }}>
+    <Box sx={{}}>
       <Box
         sx={{
           display: "flex",
@@ -45,86 +65,90 @@ export function MealSlotFormView({ meal, mealSlot, onAddItem, onRemoveFoodItem, 
         </Typography>
       ) : (
         <>
-          {meal.foodItems.map((foodItem) => (
-            <Box
-              key={foodItem.id}
-              sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.25 }}
-            >
-              <Chip
-                label={"Food"}
-                size="small"
-                variant="outlined"
+          <List dense disablePadding>
+            {meal.foodItems.map((foodItem) => (
+              <ListItem
+                key={foodItem.id}
+                disablePadding
                 sx={{
-                  height: 16,
-                  fontSize: 9,
-                  color: "#3db5f2",
-                  borderColor: "#3db5f2",
+                  py: 0.75,
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
                 }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, color: "text.primary" }}
-              >
-                {foodItem.food.name}
-                {
-                  <Box component="span" sx={{ color: "text.disabled" }}>
-                    {" "}
-                    × {foodItem.amount} {foodItem.unit.name}
+                secondaryAction={
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <IconButton
+                      edge="end"
+                      color="primary"
+                      onClick={() => onEditFoodItem(foodItem.id)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+
+                    <IconButton
+                      edge="end"
+                      color="error"
+                      onClick={() => onRemoveFoodItem(foodItem.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </Box>
                 }
-              </Typography>
-              <IconButton
-                size="small"
-                onClick={() => onRemoveFoodItem(foodItem.id)}
-                sx={{
-                  color: "text.disabled",
-                  "&:hover": { color: "error.main" },
-                }}
               >
-                <DeleteIcon sx={{ fontSize: 14 }} />
-              </IconButton>
-            </Box>
-          ))}
-          {meal.recipeItems.map((recipeItem) => (
-            <Box
-              key={recipeItem.id}
-              sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.25 }}
-            >
-              <Chip
-                label={"Recipe"}
-                size="small"
-                variant="outlined"
+                <ListItemText
+                  primary={foodItem.food.name}
+                  secondary={`${foodItem.amount} ${foodItem.unit.name}`}
+                  primaryTypographyProps={{
+                    variant: "body2",
+                    color: "text.primary",
+                  }}
+                  secondaryTypographyProps={{ variant: "caption" }}
+                />
+              </ListItem>
+            ))}
+          </List>
+          <List dense disablePadding>
+            {meal.recipeItems.map((recipeItem) => (
+              <ListItem
+                key={recipeItem.id}
+                disablePadding
                 sx={{
-                  height: 16,
-                  fontSize: 9,
-                  color: "primary.main",
-                  borderColor: "primary.main",
+                  py: 0.75,
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
                 }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ fontSize: 13, color: "text.primary" }}
-              >
-                {recipeItem.recipe.name}
-                {
-                  <Box component="span" sx={{ color: "text.disabled" }}>
-                    {" "}
-                    ×{recipeItem.servings}
+                secondaryAction={
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <IconButton
+                      edge="end"
+                      color="primary"
+                      onClick={() => onEditRecipeItem(recipeItem.id)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+
+                    <IconButton
+                      edge="end"
+                      color="error"
+                      onClick={() => onRemoveRecipeItem(recipeItem.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
                   </Box>
                 }
-              </Typography>
-              <IconButton
-                size="small"
-                onClick={() => onRemoveRecipeItem(recipeItem.id)}
-                sx={{
-                  color: "text.disabled",
-                  "&:hover": { color: "error.main" },
-                }}
               >
-                <DeleteIcon sx={{ fontSize: 14 }} />
-              </IconButton>
-            </Box>
-          ))}
+                <ListItemText
+                  primary={recipeItem.recipe.name}
+                  secondary={`${recipeItem.servings} serving(s)`}
+                  primaryTypographyProps={{
+                    variant: "body2",
+                    color: "text.primary",
+                  }}
+                  secondaryTypographyProps={{ variant: "caption" }}
+                />
+              </ListItem>
+            ))}
+          </List>
         </>
       )}
     </Box>
