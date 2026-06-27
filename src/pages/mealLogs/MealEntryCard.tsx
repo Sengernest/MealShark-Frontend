@@ -1,6 +1,6 @@
 import {
   FoodItem,
-  IngredientPost,
+  FoodItemPost,
   MealEntry,
   MealSlot,
   RecipeItem,

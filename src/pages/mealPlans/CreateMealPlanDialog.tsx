@@ -2,7 +2,7 @@ import { useCreateMealPlan, useUpdateMealPlan } from "@/hooks/mealPlans";
 import {
   Food,
   FoodItem,
-  IngredientPost,
+  FoodItemPost,
   MealPlan,
   MealPlanPost,
   MealSlot,

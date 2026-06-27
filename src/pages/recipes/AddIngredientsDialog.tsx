@@ -1,4 +1,4 @@
-import { IngredientPost } from "@/types";
+import { FoodItem } from "@/types";
 import {
   Button,
   Dialog,
@@ -12,10 +12,10 @@ import { AddFoodForm } from "../../components/forms/AddFoodForm";
 type AddIngredientDialogProps = {
   open: boolean;
   onClose: () => void;
-  onAdd: (item: IngredientPost) => void;
+  onAdd: (item: FoodItem) => void;
   title?: string;
   button?: string;
-  initialValue?: IngredientPost;
+  initialValue?: FoodItem;
 };
 
 export function AddIngredientDialog({
@@ -35,7 +35,7 @@ export function AddIngredientDialog({
       <DialogContent
         sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
       >
-        <AddFoodForm initialValue={initialValue} onAdd={onAdd} />
+        <AddFoodForm initialFood={initialValue} onAdd={onAdd} />
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
