@@ -21,8 +21,14 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  FieldArrayWithId,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import { AddItemDialog } from "../mealLogs/AddItemDialog";
+import { MealSlotFormView } from "./MealSlotFormView";
 
 type MealPlanFormFood = {
   food: Food;
@@ -35,6 +41,11 @@ type MealPlanFormRecipe = {
   recipe: Recipe;
   servings: number;
   mealSlot: MealSlot;
+};
+
+export type MealPlanFormMeal = {
+  foodItems: FieldArrayWithId<MealPlanForm, "foodItems", "id">[];
+  recipeItems: FieldArrayWithId<MealPlanForm, "recipeItems", "id">[];
 };
 
 type MealPlanForm = {
@@ -53,6 +64,15 @@ export function CreatePlanDialog({
   onClose: () => void;
 }) {
   const createMealPlan = useCreateMealPlan();
+  const [addItemOpen, setAddItemOpen] = useState(false);
+  const [selectedMealSlot, setSelectedMealSlot] =
+    useState<MealSlot>("breakfast");
+
+  const handleAddItem = (mealSlot: MealSlot) => {
+    setSelectedMealSlot(mealSlot);
+    setAddItemOpen(true);
+  };
+
   const {
     register,
     handleSubmit,
@@ -63,11 +83,49 @@ export function CreatePlanDialog({
   const foodsFieldArray = useFieldArray({ control, name: "foodItems" });
   const recipesFieldArray = useFieldArray({ control, name: "recipeItems" });
 
-  const handleAddFood = (foodItem: FoodItem) => {};
+  const handleAddFood = (mealSlot: MealSlot, foodItem: FoodItem) => {
+    foodsFieldArray.append({
+      ...foodItem,
+      mealSlot,
+    });
+  };
 
-  const handleAddRecipe = (recipeItem: RecipeItem) => {};
+  const handleAddRecipe = (mealSlot: MealSlot, recipeItem: RecipeItem) => {
+    recipesFieldArray.append({ ...recipeItem, mealSlot });
+  };
 
-  const [addItemOpen, setAddItemOpen] = useState(false);
+  const breakfastItems = {
+    foodItems: foodsFieldArray.fields.filter(
+      (item) => item.mealSlot === "breakfast",
+    ),
+    recipeItems: recipesFieldArray.fields.filter(
+      (item) => item.mealSlot === "breakfast",
+    ),
+  };
+  const lunchItems = {
+    foodItems: foodsFieldArray.fields.filter(
+      (item) => item.mealSlot === "lunch",
+    ),
+    recipeItems: recipesFieldArray.fields.filter(
+      (item) => item.mealSlot === "lunch",
+    ),
+  };
+  const dinnerItems = {
+    foodItems: foodsFieldArray.fields.filter(
+      (item) => item.mealSlot === "dinner",
+    ),
+    recipeItems: recipesFieldArray.fields.filter(
+      (item) => item.mealSlot === "dinner",
+    ),
+  };
+  const snackItems = {
+    foodItems: foodsFieldArray.fields.filter(
+      (item) => item.mealSlot === "snack",
+    ),
+    recipeItems: recipesFieldArray.fields.filter(
+      (item) => item.mealSlot === "snack",
+    ),
+  };
 
   const onSubmit: SubmitHandler<MealPlanForm> = async (data) => {
     const payload: MealPlanPost = {
@@ -126,10 +184,26 @@ export function CreatePlanDialog({
           <Divider />
           <Typography variant="h6">PLAN MEALS</Typography>
 
-          {/* <MealSlotView mealSlot="breakfast" />
-        <MealSlotView mealSlot="lunch" />
-        <MealSlotView mealSlot="dinner" />
-        <MealSlotView mealSlot="snack" /> */}
+          <MealSlotFormView
+            meal={breakfastItems}
+            mealSlot="breakfast"
+            onAddItem={() => handleAddItem("breakfast")}
+          />
+          <MealSlotFormView
+            meal={lunchItems}
+            mealSlot="lunch"
+            onAddItem={() => handleAddItem("lunch")}
+          />
+          <MealSlotFormView
+            meal={dinnerItems}
+            mealSlot="dinner"
+            onAddItem={() => handleAddItem("dinner")}
+          />
+          <MealSlotFormView
+            meal={snackItems}
+            mealSlot="snack"
+            onAddItem={() => handleAddItem("snack")}
+          />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button onClick={onClose} sx={{ color: "text.secondary" }}>
@@ -143,8 +217,10 @@ export function CreatePlanDialog({
       <AddItemDialog
         open={addItemOpen}
         onClose={() => setAddItemOpen(false)}
-        onAddFood={handleAddFood}
-        onAddRecipe={handleAddRecipe}
+        onAddFood={(foodItem) => handleAddFood(selectedMealSlot, foodItem)}
+        onAddRecipe={(recipeItem) =>
+          handleAddRecipe(selectedMealSlot, recipeItem)
+        }
       />
     </Dialog>
   );
