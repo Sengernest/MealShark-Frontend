@@ -1,14 +1,14 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Layout } from "./components/Layout";
-import { Auth } from "./pages/Auth/Auth";
-import { Dashboard } from "./pages/Dashboard/Dashboard";
+import { Auth } from "./pages/auth/Auth";
+import { Dashboard } from "./pages/dashboard/Dashboard";
 import { Foods } from "./pages/Foods";
-import { Goals } from "./pages/NutritionGoals/NutritionGoals";
+import { Goals } from "./pages/nutritionGoals/NutritionGoals";
 import { MealLog } from "./pages/mealLogs/MealLog";
 import { MealPlans } from "./pages/mealPlans/MealPlans";
 import { Recipes } from "./pages/recipes/Recipes";
-import { Profile } from "./pages/Profile/Profile";
+import { Profile } from "./pages/profile/Profile";
 import { muiTheme } from "./theme/muiTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 

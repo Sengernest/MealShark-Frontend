@@ -37,6 +37,7 @@ export function MealEntryCard({
 }) {
   const calories = mealEntry.nutrition.calories;
   const [addItemOpen, setAddItemOpen] = useState(false);
+  const [importealOpen, setImportMealOpen] = useState(false);
 
   const handleClose = () => {
     setAddItemOpen(false);
@@ -237,15 +238,25 @@ export function MealEntryCard({
             })}
           </>
         )}
+        <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
+          <Button 
+            size="small"
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setAddItemOpen(true)}
+          >
+            Add item
+          </Button>
 
-        <Button
-          size="small"
-          startIcon={<AddIcon />}
-          onClick={() => setAddItemOpen(true)}
-          sx={{ mt: 1.5, color: "primary.main" }}
-        >
-          Add item
-        </Button>
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setImportMealOpen(true)}
+          >
+            Import meal
+          </Button>
+        </Box>
 
         {addItemOpen && (
           <AddItemDialog

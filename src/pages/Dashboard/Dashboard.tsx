@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import HistoryIcon from "@mui/icons-material/History";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { Link } from "react-router";
@@ -21,7 +20,6 @@ import { StatCard } from "./StatCard";
 import { useGetMealLog } from "@/hooks/mealLogs";
 import { useState } from "react";
 import { MacroBar } from "./MacroBar";
-import { ActivitySquare } from "lucide-react";
 import { MealSlotView } from "../mealPlans/MealSlotView";
 
 const TODAY = new Date();
