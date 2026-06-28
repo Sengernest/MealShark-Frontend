@@ -17,15 +17,10 @@ type AddRecipeFormData = {
 
 type AddRecipeFormProps = {
   onAdd: (recipe: RecipeItem) => void;
-  onEdit: (recipe: RecipeItem) => void;
   initialRecipe?: RecipeItem;
 };
 
-export function AddRecipeForm({
-  onAdd,
-  onEdit,
-  initialRecipe,
-}: AddRecipeFormProps) {
+export function AddRecipeForm({ onAdd, initialRecipe }: AddRecipeFormProps) {
   const [recipeSearch, setRecipeSearch] = useState("");
   const { data: recipes = [] } = useGetAllRecipes();
 
@@ -43,11 +38,7 @@ export function AddRecipeForm({
 
   const onSubmit: SubmitHandler<AddRecipeFormData> = (data) => {
     const recipe = recipes.find((recipe) => recipe.id === data.recipeId)!;
-    if (initialRecipe) {
-      onEdit({ recipe, servings: data.servings });
-    } else {
-      onAdd({ recipe, servings: data.servings });
-    }
+    onAdd({ recipe, servings: data.servings });
   };
 
   return (
