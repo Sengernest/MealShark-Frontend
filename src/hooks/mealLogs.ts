@@ -1,6 +1,7 @@
 import { mealLogApi } from "@/api/mealLogs";
 import {
   FoodEntryPost,
+  ImportAllFromMealPlanPost,
   ImportFromMealPlanPost
 } from "@/types";
 import {
@@ -66,6 +67,20 @@ export const useImportFromMealPlan = () => {
   return useMutation({
     mutationFn: (data: ImportFromMealPlanPost) =>
       mealLogApi.importFromMealPlan(data),
+
+    onSuccess: (_, variables) =>
+      queryClient.invalidateQueries({
+        queryKey: ["meal-logs", variables.logDate],
+      }),
+  });
+};
+
+export const useImportAllFromMealPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ImportAllFromMealPlanPost) =>
+      mealLogApi.importAllFromMealPlan(data),
 
     onSuccess: (_, variables) =>
       queryClient.invalidateQueries({

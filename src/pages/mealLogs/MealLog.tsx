@@ -1,7 +1,8 @@
-import { useGetMealLog } from "@/hooks/mealLogs";
+import { useGetMealLog, useImportAllFromMealPlan } from "@/hooks/mealLogs";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import AddIcon from "@mui/icons-material/Add";
 import {
   Alert,
   Box,
@@ -21,6 +22,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import { MealEntryCard } from "./MealEntryCard";
 import { ActiveMealPlanCard } from "@/components/common/ActiveMealPlanCard";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 function addDays(date: Date, n: number): Date {
   const d = new Date(date);
@@ -81,6 +83,9 @@ function MacroBar({
 export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [confirmImportAllOpen, setConfirmImportAllOpen] = useState(false);
+
+  const importAllMeals = useImportAllFromMealPlan();
 
   const isToday = selectedDate.toDateString() === new Date().toDateString();
 
@@ -93,6 +98,24 @@ export function MealLog() {
     ? Math.min(100, (totalCalories / goals.calories) * 100)
     : 0;
   const remaining = goals ? Math.max(0, goals.calories - totalCalories) : null;
+
+  const handleImportAllMeals = () => {
+    importAllMeals.mutate(
+      { logDate: selectedDateString },
+      {
+        onSuccess: () => {
+          setConfirmImportAllOpen(false);
+        },
+        onError: (err: any) => {
+          setError(
+            err?.response?.data?.error ??
+              "Failed to import meals from meal plan.",
+          );
+          setConfirmImportAllOpen(false);
+        },
+      },
+    );
+  };
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1000 }}>
@@ -349,10 +372,28 @@ export function MealLog() {
           </Card>
           <Box sx={{ mt: 3 }}>
             {/* Active Meal Plan summary */}
-            <ActiveMealPlanCard showViewAll/>
+            <ActiveMealPlanCard showViewAll />
+
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 1.5 }}
+              startIcon={<AddIcon />}
+              onClick={() => setConfirmImportAllOpen(true)}
+            >
+              Import Meals
+            </Button>
           </Box>
         </Box>
       </Box>
+      <ConfirmDialog
+        open={confirmImportAllOpen}
+        title="Confirm Import Meals"
+        description="Are you sure you want to remove all current meal log entries and import every meal from your active meal plan?"
+        confirmText="Import"
+        onClose={() => setConfirmImportAllOpen(false)}
+        onConfirm={handleImportAllMeals}
+      />
     </Box>
   );
 }
