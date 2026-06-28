@@ -92,7 +92,7 @@ export function Profile() {
                 {user.name.charAt(0).toUpperCase()}
               </Avatar>
 
-              <Tooltip title="Change photo (coming soon)">
+             {/* <Tooltip title="Change photo (coming soon)">
                 <IconButton
                   size="small"
                   sx={{
@@ -109,7 +109,7 @@ export function Profile() {
                 >
                   <CameraAltIcon sx={{ fontSize: 14 }} />
                 </IconButton>
-              </Tooltip>
+              </Tooltip> */}
             </Box>
 
             <Box sx={{ flex: 1, minWidth: 0 }}>

@@ -381,15 +381,15 @@ export function MealLog() {
               startIcon={<AddIcon />}
               onClick={() => setConfirmImportAllOpen(true)}
             >
-              Import Meals
+              Import All Meals
             </Button>
           </Box>
         </Box>
       </Box>
       <ConfirmDialog
         open={confirmImportAllOpen}
-        title="Confirm Import Meals"
-        description="Are you sure you want to remove all current meal log entries and import every meal from your active meal plan?"
+        title="Confirm Import All Meals"
+        description="Are you sure you want to remove all current meals and import every meal from your active meal plan?"
         confirmText="Import"
         onClose={() => setConfirmImportAllOpen(false)}
         onConfirm={handleImportAllMeals}

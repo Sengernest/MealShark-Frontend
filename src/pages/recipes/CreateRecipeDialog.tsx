@@ -71,41 +71,51 @@ export function CreateRecipeDialog({
     control,
     watch,
     reset,
+    setError,
+    clearErrors,
   } = useForm<CreateRecipeFormData>({
     defaultValues: {
       ingredients: recipe?.ingredients,
     },
   });
 
-
   useEffect(() => {
-  if (recipe) {
-    reset({
-      name: recipe.name,
-      description: recipe.description,
-      category: recipe.category,
-      instructions: recipe.instructions,
-      prepTime: recipe.prepTime,
-      cookTime: recipe.cookTime,
-      servings: recipe.servings,
-      ingredients: recipe.ingredients,
-    });
-  } else {
-    reset({
-      name: "",
-      description: "",
-      category: "",
-      instructions: "",
-      prepTime: null,
-      cookTime: null,
-      servings: undefined,
-      ingredients: [],
-    });
-  }
-}, [recipe, reset]);
+    if (recipe) {
+      reset({
+        name: recipe.name,
+        description: recipe.description,
+        category: recipe.category,
+        instructions: recipe.instructions,
+        prepTime: recipe.prepTime,
+        cookTime: recipe.cookTime,
+        servings: recipe.servings,
+        ingredients: recipe.ingredients,
+      });
+    } else {
+      reset({
+        name: "",
+        description: "",
+        category: "",
+        instructions: "",
+        prepTime: null,
+        cookTime: null,
+        servings: undefined,
+        ingredients: [],
+      });
+    }
+  }, [recipe, reset]);
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
+    if (formData.ingredients.length === 0) {
+      setError("ingredients", {
+        type: "manual",
+        message: "A recipe must contain at least one ingredient. Please try again.",
+      });
+      return;
+    }
+
+    clearErrors("ingredients");
     const payload: RecipePost = {
       ...formData,
       ingredients: formData.ingredients.map((ingredient) => ({
@@ -215,6 +225,7 @@ export function CreateRecipeDialog({
           </Box>
           <Divider />
           <Box alignItems="center">
+            
             <Box
               sx={{
                 display: "flex",
@@ -330,7 +341,7 @@ export function CreateRecipeDialog({
           } else {
             ingredientsFieldArray.append(foodItem);
           }
-
+          clearErrors("ingredients");
           setIngredientDialogOpen(false);
         }}
       />
