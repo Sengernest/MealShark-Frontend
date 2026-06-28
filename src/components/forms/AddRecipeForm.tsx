@@ -17,11 +17,15 @@ type AddRecipeFormData = {
 
 type AddRecipeFormProps = {
   onAdd: (recipe: RecipeItem) => void;
-  onEdit: (recipe: RecipeItem) => void
+  onEdit: (recipe: RecipeItem) => void;
   initialRecipe?: RecipeItem;
 };
 
-export function AddRecipeForm({ onAdd, onEdit, initialRecipe }: AddRecipeFormProps) {
+export function AddRecipeForm({
+  onAdd,
+  onEdit,
+  initialRecipe,
+}: AddRecipeFormProps) {
   const [recipeSearch, setRecipeSearch] = useState("");
   const { data: recipes = [] } = useGetAllRecipes();
 
@@ -56,12 +60,15 @@ export function AddRecipeForm({ onAdd, onEdit, initialRecipe }: AddRecipeFormPro
             rules={{ required: "Required" }}
             render={({ field }) => (
               <Autocomplete
-                options={recipes.map((recipe) => recipe.id)}
-                value={field.value}
-                getOptionLabel={(value) =>
-                  recipes.find((recipe) => recipe.id === value)?.name ?? ""
+                options={recipes}
+                value={
+                  recipes.find((r) => r.id === field.value) ??
+                  initialRecipe?.recipe ??
+                  null
                 }
-                onChange={(_, value) => field.onChange(value)}
+                getOptionLabel={(recipe) => recipe.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                onChange={(_, value) => field.onChange(value?.id)}
                 inputValue={recipeSearch}
                 onInputChange={(_, value) => setRecipeSearch(value)}
                 renderInput={(params) => (
