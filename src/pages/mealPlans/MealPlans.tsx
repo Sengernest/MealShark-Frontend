@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -56,6 +56,18 @@ export function MealPlans() {
     if (a.isActive === b.isActive) return 0;
     return a.isActive ? -1 : 1;
   });
+
+  useEffect(() => {
+    if (!viewPlan) return;
+
+    const updatedPlan = mealPlans.find((p) => p.id === viewPlan.id);
+
+    if (updatedPlan) {
+      setViewPlan(updatedPlan);
+    }
+  }, [mealPlans, viewPlan]);
+
+  
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
       <Box

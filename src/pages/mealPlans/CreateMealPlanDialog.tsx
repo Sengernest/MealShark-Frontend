@@ -11,6 +11,7 @@ import {
   Unit,
 } from "@/types";
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -21,7 +22,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FieldArrayWithId,
   SubmitHandler,
@@ -79,6 +80,7 @@ export function CreateMealPlanDialog({
     | { type: "recipe"; fieldId: string }
     | null
   >(null);
+  const [error, setError] = useState("");
   const createMealPlan = useCreateMealPlan();
   const updateMealPlan = useUpdateMealPlan();
 
@@ -104,6 +106,7 @@ export function CreateMealPlanDialog({
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<MealPlanForm>({
     defaultValues: {
@@ -114,6 +117,36 @@ export function CreateMealPlanDialog({
       recipeItems: initialRecipeItems,
     },
   });
+
+  useEffect(() => {
+    if (initialPlan) {
+      reset({
+        name: initialPlan.name,
+        description: initialPlan.description ?? "",
+        targetCalories: initialPlan.targetCalories,
+        foodItems: [
+          ...initialPlan.breakfast.foodItems,
+          ...initialPlan.lunch.foodItems,
+          ...initialPlan.dinner.foodItems,
+          ...initialPlan.snack.foodItems,
+        ],
+        recipeItems: [
+          ...initialPlan.breakfast.recipeItems,
+          ...initialPlan.lunch.recipeItems,
+          ...initialPlan.dinner.recipeItems,
+          ...initialPlan.snack.recipeItems,
+        ],
+      });
+    } else {
+      reset({
+        name: "",
+        description: "",
+        targetCalories: undefined,
+        foodItems: [],
+        recipeItems: [],
+      });
+    }
+  }, [initialPlan, reset]);
 
   const foodsFieldArray = useFieldArray({ control, name: "foodItems" });
   const recipesFieldArray = useFieldArray({ control, name: "recipeItems" });
@@ -258,6 +291,10 @@ export function CreateMealPlanDialog({
   };
 
   const onSubmit: SubmitHandler<MealPlanForm> = async (data) => {
+    if (data.foodItems.length === 0 && data.recipeItems.length === 0) {
+      setError("A meal plan cannot have no meals. Please try again.");
+      return;
+    }
     const payload: MealPlanPost = {
       ...data,
       foodItems: data.foodItems.map((foodItem) => ({
@@ -289,6 +326,11 @@ export function CreateMealPlanDialog({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
           <Typography variant="h5">
             {initialPlan ? "EDIT" : "CREATE"} MEAL PLAN
           </Typography>
@@ -312,12 +354,19 @@ export function CreateMealPlanDialog({
               sx={{ gridColumn: "1/-1" }}
             />
             <TextField
-              label="Daily Calorie Target"
-              {...register("targetCalories", { valueAsNumber: true })}
+              label="Daily Calorie Target/kcal"
+              {...register("targetCalories", {
+                valueAsNumber: true,
+                required: "Required",
+                min: {
+                  value: 1200,
+                  message: "Must be at least 1200",
+                },
+              })}
               type="number"
               error={!!errors.targetCalories}
               helperText={errors.targetCalories?.message}
-              sx={{ width: "130px" }}
+              sx={{ width: "250px" }}
             />
           </Box>
 

@@ -43,6 +43,11 @@ export function MealEntryCard({
   const calories = mealEntry.nutrition.calories;
   const [addItemOpen, setAddItemOpen] = useState(false);
   const [confirmImportOpen, setConfirmImportOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{
+    id: number;
+    type: "food" | "recipe";
+  } | null>(null);
 
   const handleClose = () => {
     setAddItemOpen(false);
@@ -90,7 +95,9 @@ export function MealEntryCard({
           setConfirmImportOpen(false);
         },
         onError: (err: any) => {
-          setError(err?.response?.data?.error ?? "Failed to import from meal plan.");
+          setError(
+            err?.response?.data?.error ?? "Failed to import from meal plan.",
+          );
           setConfirmImportOpen(false);
         },
       },
@@ -186,7 +193,13 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveRecipeEntry(recipeItem.id)}
+                      onClick={() => {
+                        setDeleteItem({
+                          id: recipeItem.id,
+                          type: "recipe",
+                        });
+                        setConfirmDeleteOpen(true);
+                      }}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -245,7 +258,13 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveFoodEntry(foodItem.id)}
+                      onClick={() => {
+                        setDeleteItem({
+                          id: foodItem.id,
+                          type: "food",
+                        });
+                        setConfirmDeleteOpen(true);
+                      }}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -281,11 +300,34 @@ export function MealEntryCard({
 
         <ConfirmDialog
           open={confirmImportOpen}
-          title={`Confirm Import ${mealSlot.charAt(0).toUpperCase() + mealSlot.slice(1)} Meals`}
-          description={`Are you sure you want to remove all current entries and import meals from your active meal plan?`}
+          title={`Confirm Import ${mealSlot.charAt(0).toUpperCase() + mealSlot.slice(1)} Meal`}
+          description={`Are you sure you want to remove all current ${mealSlot} items and import the meal from your active meal plan?`}
           confirmText="Import"
           onClose={() => setConfirmImportOpen(false)}
           onConfirm={handleImportMeal}
+        />
+        <ConfirmDialog
+          open={confirmDeleteOpen}
+          title="Confirm Delete Item"
+          description={`Are you sure you want to remove this item from ${mealSlot}?`}
+          confirmText="Delete"
+         confirmColor="error"
+          onClose={() => {
+            setConfirmDeleteOpen(false);
+            setDeleteItem(null);
+          }}
+          onConfirm={async () => {
+            if (!deleteItem) return;
+
+            if (deleteItem.type === "food") {
+              await handleRemoveFoodEntry(deleteItem.id);
+            } else {
+              await handleRemoveRecipeEntry(deleteItem.id);
+            }
+
+            setConfirmDeleteOpen(false);
+            setDeleteItem(null);
+          }}
         />
 
         {addItemOpen && (

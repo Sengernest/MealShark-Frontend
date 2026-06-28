@@ -77,6 +77,32 @@ export function CreateRecipeDialog({
     },
   });
 
+
+  useEffect(() => {
+  if (recipe) {
+    reset({
+      name: recipe.name,
+      description: recipe.description,
+      category: recipe.category,
+      instructions: recipe.instructions,
+      prepTime: recipe.prepTime,
+      cookTime: recipe.cookTime,
+      servings: recipe.servings,
+      ingredients: recipe.ingredients,
+    });
+  } else {
+    reset({
+      name: "",
+      description: "",
+      category: "",
+      instructions: "",
+      prepTime: null,
+      cookTime: null,
+      servings: undefined,
+      ingredients: [],
+    });
+  }
+}, [recipe, reset]);
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
@@ -291,7 +317,7 @@ export function CreateRecipeDialog({
           setEditingIndex(null);
         }}
         title={editingIndex !== null ? "EDIT INGREDIENT" : "ADD INGREDIENT"}
-        button={editingIndex !== null ? "Edit" : "Add"}
+        buttonText={editingIndex !== null ? "Save" : "Add"}
         initialValue={
           editingIndex !== null && ingredients[editingIndex]
             ? ingredients[editingIndex]
