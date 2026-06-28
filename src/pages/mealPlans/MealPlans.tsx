@@ -147,10 +147,6 @@ export function MealPlans() {
         <PlanDetailDialog
           plan={viewPlan}
           onClose={() => setViewPlan(null)}
-          onEdit={(plan) => {
-            setViewPlan(null);
-            // TODO: Move this thing into MealPlanCard where it should be
-          }}
           onDelete={(plan) => {
             setDeletePlan(plan);
           }}

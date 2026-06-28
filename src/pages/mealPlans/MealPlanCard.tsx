@@ -27,7 +27,6 @@ export function MealPlanCard({
   onSetActive: () => void;
 }) {
   const totalCalories = plan.nutrition.calories;
-
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   return (
