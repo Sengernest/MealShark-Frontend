@@ -21,6 +21,7 @@ import { useGetMealLog } from "@/hooks/mealLogs";
 import { useState } from "react";
 import { MacroBar } from "./MacroBar";
 import { MealSlotView } from "../mealPlans/MealSlotView";
+import { ActiveMealPlanCard } from "@/components/common/ActiveMealPlanCard";
 
 const TODAY = new Date();
 
@@ -278,89 +279,7 @@ export function Dashboard() {
 
         {/* Active meal plan preview */}
         <Grid size={{ xs: 12, md: 7 }}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Typography variant="h6">ACTIVE MEAL PLAN</Typography>
-
-                <Link to="/meal-plans">
-                  <Button size="small" endIcon={<ArrowForwardIcon />}>
-                    View All
-                  </Button>
-                </Link>
-              </Box>
-
-              {activePlan ? (
-                <>
-                  <Typography variant="h5" sx={{ mb: 0.5 }}>
-                    {activePlan.name}
-                  </Typography>
-
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "text.secondary", mb: 2, fontSize: 13 }}
-                  >
-                    {activePlan.description}
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      mb: 2,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Chip
-                      label={`${activePlan.nutrition.calories} kcal`}
-                      size="small"
-                      color="primary"
-                      variant="outlined"
-                    />
-
-                    <Chip
-                      label={`${activePlan.targetCalories} kcal target`}
-                      size="small"
-                      variant="outlined"
-                    />
-                  </Box>
-
-                  <Divider sx={{ mb: 2 }} />
-
-                  <MealSlotView
-                    mealSlot="breakfast"
-                    meal={activePlan.breakfast}
-                  />
-
-                  <MealSlotView mealSlot="lunch" meal={activePlan.lunch} />
-
-                  <MealSlotView mealSlot="dinner" meal={activePlan.dinner} />
-
-                  <MealSlotView mealSlot="snack" meal={activePlan.snack} />
-                </>
-              ) : (
-                <Box sx={{ textAlign: "center", py: 4 }}>
-                  <Typography
-                    variant="body2"
-                    sx={{ color: "text.secondary", mb: 2 }}
-                  >
-                    No active meal plan.
-                  </Typography>
-
-                  <Link to="/meal-plans">
-                    <Button variant="outlined">Browse Plans</Button>
-                  </Link>
-                </Box>
-              )}
-            </CardContent>
-          </Card>
+          <ActiveMealPlanCard showViewAll />
         </Grid>
 
         {/* Quick links */}

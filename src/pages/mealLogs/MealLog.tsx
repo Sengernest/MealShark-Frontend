@@ -20,6 +20,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { MealEntryCard } from "./MealEntryCard";
+import { ActiveMealPlanCard } from "@/components/common/ActiveMealPlanCard";
 
 function addDays(date: Date, n: number): Date {
   const d = new Date(date);
@@ -184,7 +185,7 @@ export function MealLog() {
           <Button
             size="small"
             onClick={() => setSelectedDate(new Date())}
-            sx={{ color: "text.secondary", fontSize: 12 }}
+            sx={{ color: "white", fontSize: 12 }}
           >
             Today
           </Button>
@@ -233,8 +234,8 @@ export function MealLog() {
           </Box>
         )}
 
-        {/* Day summary */}
         <Box sx={{ position: "sticky", top: 24 }}>
+          {/* Day summary */}
           <Card>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2 }}>
@@ -346,6 +347,10 @@ export function MealLog() {
               </Box>
             </CardContent>
           </Card>
+          <Box sx={{ mt: 3 }}>
+            {/* Active Meal Plan summary */}
+            <ActiveMealPlanCard showViewAll/>
+          </Box>
         </Box>
       </Box>
     </Box>
