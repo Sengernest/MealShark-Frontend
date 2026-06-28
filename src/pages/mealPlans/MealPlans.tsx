@@ -28,10 +28,10 @@ import { SearchBar } from "@/components/common/SearchBar";
 export function MealPlans() {
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-  
+
   const [deletePlan, setDeletePlan] = useState<MealPlan | null>(null);
   const [search, setSearch] = useState("");
-  
+
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
   const tab = urlSearchParams.get("tab");
 
@@ -49,11 +49,7 @@ export function MealPlans() {
   const filteredMealPlans = mealPlans.filter((p) => {
     const query = search.toLowerCase().trim();
 
-    return (
-      query === "" ||
-      p.name.toLowerCase().includes(query) ||
-      p.description?.toLowerCase().includes(query)
-    );
+    return query === "" || p.name.toLowerCase().includes(query);
   });
 
   const sortedMealPlans = [...filteredMealPlans].sort((a, b) => {
@@ -169,7 +165,7 @@ export function MealPlans() {
           deleteMealPlan.mutate(deletePlan.id);
 
           setDeletePlan(null);
-          setViewPlan(null); 
+          setViewPlan(null);
         }}
       />
     </Box>

@@ -1,6 +1,7 @@
 import {
   FoodEntry,
   FoodEntryPost,
+  ImportFromMealPlanPost,
   MealEntry,
   MealLog,
   RecipeEntry,
@@ -39,6 +40,11 @@ async function updateRecipeEntry(
   return res.data;
 }
 
+async function importFromMealPlan(data: ImportFromMealPlanPost): Promise<MealEntry>{
+  const res = await api.post("meal-logs/import", data);
+  return res.data;
+}
+
 async function removeFoodEntry(entryId: number): Promise<FoodEntry> {
   const res = await api.delete(`/meal-logs/food-entries/${entryId}`);
   return res.data;
@@ -55,6 +61,7 @@ export const mealLogApi = {
   addFoodEntry,
   updateFoodEntry,
   updateRecipeEntry,
+  importFromMealPlan,
   removeRecipeEntry,
   removeFoodEntry,
 };

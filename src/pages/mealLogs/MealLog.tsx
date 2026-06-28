@@ -3,6 +3,7 @@ import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -82,6 +83,7 @@ export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
 
   const [selectedDate, setSelectedDate] = useState(TODAY);
+  const [error, setError] = useState("");
   const selectedDateString = selectedDate.toISOString().slice(0, 10);
   const { data: mealLog } = useGetMealLog(selectedDateString);
 
@@ -110,6 +112,12 @@ export function MealLog() {
           </Typography>
         </Box>
       </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
+          {error}
+        </Alert>
+      )}
 
       {/* Date picker */}
       <Card sx={{ mb: 3 }}>
@@ -199,24 +207,28 @@ export function MealLog() {
               key={"breakfast"}
               mealEntry={mealLog.breakfast}
               logDate={selectedDateString}
+              setError={setError}
             />
             <MealEntryCard
               mealSlot="lunch"
               key={"lunch"}
               mealEntry={mealLog.lunch}
               logDate={selectedDateString}
+              setError={setError}
             />
             <MealEntryCard
               mealSlot="dinner"
               key={"dinner"}
               mealEntry={mealLog.dinner}
               logDate={selectedDateString}
+              setError={setError}
             />
             <MealEntryCard
               mealSlot="snack"
               key={"snack"}
               mealEntry={mealLog.snack}
               logDate={selectedDateString}
+              setError={setError}
             />
           </Box>
         )}

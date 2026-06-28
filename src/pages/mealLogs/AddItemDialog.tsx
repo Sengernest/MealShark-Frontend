@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AddFoodForm } from "../../components/forms/AddFoodForm";
 import { AddRecipeForm } from "../../components/forms/AddRecipeForm";
 

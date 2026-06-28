@@ -185,6 +185,11 @@ export type RecipeEntryPost = {
   servings: number;
 };
 
+export type ImportFromMealPlanPost = {
+  logDate: string;
+  mealSlot: MealSlot;
+}
+
 export type MealEntry = {
   foodEntries: FoodEntry[];
   recipeEntries: RecipeEntry[];

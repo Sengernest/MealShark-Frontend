@@ -6,6 +6,7 @@ import {
   RecipeItem,
 } from "@/types";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -18,6 +19,7 @@ import {
 import {
   useAddFoodEntry,
   useAddRecipeEntry,
+  useImportFromMealPlan,
   useRemoveRecipeEntry,
 } from "@/hooks/mealLogs";
 import AddIcon from "@mui/icons-material/Add";
@@ -25,19 +27,22 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { useRemoveFoodEntry } from "../../hooks/mealLogs";
 import { AddOrEditItemDialog } from "./AddItemDialog";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 export function MealEntryCard({
   mealEntry,
   mealSlot,
   logDate,
+  setError,
 }: {
   mealEntry: MealEntry;
   mealSlot: MealSlot;
   logDate: string;
+  setError: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const calories = mealEntry.nutrition.calories;
   const [addItemOpen, setAddItemOpen] = useState(false);
-  const [importealOpen, setImportMealOpen] = useState(false);
+  const [confirmImportOpen, setConfirmImportOpen] = useState(false);
 
   const handleClose = () => {
     setAddItemOpen(false);
@@ -47,6 +52,7 @@ export function MealEntryCard({
   const addRecipeEntry = useAddRecipeEntry();
   const removeFoodEntry = useRemoveFoodEntry();
   const removeRecipeEntry = useRemoveRecipeEntry();
+  const importFromMealPlan = useImportFromMealPlan();
 
   const handleAddFoodEntry = async (foodItem: FoodItem) => {
     await addFoodEntry.mutateAsync({
@@ -74,6 +80,21 @@ export function MealEntryCard({
 
   const handleRemoveRecipeEntry = async (entryId: number) => {
     await removeRecipeEntry.mutateAsync(entryId);
+  };
+
+  const handleImportMeal = () => {
+    importFromMealPlan.mutate(
+      { logDate, mealSlot },
+      {
+        onSuccess: () => {
+          setConfirmImportOpen(false);
+        },
+        onError: (err: any) => {
+          setError(err?.response?.data?.error ?? "Failed to import from meal plan.");
+          setConfirmImportOpen(false);
+        },
+      },
+    );
   };
 
   return (
@@ -239,7 +260,7 @@ export function MealEntryCard({
           </>
         )}
         <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
-          <Button 
+          <Button
             size="small"
             variant="contained"
             startIcon={<AddIcon />}
@@ -252,11 +273,20 @@ export function MealEntryCard({
             size="small"
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => setImportMealOpen(true)}
+            onClick={() => setConfirmImportOpen(true)}
           >
             Import meal
           </Button>
         </Box>
+
+        <ConfirmDialog
+          open={confirmImportOpen}
+          title={`Confirm Import ${mealSlot.charAt(0).toUpperCase() + mealSlot.slice(1)} Meals`}
+          description={`Are you sure you want to remove all current entries and import meals from your active meal plan?`}
+          confirmText="Import"
+          onClose={() => setConfirmImportOpen(false)}
+          onConfirm={handleImportMeal}
+        />
 
         {addItemOpen && (
           <AddOrEditItemDialog
