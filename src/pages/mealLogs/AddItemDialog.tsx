@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AddFoodForm } from "../../components/forms/AddFoodForm";
 import { AddRecipeForm } from "../../components/forms/AddRecipeForm";
 
@@ -42,11 +42,14 @@ export function AddOrEditItemDialog({
   onEditRecipe,
 }: AddOrEditItemDialogProps) {
   const [mode, setMode] = useState<AddMode>(initialFood ? "food" : "recipe");
+  const isEditMode = !!initialFood || !!initialRecipe;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Typography variant="h6">ADD ITEM</Typography>
+        <Typography variant="h6">
+          {isEditMode ? "EDIT ITEM" : "ADD ITEM"}
+        </Typography>
       </DialogTitle>
       <DialogContent
         sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
@@ -91,7 +94,7 @@ export function AddOrEditItemDialog({
           Cancel
         </Button>
         <Button type="submit" variant="contained" form={MODE_TO_FORM_ID[mode]}>
-          Add
+          {isEditMode ? "SAVE": "ADD"}
         </Button>
       </DialogActions>
     </Dialog>

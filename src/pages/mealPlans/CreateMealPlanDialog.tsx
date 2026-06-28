@@ -333,16 +333,18 @@ export function CreateMealPlanDialog({
           </Button>
         </DialogActions>
       </form>
-      <AddOrEditItemDialog
-        open={itemDialogOpen}
-        onClose={handleCloseItemDialog}
-        onAddFood={addFood}
-        onAddRecipe={addRecipe}
-        initialFood={editingFoodItem}
-        initialRecipe={editingRecipeItem}
-        onEditFood={editFood}
-        onEditRecipe={editRecipe}
-      />
+      {itemDialogOpen && (
+        <AddOrEditItemDialog
+          open={itemDialogOpen}
+          onClose={handleCloseItemDialog}
+          onAddFood={addFood}
+          onAddRecipe={addRecipe}
+          initialFood={editingFoodItem}
+          initialRecipe={editingRecipeItem}
+          onEditFood={editFood}
+          onEditRecipe={editRecipe}
+        />
+      )}
     </Dialog>
   );
 }
