@@ -19,19 +19,19 @@ import {
   useGetSampleMealPlans,
 } from "@/hooks/mealPlans";
 import { useSearchParams } from "react-router";
-import { CreatePlanDialog } from "./CreateMealPlanDialog";
+import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
 import { PlanDetailDialog } from "./MealPlanDetailDialog";
-import { PlanCard } from "./MealPlanCard";
+import { MealPlanCard } from "./MealPlanCard";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { SearchBar } from "@/components/common/SearchBar";
 
 export function MealPlans() {
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-  const [editPlan, setEditPlan] = useState<MealPlan | null>(null);
+  
   const [deletePlan, setDeletePlan] = useState<MealPlan | null>(null);
   const [search, setSearch] = useState("");
-  const isEditMode = !!editPlan;
+  
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
   const tab = urlSearchParams.get("tab");
 
@@ -125,12 +125,11 @@ export function MealPlans() {
         }}
       >
         {sortedMealPlans.map((p) => (
-          <PlanCard
+          <MealPlanCard
             key={p.id}
             plan={p}
             isActive={p.isActive}
             onView={() => setViewPlan(p)}
-            onEdit={(p) => setEditPlan(p)}
             onSetActive={() => activateMealPlan.mutate(Number(p.id))}
           />
         ))}
@@ -150,23 +149,15 @@ export function MealPlans() {
           onClose={() => setViewPlan(null)}
           onEdit={(plan) => {
             setViewPlan(null);
-            setEditPlan(plan);
+            // TODO: Move this thing into MealPlanCard where it should be
           }}
           onDelete={(plan) => {
             setDeletePlan(plan);
           }}
         />
       )}
-      {(createOpen || editPlan) && (
-        <CreatePlanDialog
-          open
-          plan={editPlan ?? undefined}
-          isEditMode={isEditMode}
-          onClose={() => {
-            setCreateOpen(false);
-            setEditPlan(null);
-          }}
-        />
+      {createOpen && (
+        <CreateMealPlanDialog open onClose={() => setCreateOpen(false)} />
       )}
 
       <ConfirmDialog

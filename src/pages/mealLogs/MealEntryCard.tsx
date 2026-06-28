@@ -24,7 +24,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { useRemoveFoodEntry } from "../../hooks/mealLogs";
-import { AddItemDialog } from "./AddItemDialog";
+import { AddOrEditItemDialog } from "./AddItemDialog";
 
 export function MealEntryCard({
   mealEntry,
@@ -259,7 +259,7 @@ export function MealEntryCard({
         </Box>
 
         {addItemOpen && (
-          <AddItemDialog
+          <AddOrEditItemDialog
             open
             onClose={handleClose}
             onAddFood={handleAddFoodEntry}
