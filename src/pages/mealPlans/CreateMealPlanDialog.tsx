@@ -30,6 +30,7 @@ import {
 } from "react-hook-form";
 import { AddOrEditItemDialog } from "../mealLogs/AddItemDialog";
 import { MealSlotFormView } from "./MealSlotFormView";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 type MealPlanFormFood = {
   food: Food;
@@ -72,6 +73,12 @@ export function CreateMealPlanDialog({
   // To determine which meal slot to add to
   const [selectedMealSlot, setSelectedMealSlot] =
     useState<MealSlot>("breakfast");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<
+    | { type: "food"; fieldId: string }
+    | { type: "recipe"; fieldId: string }
+    | null
+  >(null);
   const createMealPlan = useCreateMealPlan();
   const updateMealPlan = useUpdateMealPlan();
 
@@ -146,6 +153,36 @@ export function CreateMealPlanDialog({
     setEditingRecipeId(null);
   };
 
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+
+    if (pendingDelete.type === "food") {
+      const index = foodsFieldArray.fields.findIndex(
+        (f) => f.id === pendingDelete.fieldId,
+      );
+
+      if (index !== -1) {
+        foodsFieldArray.remove(index);
+      }
+    } else {
+      const index = recipesFieldArray.fields.findIndex(
+        (f) => f.id === pendingDelete.fieldId,
+      );
+
+      if (index !== -1) {
+        recipesFieldArray.remove(index);
+      }
+    }
+
+    setPendingDelete(null);
+    setConfirmDeleteOpen(false);
+  };
+
+  const handleCancelDelete = () => {
+    setPendingDelete(null);
+    setConfirmDeleteOpen(false);
+  };
+
   const addFood = (foodItem: FoodItem) => {
     foodsFieldArray.append({
       ...foodItem,
@@ -178,13 +215,13 @@ export function CreateMealPlanDialog({
   };
 
   const removeFood = (fieldId: string) => {
-    const index = foodsFieldArray.fields.findIndex((f) => f.id === fieldId);
-    foodsFieldArray.remove(index);
+    setPendingDelete({ type: "food", fieldId });
+    setConfirmDeleteOpen(true);
   };
 
   const removeRecipe = (fieldId: string) => {
-    const index = recipesFieldArray.fields.findIndex((f) => f.id === fieldId);
-    recipesFieldArray.remove(index);
+    setPendingDelete({ type: "recipe", fieldId });
+    setConfirmDeleteOpen(true);
   };
 
   const breakfastItems = {
@@ -280,7 +317,7 @@ export function CreateMealPlanDialog({
               type="number"
               error={!!errors.targetCalories}
               helperText={errors.targetCalories?.message}
-              sx={{ width: "200px" }}
+              sx={{ width: "130px" }}
             />
           </Box>
 
@@ -345,6 +382,16 @@ export function CreateMealPlanDialog({
           onEditRecipe={editRecipe}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        title="Confirm Delete Meal"
+        description="Are you sure you want to remove this meal from your meal plan?"
+        confirmText="Delete"
+        confirmColor="error"
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+      />
     </Dialog>
   );
 }

@@ -77,12 +77,12 @@ function MacroBar({
   );
 }
 
-const TODAY = new Date();
-
 export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const [selectedDate, setSelectedDate] = useState(TODAY);
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
+
   const [error, setError] = useState("");
   const selectedDateString = selectedDate.toISOString().slice(0, 10);
   const { data: mealLog } = useGetMealLog(selectedDateString);
@@ -164,7 +164,7 @@ export function MealLog() {
             sx={{ fontWeight: 600, flex: 1, textAlign: "center" }}
           >
             {formatDate(selectedDate)}
-            {selectedDate === TODAY && (
+            {isToday && (
               <Chip
                 label="Today"
                 size="small"
@@ -183,7 +183,7 @@ export function MealLog() {
           <Divider orientation="vertical" flexItem />
           <Button
             size="small"
-            onClick={() => setSelectedDate(TODAY)}
+            onClick={() => setSelectedDate(new Date())}
             sx={{ color: "text.secondary", fontSize: 12 }}
           >
             Today
