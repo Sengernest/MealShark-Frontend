@@ -40,7 +40,7 @@ export function AddRecipeForm({ onAdd, onEdit, initialRecipe }: AddRecipeFormPro
   const onSubmit: SubmitHandler<AddRecipeFormData> = (data) => {
     const recipe = recipes.find((recipe) => recipe.id === data.recipeId)!;
     if (initialRecipe) {
-      onAdd({ recipe, servings: data.servings });
+      onEdit({ recipe, servings: data.servings });
     } else {
       onAdd({ recipe, servings: data.servings });
     }
