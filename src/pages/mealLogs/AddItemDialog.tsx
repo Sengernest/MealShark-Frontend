@@ -80,7 +80,7 @@ export function AddOrEditItemDialog({
         {mode === "food" ? (
           <AddFoodForm
             initialFood={initialFood}
-            onAdd={onEditFood ? onEditFood : onAddFood}
+            onAdd={(initialFood && onEditFood) ? onEditFood : onAddFood}
           />
         ) : (
           <AddRecipeForm

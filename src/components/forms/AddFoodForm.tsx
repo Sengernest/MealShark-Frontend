@@ -63,19 +63,25 @@ export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
           render={({ field }) => {
             return (
               <Autocomplete
-                options={foods.map((food) => food.id)}
+                options={foods}
+                value={
+                  field.value == null
+                    ? null
+                    : (foods.find((f) => f.id === field.value) ??
+                      initialFood?.food)
+                }
+                getOptionLabel={(food) => food.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 onChange={(_, value) => {
-                  field.onChange(value);
+                  field.onChange(value?.id);
+                  setFoodSearch(value?.name ?? "");
                 }}
-                value={field.value ?? null}
                 inputValue={foodSearch}
                 onInputChange={(_, value, reason) => {
-                  if (reason === "input") setFoodSearch(value);
+                  if (reason === "input") {
+                    setFoodSearch(value);
+                  }
                 }}
-                getOptionLabel={(foodId) =>
-                  foods.find((food) => food.id === foodId)?.name ?? ""
-                }
-                isOptionEqualToValue={(option, value) => option === value}
                 filterOptions={(x) => x}
                 renderInput={(params) => (
                   <TextField
