@@ -7,7 +7,7 @@ import {
   InputLabel,
   TextField,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 type AddRecipeFormData = {
@@ -16,11 +16,12 @@ type AddRecipeFormData = {
 };
 
 type AddRecipeFormProps = {
-  onAdd: (recipe: RecipeItem) => void;
+  onAdd: (recipe: RecipeItem) => void | Promise<void>;
   initialRecipe?: RecipeItem;
+  setSubmitState?: (state: boolean) => void
 };
 
-export function AddRecipeForm({ onAdd, initialRecipe }: AddRecipeFormProps) {
+export function AddRecipeForm({ onAdd, initialRecipe, setSubmitState }: AddRecipeFormProps) {
   const [recipeSearch, setRecipeSearch] = useState("");
   const { data: recipes = [] } = useGetAllRecipes();
 
@@ -28,7 +29,7 @@ export function AddRecipeForm({ onAdd, initialRecipe }: AddRecipeFormProps) {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<AddRecipeFormData>({
     defaultValues: {
       recipeId: initialRecipe?.recipe.id,
@@ -36,10 +37,14 @@ export function AddRecipeForm({ onAdd, initialRecipe }: AddRecipeFormProps) {
     },
   });
 
-  const onSubmit: SubmitHandler<AddRecipeFormData> = (data) => {
+  const onSubmit: SubmitHandler<AddRecipeFormData> = async (data) => {
     const recipe = recipes.find((recipe) => recipe.id === data.recipeId)!;
-    onAdd({ recipe, servings: data.servings });
+    await onAdd({ recipe, servings: data.servings });
   };
+
+  useEffect(() => {
+    setSubmitState?.(isSubmitting)
+  }, [isSubmitting, setSubmitState])
 
   return (
     <form id="recipe-form" onSubmit={handleSubmit(onSubmit)}>

@@ -1,9 +1,8 @@
 import {
   FoodItem,
-  FoodItemPost,
   MealEntry,
   MealSlot,
-  RecipeItem,
+  RecipeItem
 } from "@/types";
 import {
   Box,

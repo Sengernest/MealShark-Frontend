@@ -9,19 +9,19 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AddFoodForm } from "../../components/forms/AddFoodForm";
 import { AddRecipeForm } from "../../components/forms/AddRecipeForm";
 
 type AddOrEditItemDialogProps = {
   open: boolean;
   onClose: () => void;
-  onAddFood: (item: FoodItem) => void;
-  onAddRecipe: (item: RecipeItem) => void;
+  onAddFood: (item: FoodItem) => void | Promise<void>;
+  onAddRecipe: (item: RecipeItem) => void | Promise<void>;
   initialFood?: FoodItem;
   initialRecipe?: RecipeItem;
-  onEditFood?: (item: FoodItem) => void;
-  onEditRecipe?: (item: RecipeItem) => void;
+  onEditFood?: (item: FoodItem) => void | Promise<void>;
+  onEditRecipe?: (item: RecipeItem) => void | Promise<void>;
 };
 
 type AddMode = "recipe" | "food";
@@ -43,6 +43,7 @@ export function AddOrEditItemDialog({
 }: AddOrEditItemDialogProps) {
   const [mode, setMode] = useState<AddMode>(initialFood ? "food" : "recipe");
   const isEditMode = !!initialFood || !!initialRecipe;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -81,11 +82,13 @@ export function AddOrEditItemDialog({
           <AddFoodForm
             initialFood={initialFood}
             onAdd={initialFood && onEditFood ? onEditFood : onAddFood}
+            setSubmitState={setIsSubmitting}
           />
         ) : (
           <AddRecipeForm
             initialRecipe={initialRecipe}
             onAdd={initialRecipe && onEditRecipe ? onEditRecipe : onAddRecipe}
+            setSubmitState={setIsSubmitting}
           />
         )}
       </DialogContent>
@@ -93,7 +96,12 @@ export function AddOrEditItemDialog({
         <Button onClick={onClose} sx={{ color: "text.secondary" }}>
           Cancel
         </Button>
-        <Button type="submit" variant="contained" form={MODE_TO_FORM_ID[mode]}>
+        <Button
+          type="submit"
+          variant="contained"
+          form={MODE_TO_FORM_ID[mode]}
+          disabled={isSubmitting}
+        >
           {isEditMode ? "SAVE" : "ADD"}
         </Button>
       </DialogActions>

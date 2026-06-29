@@ -20,11 +20,12 @@ type AddFoodFormData = {
 };
 
 type AddFoodFormProps = {
-  onAdd: (food: FoodItem) => void;
+  onAdd: (food: FoodItem) => void | Promise<void>;
   initialFood?: FoodItem;
+  setSubmitState?: (state: boolean) => void;
 };
 
-export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
+export function AddFoodForm({ onAdd, initialFood, setSubmitState }: AddFoodFormProps) {
   const [foodSearch, setFoodSearch] = useState(initialFood?.food.name ?? "");
   const { data: foods = [] } = useSearchFoods(foodSearch, 20);
 
@@ -33,7 +34,7 @@ export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
     handleSubmit,
     control,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<AddFoodFormData>({
     defaultValues: {
       foodId: initialFood?.food.id,
@@ -42,14 +43,19 @@ export function AddFoodForm({ onAdd, initialFood }: AddFoodFormProps) {
     },
   });
 
-  const onSubmit: SubmitHandler<AddFoodFormData> = (data) => {
+  const onSubmit: SubmitHandler<AddFoodFormData> = async (data) => {
     const food = foods.find((food) => food.id === data.foodId)!;
     const unit = food?.units.find((unit) => unit.unitId === data.unitId)!.unit;
-    onAdd({ food, unit, amount: data.amount });
+    await onAdd({ food, unit, amount: data.amount });
   };
 
   const selectedFoodId = watch("foodId");
   const selectedFood = foods.find((f) => f.id === selectedFoodId) ?? null;
+
+  
+  useEffect(() => {
+    setSubmitState?.(isSubmitting);
+  }, [isSubmitting, setSubmitState]);
 
   return (
     <form id="food-form" onSubmit={handleSubmit(onSubmit)}>
