@@ -1,8 +1,10 @@
 import {
+  FoodEntry,
   FoodItem,
   MealEntry,
   MealSlot,
-  RecipeItem
+  RecipeEntry,
+  RecipeItem,
 } from "@/types";
 import {
   Box,
@@ -18,12 +20,15 @@ import {
   useAddFoodEntry,
   useAddRecipeEntry,
   useRemoveRecipeEntry,
+  useUpdateFoodEntry,
+  useUpdateRecipeEntry,
 } from "@/hooks/mealLogs";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { useRemoveFoodEntry } from "../../hooks/mealLogs";
 import { AddOrEditItemDialog } from "./AddItemDialog";
+import EditIcon from "@mui/icons-material/Edit";
 
 export function MealEntryCard({
   mealEntry,
@@ -35,17 +40,21 @@ export function MealEntryCard({
   logDate: string;
 }) {
   const calories = mealEntry.nutrition.calories;
-  const [addItemOpen, setAddItemOpen] = useState(false);
+  const [itemDialogOpen, setItemDialogOpen] = useState(false);
   const [importealOpen, setImportMealOpen] = useState(false);
 
-  const handleClose = () => {
-    setAddItemOpen(false);
+  const closeAddItem = () => {
+    setItemDialogOpen(false);
+    setEditingFoodEntry(null);
+    setEditingRecipeEntry(null);
   };
 
   const addFoodEntry = useAddFoodEntry();
   const addRecipeEntry = useAddRecipeEntry();
   const removeFoodEntry = useRemoveFoodEntry();
   const removeRecipeEntry = useRemoveRecipeEntry();
+  const updateFoodEntry = useUpdateFoodEntry();
+  const updateRecipeEntry = useUpdateRecipeEntry();
 
   const handleAddFoodEntry = async (foodItem: FoodItem) => {
     await addFoodEntry.mutateAsync({
@@ -55,7 +64,7 @@ export function MealEntryCard({
       logDate,
       mealSlot,
     });
-    handleClose();
+    closeAddItem();
   };
   const handleAddRecipeEntry = async (recipeItem: RecipeItem) => {
     await addRecipeEntry.mutateAsync({
@@ -64,7 +73,7 @@ export function MealEntryCard({
       logDate,
       mealSlot,
     });
-    handleClose();
+    closeAddItem();
   };
 
   const handleRemoveFoodEntry = async (entryId: number) => {
@@ -73,6 +82,52 @@ export function MealEntryCard({
 
   const handleRemoveRecipeEntry = async (entryId: number) => {
     await removeRecipeEntry.mutateAsync(entryId);
+  };
+
+  const [editingFoodEntry, setEditingFoodEntry] = useState<FoodEntry | null>(
+    null,
+  );
+  const handleEditFoodEntry = (entry: FoodEntry) => {
+    setEditingRecipeEntry(null);
+    setEditingFoodEntry(entry);
+    setItemDialogOpen(true);
+  };
+
+  const [editingRecipeEntry, setEditingRecipeEntry] =
+    useState<RecipeEntry | null>(null);
+  const handleEditRecipeEntry = (entry: RecipeEntry) => {
+    setEditingFoodEntry(null);
+    setEditingRecipeEntry(entry);
+    setItemDialogOpen(true);
+  };
+
+  const handleUpdateFoodEntry = async (foodItem: FoodItem) => {
+    if (!editingFoodEntry) return;
+    await updateFoodEntry.mutateAsync({
+      entryId: editingFoodEntry.id,
+      data: {
+        foodId: foodItem.food.id,
+        unitId: foodItem.unit.id,
+        amount: foodItem.amount,
+        logDate,
+        mealSlot,
+      },
+    });
+    closeAddItem()
+  };
+
+  const handleUpdateRecipeEntry = async (recipeItem: RecipeItem) => {
+    if (!editingRecipeEntry) return;
+    await updateRecipeEntry.mutateAsync({
+      entryId: editingRecipeEntry.id,
+      data: {
+        recipeId: recipeItem.recipe.id,
+        servings: recipeItem.servings,
+        logDate,
+        mealSlot,
+      },
+    });
+    closeAddItem()
   };
 
   return (
@@ -118,12 +173,12 @@ export function MealEntryCard({
           </Typography>
         ) : (
           <>
-            {mealEntry.recipeEntries.map((recipeItem) => {
-              const name = recipeItem.recipe?.name;
-              const cal = recipeItem.nutrition.calories;
+            {mealEntry.recipeEntries.map((recipeEntry) => {
+              const name = recipeEntry.recipe?.name;
+              const cal = recipeEntry.nutrition.calories;
               return (
                 <Box
-                  key={recipeItem.recipeId}
+                  key={recipeEntry.recipeId}
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -155,7 +210,7 @@ export function MealEntryCard({
                       variant="caption"
                       sx={{ color: "text.disabled" }}
                     >
-                      × {recipeItem.servings} servings
+                      × {recipeEntry.servings} servings
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -164,7 +219,17 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveRecipeEntry(recipeItem.id)}
+                      onClick={() => handleEditRecipeEntry(recipeEntry)}
+                      sx={{
+                        color: "text.disabled",
+                        "&:hover": { color: "error.main" },
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveRecipeEntry(recipeEntry.id)}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -177,12 +242,12 @@ export function MealEntryCard({
               );
             })}
 
-            {mealEntry.foodEntries.map((foodItem) => {
-              const name = foodItem.food?.name;
-              const cal = foodItem.nutrition.calories;
+            {mealEntry.foodEntries.map((foodEntry) => {
+              const name = foodEntry.food?.name;
+              const cal = foodEntry.nutrition.calories;
               return (
                 <Box
-                  key={foodItem.foodId}
+                  key={foodEntry.foodId}
                   sx={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -214,7 +279,7 @@ export function MealEntryCard({
                       variant="caption"
                       sx={{ color: "text.disabled" }}
                     >
-                      × {foodItem.amount} {foodItem.unit.name}
+                      × {foodEntry.amount} {foodEntry.unit.name}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -223,7 +288,17 @@ export function MealEntryCard({
                     </Typography>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveFoodEntry(foodItem.id)}
+                      onClick={() => handleEditFoodEntry(foodEntry)}
+                      sx={{
+                        color: "text.disabled",
+                        "&:hover": { color: "error.main" },
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveFoodEntry(foodEntry.id)}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -238,11 +313,11 @@ export function MealEntryCard({
           </>
         )}
         <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
-          <Button 
+          <Button
             size="small"
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => setAddItemOpen(true)}
+            onClick={() => setItemDialogOpen(true)}
           >
             Add item
           </Button>
@@ -257,12 +332,16 @@ export function MealEntryCard({
           </Button>
         </Box>
 
-        {addItemOpen && (
+        {itemDialogOpen && (
           <AddOrEditItemDialog
             open
-            onClose={handleClose}
+            onClose={closeAddItem}
             onAddFood={handleAddFoodEntry}
             onAddRecipe={handleAddRecipeEntry}
+            onEditFood={handleUpdateFoodEntry}
+            onEditRecipe={handleUpdateRecipeEntry}
+            initialFood={editingFoodEntry ?? undefined}
+            initialRecipe={editingRecipeEntry ?? undefined}
           />
         )}
       </CardContent>
