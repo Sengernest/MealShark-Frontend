@@ -106,3 +106,18 @@ export const useRemoveRecipeEntry = () => {
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
   });
 };
+
+export const useDeleteAllEntries = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ImportAllFromMealPlanPost) =>
+      mealLogApi.deleteAllEntries(data),
+
+    onSuccess: (_, variables) =>
+      queryClient.invalidateQueries({
+        queryKey: ["meal-logs", variables.logDate],
+      }),
+  });
+};
+

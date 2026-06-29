@@ -41,16 +41,19 @@ async function updateRecipeEntry(
   return res.data;
 }
 
-async function importFromMealPlan(data: ImportFromMealPlanPost): Promise<MealEntry>{
+async function importFromMealPlan(
+  data: ImportFromMealPlanPost,
+): Promise<MealEntry> {
   const res = await api.post("meal-logs/import", data);
   return res.data;
 }
 
-async function importAllFromMealPlan(data: ImportAllFromMealPlanPost): Promise<MealEntry>{
+async function importAllFromMealPlan(
+  data: ImportAllFromMealPlanPost,
+): Promise<MealEntry> {
   const res = await api.post("meal-logs/import-all", data);
   return res.data;
 }
-
 
 async function removeFoodEntry(entryId: number): Promise<FoodEntry> {
   const res = await api.delete(`/meal-logs/food-entries/${entryId}`);
@@ -59,6 +62,15 @@ async function removeFoodEntry(entryId: number): Promise<FoodEntry> {
 
 async function removeRecipeEntry(entryId: number): Promise<RecipeEntry> {
   const res = await api.delete(`/meal-logs/recipe-entries/${entryId}`);
+  return res.data;
+}
+
+async function deleteAllEntries(
+  data: ImportAllFromMealPlanPost,
+): Promise<MealLog> {
+  const res = await api.delete("/meal-logs", {
+    data,
+  });
   return res.data;
 }
 
@@ -72,4 +84,5 @@ export const mealLogApi = {
   importAllFromMealPlan,
   removeRecipeEntry,
   removeFoodEntry,
+  deleteAllEntries,
 };

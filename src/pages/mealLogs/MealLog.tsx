@@ -1,4 +1,8 @@
-import { useGetMealLog, useImportAllFromMealPlan } from "@/hooks/mealLogs";
+import {
+  useDeleteAllEntries,
+  useGetMealLog,
+  useImportAllFromMealPlan,
+} from "@/hooks/mealLogs";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -92,7 +96,7 @@ export function MealLog() {
   const [error, setError] = useState("");
   const selectedDateString = selectedDate.toISOString().slice(0, 10);
   const { data: mealLog } = useGetMealLog(selectedDateString);
-  //const deleteAllEntries = useDeleteAllEntries(selectedDateString); 
+  const deleteAllEntries = useDeleteAllEntries();
 
   const totalCalories = mealLog?.nutrition.calories ?? 0;
   const caloriePercent = goals
@@ -119,8 +123,10 @@ export function MealLog() {
   };
 
   const handledeleteAllEntries = () => {
-
-  }
+    deleteAllEntries.mutate({
+      logDate: selectedDateString,
+    });
+  };
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1000 }}>
@@ -415,7 +421,7 @@ export function MealLog() {
         confirmColor="error"
         onClose={() => setDeleteAllOpen(false)}
         onConfirm={() => {
-          //handleDeleteAllEntries();
+          handledeleteAllEntries();
           setDeleteAllOpen(false);
         }}
       />
