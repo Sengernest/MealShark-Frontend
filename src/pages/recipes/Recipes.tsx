@@ -45,10 +45,7 @@ export function Recipes() {
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
-  const [viewRecipe, setViewRecipe] = useState<Recipe | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-
-  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
   const { data: recipes = [] } =
     tab === "samples"
@@ -71,6 +68,13 @@ export function Recipes() {
 
     return matchesCategory && matchesSearch;
   });
+
+  const [viewRecipeId, setViewRecipeId] = useState<number | null>(null);
+  const viewRecipe = filteredRecipes.find(
+    (recipe) => recipe.id === viewRecipeId,
+  )!;
+
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
@@ -159,7 +163,7 @@ export function Recipes() {
           <RecipeCard
             key={r.id}
             recipe={r}
-            onView={() => setViewRecipe(r)}
+            onView={() => setViewRecipeId(r.id)}
             onEdit={(recipe) => {
               setEditingRecipe(recipe);
               setCreateOpen(true);
@@ -176,13 +180,13 @@ export function Recipes() {
         )}
       </Box>
 
-      {viewRecipe && (
+      {viewRecipeId && (
         <RecipeDetailDialog
           recipe={viewRecipe}
-          onClose={() => setViewRecipe(null)}
+          onClose={() => setViewRecipeId(null)}
           onEdit={(recipe) => {
             setEditingRecipe(recipe);
-            setViewRecipe(null);
+            setViewRecipeId(null);
             setCreateOpen(true);
           }}
           onDelete={(id) => {
