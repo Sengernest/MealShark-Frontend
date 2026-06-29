@@ -50,7 +50,7 @@ export function Recipes() {
 
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
-  const { data } =
+  const { data: recipes = [] } =
     tab === "samples"
       ? useGetSampleRecipes()
       : tab === "me"
@@ -58,10 +58,6 @@ export function Recipes() {
         : tab === "saved"
           ? useGetSavedRecipes()
           : useGetAllRecipes();
-          
-  const recipes = data ?? [];
-
-  const { data: allRecipes = [] } = useGetAllRecipes();
 
   const deleteRecipe = useDeleteRecipe();
 
@@ -111,7 +107,7 @@ export function Recipes() {
         onChange={(_, v) => setUrlSearchParams({ tab: v })}
         sx={{ mb: 2.5 }}
       >
-        <Tab label={`All (${allRecipes.length})`} value={"all"} />
+        <Tab label={"All"} value={"all"} />
         <Tab label="Saved" value={"saved"} />
         <Tab label="My Recipes" value={"me"} />
         <Tab label="Sample Recipes" value={"samples"} />
