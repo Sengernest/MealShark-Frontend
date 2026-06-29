@@ -54,7 +54,10 @@ export function Recipes() {
       ? useGetSampleRecipes()
       : tab === "me"
         ? useGetMyRecipes()
-        : useGetAllRecipes();
+        : tab === "saved"
+          ? useGetMyRecipes() //useGetSavedRecipes()
+          : useGetAllRecipes();
+          
   const recipes = data ?? [];
 
   const { data: allRecipes = [] } = useGetAllRecipes();
@@ -108,9 +111,9 @@ export function Recipes() {
         sx={{ mb: 2.5 }}
       >
         <Tab label={`All (${allRecipes.length})`} value={"all"} />
+        <Tab label="Saved" value={"saved"} />
         <Tab label="My Recipes" value={"me"} />
         <Tab label="Sample Recipes" value={"samples"} />
-        <Tab label="Saved" value={"saved"} />
       </Tabs>
 
       <Card sx={{ mb: 2.5 }}>

@@ -12,6 +12,8 @@ import {
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import type { MealPlan } from "../../types";
 import EditIcon from "@mui/icons-material/Edit";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useState } from "react";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
 
@@ -26,6 +28,10 @@ export function MealPlanCard({
   onView: () => void;
   onSetActive: () => void;
 }) {
+  const toggleSaveRecipe = (recipeId: number) => {
+    // TODO:
+  };
+
   const totalCalories = plan.nutrition.calories;
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -71,13 +77,31 @@ export function MealPlanCard({
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Tooltip title="Edit">
+            {!plan.isSample && (
+              <Tooltip title="Edit">
+                <IconButton
+                  size="small"
+                  onClick={() => setEditDialogOpen(true)}
+                  color="primary"
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            <Tooltip title={plan.isSaved ? "Unsave" : "Save recipe"}>
               <IconButton
                 size="small"
-                onClick={() => setEditDialogOpen(true)}
-                color="primary"
+                onClick={() => toggleSaveRecipe(plan.id)}
+                sx={{
+                  color: plan.isSaved ? "primary.main" : "text.disabled",
+                }}
               >
-                <EditIcon fontSize="small" />
+                {plan.isSaved ? (
+                  <BookmarkIcon fontSize="small" />
+                ) : (
+                  <BookmarkBorderIcon fontSize="small" />
+                )}
               </IconButton>
             </Tooltip>
           </Box>

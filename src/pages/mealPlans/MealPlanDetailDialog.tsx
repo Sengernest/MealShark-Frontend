@@ -1,5 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import {
   Box,
   Button,
@@ -26,6 +28,9 @@ export function PlanDetailDialog({
   onClose: () => void;
   onDelete: (plan: MealPlan) => void;
 }) {
+  const toggleSaveRecipe = (recipeId: number) => {
+    // TODO:
+  };
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   return (
     <>
@@ -56,23 +61,42 @@ export function PlanDetailDialog({
               </Box>
 
               <Box sx={{ display: "flex", gap: 0.5 }}>
-                <Tooltip title="Edit">
-                  <IconButton
-                    color="primary"
-                    onClick={() => setEditDialogOpen(true)}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
+                {!plan.isSample && (
+                  <Tooltip title="Edit">
+                    <IconButton
+                      color="primary"
+                      onClick={() => setEditDialogOpen(true)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
 
-                <Tooltip title="Delete">
+                {!plan.isSample && (
+                  <Tooltip title="Delete">
+                    <IconButton
+                      color="error"
+                      onClick={() => {
+                        onDelete(plan);
+                      }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                <Tooltip title={plan.isSaved ? "Unsave" : "Save recipe"}>
                   <IconButton
-                    color="error"
-                    onClick={() => {
-                      onDelete(plan);
+                    size="small"
+                    onClick={() => toggleSaveRecipe(plan.id)}
+                    sx={{
+                      color: plan.isSaved ? "primary.main" : "text.disabled",
                     }}
                   >
-                    <DeleteIcon />
+                    {plan.isSaved ? (
+                      <BookmarkIcon fontSize="small" />
+                    ) : (
+                      <BookmarkBorderIcon fontSize="small" />
+                    )}
                   </IconButton>
                 </Tooltip>
               </Box>

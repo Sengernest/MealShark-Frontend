@@ -434,8 +434,8 @@ export function CreateMealPlanDialog({
 
       <ConfirmDialog
         open={confirmDeleteOpen}
-        title="Confirm Delete Meal"
-        description="Are you sure you want to remove this meal from your meal plan?"
+        title="Confirm Delete Item"
+        description="Are you sure you want to remove this item from your meal plan?"
         confirmText="Delete"
         confirmColor="error"
         onClose={handleCancelDelete}

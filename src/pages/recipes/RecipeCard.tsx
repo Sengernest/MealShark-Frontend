@@ -49,23 +49,34 @@ export function RecipeCard({
             mb: 1,
           }}
         >
-          <Chip
-            label={recipe.category ?? "No category"}
-            size="small"
-            variant="outlined"
-            sx={{ fontSize: 11 }}
-          />
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Chip
+              label={recipe.isSample ? "Sample" : "My Recipe"}
+              size="small"
+              variant="outlined"
+              sx={{ fontSize: 11 }}
+            />
+
+            <Chip
+              label={recipe.category ?? "No category"}
+              size="small"
+              variant="outlined"
+              sx={{ fontSize: 11 }}
+            />
+          </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                onClick={() => onEdit(recipe)}
-                color="primary"
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {!recipe.isSample && (
+              <Tooltip title="Edit">
+                <IconButton
+                  size="small"
+                  onClick={() => onEdit(recipe)}
+                  color="primary"
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
 
             <Tooltip title={recipe.isSaved ? "Unsave" : "Save recipe"}>
               <IconButton

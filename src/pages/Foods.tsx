@@ -1,14 +1,9 @@
-import { useSearchFoods } from "@/hooks/foods";
-import SearchIcon from "@mui/icons-material/Search";
+import { SearchBar } from "@/components/common/SearchBar";
+import { useGetFoods, useSearchFoods } from "@/hooks/foods";
 import {
   Box,
   Card,
   CardContent,
-  Chip,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -18,27 +13,24 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import InputAdornment from "@mui/material/InputAdornment";
 import { useState } from "react";
 
-const CATEGORIES = [
-  "All",
-  "Protein",
-  "Carbs",
-  "Vegetables",
-  "Fats",
-  "Dairy",
-  "Fruit",
-  "Supplements",
-  "Spices",
-];
-
 export function Foods() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState("All");
   const PAGE_LIMIT = 20;
-  const { data, isLoading, isError } = useSearchFoods(searchQuery, PAGE_LIMIT);
-  const foods = data ?? [];
+  const [searchText, setSearchText] = useState("");
+
+  const isSearching = searchText.trim() !== "";
+
+  const { data: allFoods, isLoading: isLoadingFoods } = useGetFoods();
+
+  const { data: searchedFoods, isLoading: isSearchingFoods } = useSearchFoods(
+    searchText,
+    PAGE_LIMIT,
+  );
+
+  const foods = isSearching ? (searchedFoods ?? []) : (allFoods ?? []);
+
+  const isLoading = isSearching ? isSearchingFoods : isLoadingFoods;
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1100 }}>
@@ -71,33 +63,12 @@ export function Foods() {
             py: "12px !important",
           }}
         >
-          <TextField
+          <SearchBar
+            value={searchText}
+            onChange={setSearchText}
             placeholder="Search foods..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{ width: 260 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: "text.disabled", fontSize: 18 }} />
-                </InputAdornment>
-              ),
-            }}
           />
-          <FormControl sx={{ minWidth: 160 }} size="small">
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={category}
-              label="Category"
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              {CATEGORIES.map((c) => (
-                <MenuItem key={c} value={c}>
-                  {c}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+
           <Typography variant="caption" sx={{ ml: "auto" }}>
             {foods.length} items
           </Typography>
@@ -109,7 +80,7 @@ export function Foods() {
           <TableHead>
             <TableRow>
               <TableCell>FOOD</TableCell>
-              <TableCell>CATEGORY</TableCell>
+
               <TableCell align="right">CALORIES</TableCell>
               <TableCell align="right">PROTEIN</TableCell>
               <TableCell align="right">CARBS</TableCell>
@@ -136,18 +107,7 @@ export function Foods() {
                     per 100g
                   </Typography>
                 </TableCell>
-                <TableCell>
-                  {food.category ? (
-                    <Chip
-                      label={food.category}
-                      size="small"
-                      variant="outlined"
-                      sx={{ fontSize: 11 }}
-                    />
-                  ) : (
-                    "-"
-                  )}
-                </TableCell>
+
                 <TableCell align="right">
                   <Typography
                     variant="body2"

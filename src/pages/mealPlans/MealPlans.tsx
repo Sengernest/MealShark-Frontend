@@ -41,7 +41,9 @@ export function MealPlans() {
       ? useGetSampleMealPlans()
       : tab === "me"
         ? useGetMyMealPlans()
-        : useGetAllMealPlans();
+        : tab === "saved"
+          ? useGetMyMealPlans() //useGetSavedMealPlans()
+          : useGetAllMealPlans();
 
   const activateMealPlan = useActivateMealPlan();
   const deleteMealPlan = useDeleteMealPlan();
@@ -67,7 +69,6 @@ export function MealPlans() {
     }
   }, [mealPlans, viewPlan]);
 
-  
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
       <Box
@@ -101,6 +102,7 @@ export function MealPlans() {
         sx={{ mb: 2.5 }}
       >
         <Tab label={`All (${allMealPlans.length})`} value={"all"} />
+        <Tab label="Saved" value={"saved"} />
         <Tab label="My Plans" value={"me"} />
         <Tab label="Sample Plans" value={"samples"} />
       </Tabs>

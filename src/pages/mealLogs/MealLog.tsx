@@ -84,7 +84,7 @@ export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [confirmImportAllOpen, setConfirmImportAllOpen] = useState(false);
-
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false);
   const importAllMeals = useImportAllFromMealPlan();
 
   const isToday = selectedDate.toDateString() === new Date().toDateString();
@@ -92,6 +92,7 @@ export function MealLog() {
   const [error, setError] = useState("");
   const selectedDateString = selectedDate.toISOString().slice(0, 10);
   const { data: mealLog } = useGetMealLog(selectedDateString);
+  //const deleteAllEntries = useDeleteAllEntries(selectedDateString); 
 
   const totalCalories = mealLog?.nutrition.calories ?? 0;
   const caloriePercent = goals
@@ -116,6 +117,10 @@ export function MealLog() {
       },
     );
   };
+
+  const handledeleteAllEntries = () => {
+
+  }
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1000 }}>
@@ -254,6 +259,14 @@ export function MealLog() {
               logDate={selectedDateString}
               setError={setError}
             />
+
+            <Button
+              color="error"
+              variant="outlined"
+              onClick={() => setDeleteAllOpen(true)}
+            >
+              Delete All Entries
+            </Button>
           </Box>
         )}
 
@@ -393,6 +406,18 @@ export function MealLog() {
         confirmText="Import"
         onClose={() => setConfirmImportAllOpen(false)}
         onConfirm={handleImportAllMeals}
+      />
+      <ConfirmDialog
+        open={deleteAllOpen}
+        title="Confirm Delete All Entries"
+        description="Are you sure you want to delete all meal log entries?"
+        confirmText="Delete All"
+        confirmColor="error"
+        onClose={() => setDeleteAllOpen(false)}
+        onConfirm={() => {
+          //handleDeleteAllEntries();
+          setDeleteAllOpen(false);
+        }}
       />
     </Box>
   );

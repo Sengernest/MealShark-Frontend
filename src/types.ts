@@ -255,6 +255,8 @@ export type MealPlan = {
   creatorId: number | null;
   description: string | null;
   isActive: boolean;
+  isSample: boolean;
+  isSaved: boolean;
   targetCalories: number;
   nutrition: Nutrition;
   breakfast: MealPlanMeal;

@@ -60,17 +60,21 @@ export function RecipeDetailDialog({
           </Box>
 
           <Box sx={{ display: "flex", gap: 0.5 }}>
-            <Tooltip title="Edit">
-              <IconButton onClick={() => onEdit(recipe)} color="primary">
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
+            {!recipe.isSample && (
+              <Tooltip title="Edit">
+                <IconButton onClick={() => onEdit(recipe)} color="primary">
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+            )}
 
-            <Tooltip title="Delete">
-              <IconButton color="error" onClick={() => setDeleteOpen(true)}>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
+            {!recipe.isSample && (
+              <Tooltip title="Delete">
+                <IconButton color="error" onClick={() => setDeleteOpen(true)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            )}
 
             <Tooltip title={recipe.isSaved ? "Unsave" : "Save"}>
               <IconButton
@@ -122,7 +126,7 @@ export function RecipeDetailDialog({
           carbs={recipe.nutrition.macros.carbs}
           fat={recipe.nutrition.macros.fat}
         />
-        
+
         <Divider sx={{ my: 2.5 }} />
 
         <Typography variant="h6" sx={{ mb: 1 }}>
