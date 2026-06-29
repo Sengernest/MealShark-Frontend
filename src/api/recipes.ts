@@ -7,12 +7,17 @@ async function getAllRecipes(): Promise<Recipe[]> {
 }
 
 async function getSampleRecipes(): Promise<Recipe[]> {
-  const res = await api.get("/recipes/samples")
-  return res.data
+  const res = await api.get("/recipes/samples");
+  return res.data;
 }
 
 async function getMyRecipes(): Promise<Recipe[]> {
   const res = await api.get("/me/recipes");
+  return res.data;
+}
+
+async function getSavedRecipes(): Promise<Recipe[]> {
+  const res = await api.get("/recipes/saved");
   return res.data;
 }
 
@@ -39,12 +44,25 @@ async function deleteRecipe(recipeId: number) {
   return res.data;
 }
 
+async function saveRecipe(recipeId: number) {
+  const res = await api.post(`/recipes/${recipeId}/save`);
+  return res.data;
+}
+
+async function unsaveRecipe(recipeId: number) {
+  const res = await api.delete(`/recipes/${recipeId}/save`);
+  return res.data;
+}
+
 export const recipeApi = {
   getAllRecipes,
   getSampleRecipes,
   getMyRecipes,
+  getSavedRecipes,
   getRecipe,
   createRecipe,
   updateRecipe,
   deleteRecipe,
+  saveRecipe,
+  unsaveRecipe,
 };

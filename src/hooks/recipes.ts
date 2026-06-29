@@ -18,13 +18,20 @@ export const useGetSampleRecipes = () => {
   return useQuery({
     queryKey: ["recipes", "samples"],
     queryFn: recipeApi.getSampleRecipes,
-  })
+  });
 };
 
 export const useGetMyRecipes = () => {
   return useQuery({
     queryKey: ["recipes", "me"],
     queryFn: recipeApi.getMyRecipes,
+  });
+};
+
+export const useGetSavedRecipes = () => {
+  return useQuery({
+    queryKey: ["recipes", "saved"],
+    queryFn: recipeApi.getSavedRecipes,
   });
 };
 
@@ -60,6 +67,26 @@ export const useDeleteRecipe = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (recipeId: number) => recipeApi.deleteRecipe(recipeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+  });
+};
+
+export const useSaveRecipe = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (recipeId: number) => recipeApi.saveRecipe(recipeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+  });
+};
+
+export const useUnsaveRecipe = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (recipeId: number) => recipeApi.unsaveRecipe(recipeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
     },
