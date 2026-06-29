@@ -3,6 +3,7 @@ import {
   useGetAllRecipes,
   useGetMyRecipes,
   useGetSampleRecipes,
+  useGetSavedRecipes,
 } from "@/hooks/recipes";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
@@ -55,7 +56,7 @@ export function Recipes() {
       : tab === "me"
         ? useGetMyRecipes()
         : tab === "saved"
-          ? useGetMyRecipes() //useGetSavedRecipes()
+          ? useGetSavedRecipes()
           : useGetAllRecipes();
           
   const recipes = data ?? [];

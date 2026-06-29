@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 import type { Recipe } from "../../types";
 import { NutritionRow } from "./NutritionRow";
+import { useSaveRecipe, useUnsaveRecipe } from "@/hooks/recipes";
 
 export function RecipeDetailDialog({
   recipe,
@@ -33,8 +34,15 @@ export function RecipeDetailDialog({
   onEdit: (recipe: Recipe) => void;
   onDelete: (recipeId: number) => void;
 }) {
-  const toggleSaveRecipe = (recipeId: number) => {
-    // TODO:
+  const saveRecipe = useSaveRecipe();
+  const unsaveRecipe = useUnsaveRecipe();
+
+  const toggleSaveRecipe = async (recipeId: number) => {
+    if (recipe.isSaved) {
+      await unsaveRecipe.mutateAsync(recipeId);
+    } else {
+      await saveRecipe.mutateAsync(recipeId);
+    }
   };
 
   const [deleteOpen, setDeleteOpen] = useState(false);
