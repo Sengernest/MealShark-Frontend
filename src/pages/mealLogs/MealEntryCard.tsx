@@ -7,6 +7,7 @@ import {
   RecipeItem,
 } from "@/types";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -19,6 +20,7 @@ import {
 import {
   useAddFoodEntry,
   useAddRecipeEntry,
+  useImportFromMealPlan,
   useRemoveRecipeEntry,
   useUpdateFoodEntry,
   useUpdateRecipeEntry,
@@ -29,19 +31,27 @@ import { useState } from "react";
 import { useRemoveFoodEntry } from "../../hooks/mealLogs";
 import { AddOrEditItemDialog } from "./AddItemDialog";
 import EditIcon from "@mui/icons-material/Edit";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 export function MealEntryCard({
   mealEntry,
   mealSlot,
   logDate,
+  setError,
 }: {
   mealEntry: MealEntry;
   mealSlot: MealSlot;
   logDate: string;
+  setError: React.Dispatch<React.SetStateAction<string>>;
 }) {
   const calories = mealEntry.nutrition.calories;
   const [itemDialogOpen, setItemDialogOpen] = useState(false);
-  const [importealOpen, setImportMealOpen] = useState(false);
+  const [confirmImportOpen, setConfirmImportOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<{
+    id: number;
+    type: "food" | "recipe";
+  } | null>(null);
 
   const closeAddItem = () => {
     setItemDialogOpen(false);
@@ -55,6 +65,7 @@ export function MealEntryCard({
   const removeRecipeEntry = useRemoveRecipeEntry();
   const updateFoodEntry = useUpdateFoodEntry();
   const updateRecipeEntry = useUpdateRecipeEntry();
+  const importFromMealPlan = useImportFromMealPlan();
 
   const handleAddFoodEntry = async (foodItem: FoodItem) => {
     await addFoodEntry.mutateAsync({
@@ -128,6 +139,23 @@ export function MealEntryCard({
       },
     });
     closeAddItem()
+  }
+    
+  const handleImportMeal = () => {
+    importFromMealPlan.mutate(
+      { logDate, mealSlot },
+      {
+        onSuccess: () => {
+          setConfirmImportOpen(false);
+        },
+        onError: (err: any) => {
+          setError(
+            err?.response?.data?.error ?? "Failed to import from meal plan.",
+          );
+          setConfirmImportOpen(false);
+        },
+      },
+    );
   };
 
   return (
@@ -229,7 +257,13 @@ export function MealEntryCard({
                     </IconButton>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveRecipeEntry(recipeEntry.id)}
+                      onClick={() => {
+                        setDeleteItem({
+                          id: recipeEntry.id,
+                          type: "recipe",
+                        });
+                        setConfirmDeleteOpen(true);
+                      }}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -298,7 +332,13 @@ export function MealEntryCard({
                     </IconButton>
                     <IconButton
                       size="small"
-                      onClick={() => handleRemoveFoodEntry(foodEntry.id)}
+                      onClick={() => {
+                        setDeleteItem({
+                          id: foodEntry.id,
+                          type: "food",
+                        });
+                        setConfirmDeleteOpen(true);
+                      }}
                       sx={{
                         color: "text.disabled",
                         "&:hover": { color: "error.main" },
@@ -326,11 +366,43 @@ export function MealEntryCard({
             size="small"
             variant="contained"
             startIcon={<AddIcon />}
-            onClick={() => setImportMealOpen(true)}
+            onClick={() => setConfirmImportOpen(true)}
           >
             Import meal
           </Button>
         </Box>
+
+        <ConfirmDialog
+          open={confirmImportOpen}
+          title={`Confirm Import ${mealSlot.charAt(0).toUpperCase() + mealSlot.slice(1)} Meal`}
+          description={`Are you sure you want to remove all current ${mealSlot} items and import the meal from your active meal plan?`}
+          confirmText="Import"
+          onClose={() => setConfirmImportOpen(false)}
+          onConfirm={handleImportMeal}
+        />
+        <ConfirmDialog
+          open={confirmDeleteOpen}
+          title="Confirm Delete Item"
+          description={`Are you sure you want to remove this item from ${mealSlot}?`}
+          confirmText="Delete"
+         confirmColor="error"
+          onClose={() => {
+            setConfirmDeleteOpen(false);
+            setDeleteItem(null);
+          }}
+          onConfirm={async () => {
+            if (!deleteItem) return;
+
+            if (deleteItem.type === "food") {
+              await handleRemoveFoodEntry(deleteItem.id);
+            } else {
+              await handleRemoveRecipeEntry(deleteItem.id);
+            }
+
+            setConfirmDeleteOpen(false);
+            setDeleteItem(null);
+          }}
+        />
 
         {itemDialogOpen && (
           <AddOrEditItemDialog

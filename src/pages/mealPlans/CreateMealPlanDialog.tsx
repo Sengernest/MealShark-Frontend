@@ -11,6 +11,7 @@ import {
   Unit,
 } from "@/types";
 import {
+  Alert,
   Box,
   Button,
   Dialog,
@@ -21,7 +22,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FieldArrayWithId,
   SubmitHandler,
@@ -30,6 +31,7 @@ import {
 } from "react-hook-form";
 import { AddOrEditItemDialog } from "../mealLogs/AddItemDialog";
 import { MealSlotFormView } from "./MealSlotFormView";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 type MealPlanFormFood = {
   food: Food;
@@ -72,6 +74,13 @@ export function CreateMealPlanDialog({
   // To determine which meal slot to add to
   const [selectedMealSlot, setSelectedMealSlot] =
     useState<MealSlot>("breakfast");
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<
+    | { type: "food"; fieldId: string }
+    | { type: "recipe"; fieldId: string }
+    | null
+  >(null);
+  const [error, setError] = useState("");
   const createMealPlan = useCreateMealPlan();
   const updateMealPlan = useUpdateMealPlan();
 
@@ -97,6 +106,7 @@ export function CreateMealPlanDialog({
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm<MealPlanForm>({
     defaultValues: {
@@ -107,6 +117,36 @@ export function CreateMealPlanDialog({
       recipeItems: initialRecipeItems,
     },
   });
+
+  useEffect(() => {
+    if (initialPlan) {
+      reset({
+        name: initialPlan.name,
+        description: initialPlan.description ?? "",
+        targetCalories: initialPlan.targetCalories,
+        foodItems: [
+          ...initialPlan.breakfast.foodItems,
+          ...initialPlan.lunch.foodItems,
+          ...initialPlan.dinner.foodItems,
+          ...initialPlan.snack.foodItems,
+        ],
+        recipeItems: [
+          ...initialPlan.breakfast.recipeItems,
+          ...initialPlan.lunch.recipeItems,
+          ...initialPlan.dinner.recipeItems,
+          ...initialPlan.snack.recipeItems,
+        ],
+      });
+    } else {
+      reset({
+        name: "",
+        description: "",
+        targetCalories: undefined,
+        foodItems: [],
+        recipeItems: [],
+      });
+    }
+  }, [initialPlan, reset]);
 
   const foodsFieldArray = useFieldArray({ control, name: "foodItems" });
   const recipesFieldArray = useFieldArray({ control, name: "recipeItems" });
@@ -146,6 +186,36 @@ export function CreateMealPlanDialog({
     setEditingRecipeId(null);
   };
 
+  const handleConfirmDelete = () => {
+    if (!pendingDelete) return;
+
+    if (pendingDelete.type === "food") {
+      const index = foodsFieldArray.fields.findIndex(
+        (f) => f.id === pendingDelete.fieldId,
+      );
+
+      if (index !== -1) {
+        foodsFieldArray.remove(index);
+      }
+    } else {
+      const index = recipesFieldArray.fields.findIndex(
+        (f) => f.id === pendingDelete.fieldId,
+      );
+
+      if (index !== -1) {
+        recipesFieldArray.remove(index);
+      }
+    }
+
+    setPendingDelete(null);
+    setConfirmDeleteOpen(false);
+  };
+
+  const handleCancelDelete = () => {
+    setPendingDelete(null);
+    setConfirmDeleteOpen(false);
+  };
+
   const addFood = (foodItem: FoodItem) => {
     foodsFieldArray.append({
       ...foodItem,
@@ -178,13 +248,13 @@ export function CreateMealPlanDialog({
   };
 
   const removeFood = (fieldId: string) => {
-    const index = foodsFieldArray.fields.findIndex((f) => f.id === fieldId);
-    foodsFieldArray.remove(index);
+    setPendingDelete({ type: "food", fieldId });
+    setConfirmDeleteOpen(true);
   };
 
   const removeRecipe = (fieldId: string) => {
-    const index = recipesFieldArray.fields.findIndex((f) => f.id === fieldId);
-    recipesFieldArray.remove(index);
+    setPendingDelete({ type: "recipe", fieldId });
+    setConfirmDeleteOpen(true);
   };
 
   const breakfastItems = {
@@ -221,6 +291,10 @@ export function CreateMealPlanDialog({
   };
 
   const onSubmit: SubmitHandler<MealPlanForm> = async (data) => {
+    if (data.foodItems.length === 0 && data.recipeItems.length === 0) {
+      setError("A meal plan cannot have no meals. Please try again.");
+      return;
+    }
     const payload: MealPlanPost = {
       ...data,
       foodItems: data.foodItems.map((foodItem) => ({
@@ -252,6 +326,11 @@ export function CreateMealPlanDialog({
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
           <Typography variant="h5">
             {initialPlan ? "EDIT" : "CREATE"} MEAL PLAN
           </Typography>
@@ -275,12 +354,19 @@ export function CreateMealPlanDialog({
               sx={{ gridColumn: "1/-1" }}
             />
             <TextField
-              label="Daily Calorie Target"
-              {...register("targetCalories", { valueAsNumber: true })}
+              label="Daily Calorie Target/kcal"
+              {...register("targetCalories", {
+                valueAsNumber: true,
+                required: "Required",
+                min: {
+                  value: 1200,
+                  message: "Must be at least 1200",
+                },
+              })}
               type="number"
               error={!!errors.targetCalories}
               helperText={errors.targetCalories?.message}
-              sx={{ width: "200px" }}
+              sx={{ width: "250px" }}
             />
           </Box>
 
@@ -345,6 +431,16 @@ export function CreateMealPlanDialog({
           onEditRecipe={editRecipe}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        title="Confirm Delete Meal"
+        description="Are you sure you want to remove this meal from your meal plan?"
+        confirmText="Delete"
+        confirmColor="error"
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+      />
     </Dialog>
   );
 }

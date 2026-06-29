@@ -1,6 +1,8 @@
 import { mealLogApi } from "@/api/mealLogs";
 import {
-  FoodEntryPost
+  FoodEntryPost,
+  ImportAllFromMealPlanPost,
+  ImportFromMealPlanPost
 } from "@/types";
 import {
   useMutation,
@@ -56,6 +58,34 @@ export const useUpdateRecipeEntry = () => {
     }) => mealLogApi.updateRecipeEntry(entryId, data),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),
+  });
+};
+
+export const useImportFromMealPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ImportFromMealPlanPost) =>
+      mealLogApi.importFromMealPlan(data),
+
+    onSuccess: (_, variables) =>
+      queryClient.invalidateQueries({
+        queryKey: ["meal-logs", variables.logDate],
+      }),
+  });
+};
+
+export const useImportAllFromMealPlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: ImportAllFromMealPlanPost) =>
+      mealLogApi.importAllFromMealPlan(data),
+
+    onSuccess: (_, variables) =>
+      queryClient.invalidateQueries({
+        queryKey: ["meal-logs", variables.logDate],
+      }),
   });
 };
 

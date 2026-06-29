@@ -1,8 +1,10 @@
-import { useGetMealLog } from "@/hooks/mealLogs";
+import { useGetMealLog, useImportAllFromMealPlan } from "@/hooks/mealLogs";
 import { useGetMyNutritionGoals } from "@/hooks/nutritionGoals";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import AddIcon from "@mui/icons-material/Add";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -19,6 +21,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { MealEntryCard } from "./MealEntryCard";
+import { ActiveMealPlanCard } from "@/components/common/ActiveMealPlanCard";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 
 function addDays(date: Date, n: number): Date {
   const d = new Date(date);
@@ -76,12 +80,16 @@ function MacroBar({
   );
 }
 
-const TODAY = new Date();
-
 export function MealLog() {
   const { data: goals } = useGetMyNutritionGoals();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [confirmImportAllOpen, setConfirmImportAllOpen] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState(TODAY);
+  const importAllMeals = useImportAllFromMealPlan();
+
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
+
+  const [error, setError] = useState("");
   const selectedDateString = selectedDate.toISOString().slice(0, 10);
   const { data: mealLog } = useGetMealLog(selectedDateString);
 
@@ -90,6 +98,24 @@ export function MealLog() {
     ? Math.min(100, (totalCalories / goals.calories) * 100)
     : 0;
   const remaining = goals ? Math.max(0, goals.calories - totalCalories) : null;
+
+  const handleImportAllMeals = () => {
+    importAllMeals.mutate(
+      { logDate: selectedDateString },
+      {
+        onSuccess: () => {
+          setConfirmImportAllOpen(false);
+        },
+        onError: (err: any) => {
+          setError(
+            err?.response?.data?.error ??
+              "Failed to import meals from meal plan.",
+          );
+          setConfirmImportAllOpen(false);
+        },
+      },
+    );
+  };
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1000 }}>
@@ -110,6 +136,12 @@ export function MealLog() {
           </Typography>
         </Box>
       </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
+          {error}
+        </Alert>
+      )}
 
       {/* Date picker */}
       <Card sx={{ mb: 3 }}>
@@ -156,7 +188,7 @@ export function MealLog() {
             sx={{ fontWeight: 600, flex: 1, textAlign: "center" }}
           >
             {formatDate(selectedDate)}
-            {selectedDate === TODAY && (
+            {isToday && (
               <Chip
                 label="Today"
                 size="small"
@@ -175,8 +207,8 @@ export function MealLog() {
           <Divider orientation="vertical" flexItem />
           <Button
             size="small"
-            onClick={() => setSelectedDate(TODAY)}
-            sx={{ color: "text.secondary", fontSize: 12 }}
+            onClick={() => setSelectedDate(new Date())}
+            sx={{ color: "white", fontSize: 12 }}
           >
             Today
           </Button>
@@ -199,30 +231,34 @@ export function MealLog() {
               key={"breakfast"}
               mealEntry={mealLog.breakfast}
               logDate={selectedDateString}
+              setError={setError}
             />
             <MealEntryCard
               mealSlot="lunch"
               key={"lunch"}
               mealEntry={mealLog.lunch}
               logDate={selectedDateString}
+              setError={setError}
             />
             <MealEntryCard
               mealSlot="dinner"
               key={"dinner"}
               mealEntry={mealLog.dinner}
               logDate={selectedDateString}
+              setError={setError}
             />
             <MealEntryCard
               mealSlot="snack"
               key={"snack"}
               mealEntry={mealLog.snack}
               logDate={selectedDateString}
+              setError={setError}
             />
           </Box>
         )}
 
-        {/* Day summary */}
         <Box sx={{ position: "sticky", top: 24 }}>
+          {/* Day summary */}
           <Card>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2 }}>
@@ -334,8 +370,30 @@ export function MealLog() {
               </Box>
             </CardContent>
           </Card>
+          <Box sx={{ mt: 3 }}>
+            {/* Active Meal Plan summary */}
+            <ActiveMealPlanCard showViewAll />
+
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 1.5 }}
+              startIcon={<AddIcon />}
+              onClick={() => setConfirmImportAllOpen(true)}
+            >
+              Import All Meals
+            </Button>
+          </Box>
         </Box>
       </Box>
+      <ConfirmDialog
+        open={confirmImportAllOpen}
+        title="Confirm Import All Meals"
+        description="Are you sure you want to remove all current meals and import every meal from your active meal plan?"
+        confirmText="Import"
+        onClose={() => setConfirmImportAllOpen(false)}
+        onConfirm={handleImportAllMeals}
+      />
     </Box>
   );
 }

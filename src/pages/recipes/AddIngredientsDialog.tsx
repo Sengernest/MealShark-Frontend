@@ -14,7 +14,7 @@ type AddIngredientDialogProps = {
   onClose: () => void;
   onAdd: (item: FoodItem) => void;
   title?: string;
-  button?: string;
+  buttonText?: string;
   initialValue?: FoodItem;
 };
 
@@ -23,7 +23,7 @@ export function AddIngredientDialog({
   onClose,
   onAdd,
   title,
-  button,
+  buttonText,
   initialValue,
 }: AddIngredientDialogProps) {
   return (
@@ -44,7 +44,7 @@ export function AddIngredientDialog({
         </Button>
 
         <Button type="submit" variant="contained" form="food-form">
-          {button ?? "Add"}
+          {buttonText ?? "Add"}
         </Button>
       </DialogActions>
     </Dialog>

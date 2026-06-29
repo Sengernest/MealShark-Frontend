@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -28,10 +28,10 @@ import { SearchBar } from "@/components/common/SearchBar";
 export function MealPlans() {
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-  
+
   const [deletePlan, setDeletePlan] = useState<MealPlan | null>(null);
   const [search, setSearch] = useState("");
-  
+
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
   const tab = urlSearchParams.get("tab");
 
@@ -49,17 +49,25 @@ export function MealPlans() {
   const filteredMealPlans = mealPlans.filter((p) => {
     const query = search.toLowerCase().trim();
 
-    return (
-      query === "" ||
-      p.name.toLowerCase().includes(query) ||
-      p.description?.toLowerCase().includes(query)
-    );
+    return query === "" || p.name.toLowerCase().includes(query);
   });
 
   const sortedMealPlans = [...filteredMealPlans].sort((a, b) => {
     if (a.isActive === b.isActive) return 0;
     return a.isActive ? -1 : 1;
   });
+
+  useEffect(() => {
+    if (!viewPlan) return;
+
+    const updatedPlan = mealPlans.find((p) => p.id === viewPlan.id);
+
+    if (updatedPlan) {
+      setViewPlan(updatedPlan);
+    }
+  }, [mealPlans, viewPlan]);
+
+  
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
       <Box
@@ -169,7 +177,7 @@ export function MealPlans() {
           deleteMealPlan.mutate(deletePlan.id);
 
           setDeletePlan(null);
-          setViewPlan(null); 
+          setViewPlan(null);
         }}
       />
     </Box>
