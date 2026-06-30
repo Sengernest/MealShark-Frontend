@@ -16,6 +16,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useState } from "react";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
+import { useSaveMealPlan, useUnsaveMealPlan } from "@/hooks/mealPlans";
 
 export function MealPlanCard({
   plan,
@@ -28,8 +29,15 @@ export function MealPlanCard({
   onView: () => void;
   onSetActive: () => void;
 }) {
-  const toggleSaveRecipe = (recipeId: number) => {
-    // TODO:
+  const saveMealPlan = useSaveMealPlan();
+  const unsaveMealPlan = useUnsaveMealPlan();
+
+  const toggleSaveMealPlan = async (mealPlanId: number) => {
+    if (plan.isSaved) {
+      await unsaveMealPlan.mutateAsync(mealPlanId);
+    } else {
+      await saveMealPlan.mutateAsync(mealPlanId);
+    }
   };
 
   const totalCalories = plan.nutrition.calories;
@@ -92,7 +100,7 @@ export function MealPlanCard({
             <Tooltip title={plan.isSaved ? "Unsave" : "Save recipe"}>
               <IconButton
                 size="small"
-                onClick={() => toggleSaveRecipe(plan.id)}
+                onClick={() => toggleSaveMealPlan(plan.id)}
                 sx={{
                   color: plan.isSaved ? "primary.main" : "text.disabled",
                 }}
