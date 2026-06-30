@@ -84,6 +84,17 @@ export const useActivateMealPlan = () => {
   });
 };
 
+export const useDeactivateMealPlan = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (mealPlanId: number) =>
+      mealPlanApi.deactivateMealPlan(mealPlanId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meal-plans"] });
+    },
+  });
+};
+
 export const useSaveMealPlan = () => {
   const queryClient = useQueryClient();
   return useMutation({

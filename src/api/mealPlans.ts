@@ -44,9 +44,14 @@ async function deleteMealPlan(mealPlanId: number) {
   return res.data;
 }
 
-async function activateMealPlan(mealPlanId: number): Promise<MealPlan> {
-  const res = await api.patch(`/meal-plans/${mealPlanId}`);
+async function activateMealPlan(mealPlanId: number) {
+  const res = await api.post(`/meal-plans/${mealPlanId}/active`);
   return res.data;
+}
+
+async function deactivateMealPlan(mealPlanId: number) {
+  const res = await api.delete(`/meal-plans/${mealPlanId}/active`);
+  return res.data
 }
 
 async function saveMealPlan(mealPlanId: number) {
@@ -69,6 +74,7 @@ export const mealPlanApi = {
   updateMealPlan,
   deleteMealPlan,
   activateMealPlan,
+  deactivateMealPlan,
   saveMealPlan,
   unsaveMealPlan,
 };
