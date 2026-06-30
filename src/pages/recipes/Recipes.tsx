@@ -29,6 +29,7 @@ import { CreateRecipeDialog } from "./CreateRecipeDialog";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeDetailDialog } from "./RecipeDetailDialog";
 import { SearchBar } from "@/components/common/SearchBar";
+import { toast } from "react-toastify";
 
 export const RECIPE_CATEGORIES = [
   "All",
@@ -190,7 +191,11 @@ export function Recipes() {
             setCreateOpen(true);
           }}
           onDelete={(id) => {
-            deleteRecipe.mutate(id);
+            deleteRecipe.mutate(id, {
+              onSuccess: () => {
+                toast.success("Recipe deleted successfully!");
+              },
+            });
           }}
         />
       )}

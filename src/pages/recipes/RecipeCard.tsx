@@ -66,7 +66,7 @@ export function RecipeCard({
             />
 
             <Chip
-              label={recipe.category ?? "No category"}
+              label={recipe.category || "No category"}
               size="small"
               variant="outlined"
               sx={{ fontSize: 11 }}

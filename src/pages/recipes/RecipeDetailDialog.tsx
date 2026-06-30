@@ -59,7 +59,7 @@ export function RecipeDetailDialog({
         >
           <Box>
             <Chip
-              label={recipe.category ?? "No category"}
+              label={recipe.category || "No category"}
               size="small"
               variant="outlined"
               sx={{ mb: 1 }}

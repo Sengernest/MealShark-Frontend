@@ -32,6 +32,7 @@ import { useRemoveFoodEntry } from "../../hooks/mealLogs";
 import { AddOrEditItemDialog } from "./AddItemDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { toast } from "react-toastify";
 
 export function MealEntryCard({
   mealEntry,
@@ -68,31 +69,53 @@ export function MealEntryCard({
   const importFromMealPlan = useImportFromMealPlan();
 
   const handleAddFoodEntry = async (foodItem: FoodItem) => {
-    await addFoodEntry.mutateAsync({
-      foodId: foodItem.food.id,
-      unitId: foodItem.unit.id,
-      amount: foodItem.amount,
-      logDate,
-      mealSlot,
-    });
+    await addFoodEntry.mutateAsync(
+      {
+        foodId: foodItem.food.id,
+        unitId: foodItem.unit.id,
+        amount: foodItem.amount,
+        logDate,
+        mealSlot,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Food item successfully added!");
+        },
+      },
+    );
     closeAddItem();
   };
   const handleAddRecipeEntry = async (recipeItem: RecipeItem) => {
-    await addRecipeEntry.mutateAsync({
-      recipeId: recipeItem.recipe.id,
-      servings: recipeItem.servings,
-      logDate,
-      mealSlot,
-    });
+    await addRecipeEntry.mutateAsync(
+      {
+        recipeId: recipeItem.recipe.id,
+        servings: recipeItem.servings,
+        logDate,
+        mealSlot,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Recipe item successfully added!");
+        },
+      },
+    );
     closeAddItem();
   };
 
   const handleRemoveFoodEntry = async (entryId: number) => {
-    await removeFoodEntry.mutateAsync(entryId);
+    await removeFoodEntry.mutateAsync(entryId, {
+      onSuccess: () => {
+        toast.success("Food item successfully deleted!");
+      },
+    });
   };
 
   const handleRemoveRecipeEntry = async (entryId: number) => {
-    await removeRecipeEntry.mutateAsync(entryId);
+    await removeRecipeEntry.mutateAsync(entryId, {
+      onSuccess: () => {
+        toast.success("Recioe item successfully deleted!");
+      },
+    });
   };
 
   const [editingFoodEntry, setEditingFoodEntry] = useState<FoodEntry | null>(
@@ -114,38 +137,53 @@ export function MealEntryCard({
 
   const handleUpdateFoodEntry = async (foodItem: FoodItem) => {
     if (!editingFoodEntry) return;
-    await updateFoodEntry.mutateAsync({
-      entryId: editingFoodEntry.id,
-      data: {
-        foodId: foodItem.food.id,
-        unitId: foodItem.unit.id,
-        amount: foodItem.amount,
-        logDate,
-        mealSlot,
+    await updateFoodEntry.mutateAsync(
+      {
+        entryId: editingFoodEntry.id,
+        data: {
+          foodId: foodItem.food.id,
+          unitId: foodItem.unit.id,
+          amount: foodItem.amount,
+          logDate,
+          mealSlot,
+        },
       },
-    });
-    closeAddItem()
+      {
+        onSuccess: () => {
+          toast.success("Food item successfully edited!");
+        },
+      },
+    );
+    closeAddItem();
   };
 
   const handleUpdateRecipeEntry = async (recipeItem: RecipeItem) => {
     if (!editingRecipeEntry) return;
-    await updateRecipeEntry.mutateAsync({
-      entryId: editingRecipeEntry.id,
-      data: {
-        recipeId: recipeItem.recipe.id,
-        servings: recipeItem.servings,
-        logDate,
-        mealSlot,
+    await updateRecipeEntry.mutateAsync(
+      {
+        entryId: editingRecipeEntry.id,
+        data: {
+          recipeId: recipeItem.recipe.id,
+          servings: recipeItem.servings,
+          logDate,
+          mealSlot,
+        },
       },
-    });
-    closeAddItem()
-  }
-    
+      {
+        onSuccess: () => {
+          toast.success("Recipe item successfully edited!");
+        },
+      },
+    );
+    closeAddItem();
+  };
+
   const handleImportMeal = () => {
     importFromMealPlan.mutate(
       { logDate, mealSlot },
       {
         onSuccess: () => {
+          toast.success("Meal successfully imported!");
           setConfirmImportOpen(false);
         },
         onError: (err: any) => {
@@ -385,7 +423,7 @@ export function MealEntryCard({
           title="Confirm Delete Item"
           description={`Are you sure you want to remove this item from ${mealSlot}?`}
           confirmText="Delete"
-         confirmColor="error"
+          confirmColor="error"
           onClose={() => {
             setConfirmDeleteOpen(false);
             setDeleteItem(null);

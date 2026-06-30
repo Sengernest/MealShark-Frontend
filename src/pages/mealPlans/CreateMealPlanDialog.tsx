@@ -32,6 +32,7 @@ import {
 import { AddOrEditItemDialog } from "../mealLogs/AddItemDialog";
 import { MealSlotFormView } from "./MealSlotFormView";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { toast } from "react-toastify";
 
 type MealPlanFormFood = {
   food: Food;
@@ -311,12 +312,23 @@ export function CreateMealPlanDialog({
     };
 
     if (initialPlan) {
-      await updateMealPlan.mutateAsync({
-        mealPlanId: initialPlan.id,
-        data: payload,
-      });
+      await updateMealPlan.mutateAsync(
+        {
+          mealPlanId: initialPlan.id,
+          data: payload,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Meal Plan updated successfully!");
+          },
+        },
+      );
     } else {
-      await createMealPlan.mutateAsync(payload);
+      await createMealPlan.mutateAsync(payload, {
+        onSuccess: () => {
+          toast.success("Meal Plan created successfully!");
+        },
+      });
     }
 
     onClose();

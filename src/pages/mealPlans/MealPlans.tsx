@@ -24,6 +24,7 @@ import { PlanDetailDialog } from "./MealPlanDetailDialog";
 import { MealPlanCard } from "./MealPlanCard";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { SearchBar } from "@/components/common/SearchBar";
+import { toast } from "react-toastify";
 
 export function MealPlans() {
   const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
@@ -140,7 +141,9 @@ export function MealPlans() {
             plan={p}
             isActive={p.isActive}
             onView={() => setViewPlan(p)}
-            onSetActive={() => activateMealPlan.mutate(Number(p.id))}
+            onSetActive={() => activateMealPlan.mutate(Number(p.id), { onSuccess: () => {
+              toast.success("Meal Plan set as active successfully!")
+            }})}
           />
         ))}
 
@@ -176,7 +179,9 @@ export function MealPlans() {
         onConfirm={() => {
           if (!deletePlan) return;
 
-          deleteMealPlan.mutate(deletePlan.id);
+          deleteMealPlan.mutate(deletePlan.id, { onSuccess: () => {
+            toast.success("Meal Plan deleted successfully!")
+          }});
 
           setDeletePlan(null);
           setViewPlan(null);

@@ -11,6 +11,7 @@ import { Recipes } from "./pages/recipes/Recipes";
 import { Profile } from "./pages/profile/Profile";
 import { muiTheme } from "./theme/muiTheme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ToastContainer } from "react-toastify";
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,18 @@ export default function App() {
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="colored"
+        />
+
+
       </QueryClientProvider>
     </ThemeProvider>
   );

@@ -37,6 +37,7 @@ import type { FoodItem, FoodItemPost, Recipe, RecipePost } from "../../types";
 import { AddIngredientDialog } from "./AddIngredientsDialog";
 import { NutritionRow } from "./NutritionRow";
 import { RECIPE_CATEGORIES } from "./Recipes";
+import { toast } from "react-toastify";
 
 type CreateRecipeFormData = {
   name: string;
@@ -110,7 +111,8 @@ export function CreateRecipeDialog({
     if (formData.ingredients.length === 0) {
       setError("ingredients", {
         type: "manual",
-        message: "A recipe must contain at least one ingredient. Please try again.",
+        message:
+          "A recipe must contain at least one ingredient. Please try again.",
       });
       return;
     }
@@ -125,14 +127,24 @@ export function CreateRecipeDialog({
       })),
     };
     if (recipe) {
-      await editRecipe.mutateAsync({
-        recipeId: recipe.id,
-        data: payload,
-      });
+      await editRecipe.mutateAsync(
+        {
+          recipeId: recipe.id,
+          data: payload,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Recipe edited successfully!");
+          },
+        },
+      );
     } else {
-      await createRecipe.mutateAsync(payload);
+      await createRecipe.mutateAsync(payload, {
+        onSuccess: () => {
+          toast.success("Recipe created successfully!");
+        },
+      });
     }
-
     onClose();
   };
 
@@ -225,7 +237,6 @@ export function CreateRecipeDialog({
           </Box>
           <Divider />
           <Box alignItems="center">
-            
             <Box
               sx={{
                 display: "flex",
