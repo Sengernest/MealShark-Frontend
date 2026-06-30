@@ -17,6 +17,7 @@ import {
   useGetAllMealPlans,
   useGetMyMealPlans,
   useGetSampleMealPlans,
+  useGetSavedMealPlans,
 } from "@/hooks/mealPlans";
 import { useSearchParams } from "react-router";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
@@ -26,48 +27,41 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { SearchBar } from "@/components/common/SearchBar";
 
 export function MealPlans() {
-  const [viewPlan, setViewPlan] = useState<MealPlan | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
-
+  
   const [deletePlan, setDeletePlan] = useState<MealPlan | null>(null);
   const [search, setSearch] = useState("");
-
+  
   const [urlSearchParams, setUrlSearchParams] = useSearchParams({ tab: "all" });
   const tab = urlSearchParams.get("tab");
-
+  
   const { data: allMealPlans = [] } = useGetAllMealPlans();
   const { data: mealPlans = [] } =
-    tab === "samples"
-      ? useGetSampleMealPlans()
-      : tab === "me"
-        ? useGetMyMealPlans()
-        : tab === "saved"
-          ? useGetMyMealPlans() //useGetSavedMealPlans()
-          : useGetAllMealPlans();
-
+  tab === "samples"
+  ? useGetSampleMealPlans()
+  : tab === "me"
+  ? useGetMyMealPlans()
+  : tab === "saved"
+  ? useGetSavedMealPlans()
+  : useGetAllMealPlans();
+  
+  
   const activateMealPlan = useActivateMealPlan();
   const deleteMealPlan = useDeleteMealPlan();
-
+  
   const filteredMealPlans = mealPlans.filter((p) => {
     const query = search.toLowerCase().trim();
-
+    
     return query === "" || p.name.toLowerCase().includes(query);
   });
-
+  
   const sortedMealPlans = [...filteredMealPlans].sort((a, b) => {
     if (a.isActive === b.isActive) return 0;
     return a.isActive ? -1 : 1;
   });
-
-  useEffect(() => {
-    if (!viewPlan) return;
-
-    const updatedPlan = mealPlans.find((p) => p.id === viewPlan.id);
-
-    if (updatedPlan) {
-      setViewPlan(updatedPlan);
-    }
-  }, [mealPlans, viewPlan]);
+  
+  const [viewPlanId, setViewPlanId] = useState<number | null>(null);
+  const viewPlan = filteredMealPlans.find(mealPlan => mealPlan.id === viewPlanId) ?? null
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 1200 }}>
@@ -139,7 +133,7 @@ export function MealPlans() {
             key={p.id}
             plan={p}
             isActive={p.isActive}
-            onView={() => setViewPlan(p)}
+            onView={() => setViewPlanId(p.id)}
             onSetActive={() => activateMealPlan.mutate(Number(p.id))}
           />
         ))}
@@ -156,7 +150,7 @@ export function MealPlans() {
       {viewPlan && (
         <PlanDetailDialog
           plan={viewPlan}
-          onClose={() => setViewPlan(null)}
+          onClose={() => setViewPlanId(null)}
           onDelete={(plan) => {
             setDeletePlan(plan);
           }}
@@ -179,7 +173,7 @@ export function MealPlans() {
           deleteMealPlan.mutate(deletePlan.id);
 
           setDeletePlan(null);
-          setViewPlan(null);
+          setViewPlanId(null);
         }}
       />
     </Box>
