@@ -21,6 +21,11 @@ async function getAllMealPlans(): Promise<MealPlan[]> {
   return res.data;
 }
 
+async function getSavedMealPlans(): Promise<MealPlan[]> {
+  const res = await api.get("/meal-plans/saved");
+  return res.data;
+}
+
 async function createMealPlan(data: MealPlanPost): Promise<MealPlan> {
   const res = await api.post("/meal-plans", data);
   return res.data;
@@ -44,13 +49,26 @@ async function activateMealPlan(mealPlanId: number): Promise<MealPlan> {
   return res.data;
 }
 
+async function saveMealPlan(mealPlanId: number) {
+  const res = await api.post(`/meal-plans/${mealPlanId}/save`);
+  return res.data;
+}
+
+async function unsaveMealPlan(mealPlanId: number) {
+  const res = await api.delete(`/meal-plans/${mealPlanId}/save`);
+  return res.data;
+}
+
 export const mealPlanApi = {
   getSampleMealPlans,
   getMyMealPlans,
   getMealPlan,
   getAllMealPlans,
+  getSavedMealPlans,
   createMealPlan,
   updateMealPlan,
   deleteMealPlan,
-  activateMealPlan
+  activateMealPlan,
+  saveMealPlan,
+  unsaveMealPlan,
 };

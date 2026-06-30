@@ -30,6 +30,13 @@ export const useGetAllMealPlans = () => {
   });
 };
 
+export const useGetSavedMealPlans = () => {
+  return useQuery({
+    queryKey: ["meal-plans", "saved"],
+    queryFn: mealPlanApi.getSavedMealPlans,
+  });
+};
+
 export const useCreateMealPlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -69,10 +76,28 @@ export const useDeleteMealPlan = () => {
 export const useActivateMealPlan = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (mealPlanId: number) => mealPlanApi.activateMealPlan(mealPlanId),
+    mutationFn: (mealPlanId: number) =>
+      mealPlanApi.activateMealPlan(mealPlanId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meal-plans"] });
     },
   });
 };
 
+export const useSaveMealPlan = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (mealPlanId: number) => mealPlanApi.saveMealPlan(mealPlanId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["meal-plans"] }),
+  });
+};
+
+export const useUnsaveMealPlan = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (mealPlanId: number) => mealPlanApi.unsaveMealPlan(mealPlanId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["meal-plans"] }),
+  });
+};
