@@ -134,15 +134,10 @@ export function MealPlans() {
             key={p.id}
             plan={p}
             isActive={p.isActive}
-<<<<<<< HEAD
-            onView={() => setViewPlan(p)}
+            onView={() => setViewPlanId(p.id)}
             onSetActive={() => activateMealPlan.mutate(Number(p.id), { onSuccess: () => {
               toast.success("Meal Plan set as active successfully!")
             }})}
-=======
-            onView={() => setViewPlanId(p.id)}
-            onSetActive={() => activateMealPlan.mutate(Number(p.id))}
->>>>>>> 6f8fb1ae8f331b8ce1d4fe7e258033c0b63b36b1
           />
         ))}
 
