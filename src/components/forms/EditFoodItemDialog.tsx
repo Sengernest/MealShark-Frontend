@@ -25,7 +25,7 @@ export type EditFoodItemFormData = {
 type EditRecipeItemDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSave: (data: EditFoodItemFormData) => void | Promise<void>;
+  onSave: (foodItem: FoodItem) => void | Promise<void>;
   setSubmitState?: (state: boolean) => void;
   initialFoodItem: FoodItem;
 };
@@ -50,7 +50,14 @@ export function EditFoodItemDialog({
   });
 
   const onSubmit: SubmitHandler<EditFoodItemFormData> = async (data) => {
-    await onSave(data);
+    const unit = initialFoodItem.food.units.find(
+      (foodUnit) => foodUnit.unitId === data.unitId,
+    )!.unit;
+    await onSave({
+      food: initialFoodItem.food,
+      unit,
+      amount: data.amount,
+    });
   };
 
   useEffect(() => {

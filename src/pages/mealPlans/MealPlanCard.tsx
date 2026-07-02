@@ -52,7 +52,6 @@ export function MealPlanCard({
   };
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const totalCalories = plan.nutrition.calories;
 
   return (
     <Card

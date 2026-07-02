@@ -36,6 +36,7 @@ import { toast } from "react-toastify";
 import { EditRecipeItemDialog } from "@/components/forms/EditRecipeItemDialog";
 import { calculateMealPlanNutrition } from "@/services/nutritionPreview";
 import { NutritionRow } from "../recipes/NutritionRow";
+import { EditFoodItemDialog } from "@/components/forms/EditFoodItemDialog";
 
 type MealPlanFormFood = {
   food: Food;
@@ -172,9 +173,7 @@ export function CreateMealPlanDialog({
   );
   // When edit food button is clicked
   const handleEditFood = (fieldId: string) => {
-    setEditingRecipeId(null);
     setEditingFoodId(fieldId);
-    setItemDialogOpen(true);
   };
 
   // The current recipe item being edited
@@ -184,9 +183,7 @@ export function CreateMealPlanDialog({
   );
   // When edit recipe button is clicked
   const handleEditRecipe = (fieldId: string) => {
-    setEditingFoodId(null);
     setEditingRecipeId(fieldId);
-    setItemDialogOpen(true);
   };
 
   const handleCloseItemDialog = () => {
@@ -254,7 +251,7 @@ export function CreateMealPlanDialog({
     );
     const mealSlot = recipesFieldArray.fields[index].mealSlot;
     recipesFieldArray.update(index, {
-      ...editingRecipeItem,
+      recipe: editingRecipeItem.recipe,
       servings,
       mealSlot,
     });
@@ -466,9 +463,20 @@ export function CreateMealPlanDialog({
 
       {editingRecipeItem && (
         <EditRecipeItemDialog
+          open={!!editingRecipeItem}
+          onClose={() => setEditingRecipeId(null)}
           recipeName={editingRecipeItem.recipe.name}
           initialServings={editingRecipeItem.servings}
           onSave={editRecipe}
+        />
+      )}
+
+      {editingFoodItem && (
+        <EditFoodItemDialog
+          open={!!editingFoodItem}
+          onClose={() => setEditingFoodId(null)}
+          initialFoodItem={editingFoodItem}
+          onSave={editFood}
         />
       )}
 

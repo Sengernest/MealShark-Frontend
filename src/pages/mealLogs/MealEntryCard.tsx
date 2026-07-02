@@ -34,7 +34,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "react-toastify";
 import { EditRecipeItemDialog } from "@/components/forms/EditRecipeItemDialog";
-import { EditFoodItemDialog, EditFoodItemFormData } from "@/components/forms/EditFoodItemDialog";
+import {
+  EditFoodItemDialog,
+  EditFoodItemFormData,
+} from "@/components/forms/EditFoodItemDialog";
 
 export function MealEntryCard({
   mealEntry,
@@ -135,15 +138,15 @@ export function MealEntryCard({
     setEditingRecipeEntry(entry);
   };
 
-  const handleUpdateFoodEntry = async (data: EditFoodItemFormData) => {
+  const handleUpdateFoodEntry = async (foodItem: FoodItem) => {
     if (!editingFoodEntry) return;
     await updateFoodEntry.mutateAsync(
       {
         entryId: editingFoodEntry.id,
         data: {
           foodId: editingFoodEntry.foodId,
-          unitId: data.unitId,
-          amount: data.amount,
+          unitId: foodItem.unit.id,
+          amount: foodItem.amount,
           logDate,
           mealSlot,
         },
