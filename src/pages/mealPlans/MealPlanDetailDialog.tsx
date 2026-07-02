@@ -19,6 +19,7 @@ import type { MealPlan } from "../../types";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
 import { MealSlotView } from "./MealSlotView";
 import { useSaveMealPlan, useUnsaveMealPlan } from "@/hooks/mealPlans";
+import { NutritionRow } from "../recipes/NutritionRow";
 
 export function PlanDetailDialog({
   plan,
@@ -132,17 +133,12 @@ export function PlanDetailDialog({
                 mb: 1.5,
               }}
             >
-              {plan.nutrition.calories > 0 && (
-                <Typography
-                  sx={{
-                    color: "primary.main",
-                    fontFamily: "'Barlow Condensed'",
-                    fontWeight: 800,
-                  }}
-                >
-                  {plan.nutrition.calories} kcal
-                </Typography>
-              )}
+              <NutritionRow
+                cal={plan.nutrition.calories}
+                prot={plan.nutrition.macros.protein}
+                carbs={plan.nutrition.macros.carbs}
+                fat={plan.nutrition.macros.fat}
+              />
             </Box>
 
             <MealSlotView
