@@ -122,12 +122,14 @@ export function MealEntryCard({
   const [editingFoodEntry, setEditingFoodEntry] = useState<FoodEntry | null>(
     null,
   );
+  
   const handleEditFoodEntry = (entry: FoodEntry) => {
     setEditingFoodEntry(entry);
   };
 
   const [editingRecipeEntry, setEditingRecipeEntry] =
     useState<RecipeEntry | null>(null);
+
   const handleEditRecipeEntry = (entry: RecipeEntry) => {
     setEditingRecipeEntry(entry);
   };
@@ -441,6 +443,8 @@ export function MealEntryCard({
         )}
         {editingRecipeEntry && (
           <EditRecipeItemDialog
+            open={!!editingRecipeEntry}
+            onClose={() => setEditingRecipeEntry(null)}
             recipeName={editingRecipeEntry.recipeName}
             initialServings={editingRecipeEntry.servings}
             onSave={handleUpdateRecipeEntry}
