@@ -18,41 +18,52 @@ import { useState } from "react";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
 import { useSaveMealPlan, useUnsaveMealPlan } from "@/hooks/mealPlans";
 import { NutritionRow } from "../recipes/NutritionRow";
+import {
+  useActivateMealPlan,
+  useDeactivateMealPlan,
+  useSaveMealPlan,
+  useUnsaveMealPlan,
+} from "@/hooks/mealPlans";
 
 export function MealPlanCard({
   plan,
-  isActive,
   onView,
-  onSetActive,
 }: {
   plan: MealPlan;
-  isActive: boolean;
   onView: () => void;
-  onSetActive: () => void;
 }) {
   const saveMealPlan = useSaveMealPlan();
   const unsaveMealPlan = useUnsaveMealPlan();
-
-  const toggleSaveMealPlan = async (mealPlanId: number) => {
+  const toggleSaveMealPlan = async () => {
     if (plan.isSaved) {
-      await unsaveMealPlan.mutateAsync(mealPlanId);
+      await unsaveMealPlan.mutateAsync(plan.id);
     } else {
-      await saveMealPlan.mutateAsync(mealPlanId);
+      await saveMealPlan.mutateAsync(plan.id);
     }
   };
 
-  const totalCalories = plan.nutrition.calories;
+  const activateMealPlan = useActivateMealPlan();
+  const deactivateMealPlan = useDeactivateMealPlan();
+  const toggleActivateMealPlan = async () => {
+    if (plan.isActive) {
+      await deactivateMealPlan.mutateAsync(plan.id);
+    } else {
+      await activateMealPlan.mutateAsync(plan.id);
+    }
+  };
+
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const totalCalories = plan.nutrition.calories;
 
   return (
     <Card
       sx={{
         display: "flex",
         flexDirection: "column",
-        borderColor: isActive ? "rgba(96,200,245,0.4)" : undefined,
+        borderColor: plan.isActive ? "rgba(96,200,245,0.4)" : undefined,
         transition: "border-color 0.15s",
         "&:hover": {
-          borderColor: isActive
+          borderColor: plan.isActive
             ? "rgba(96,200,245,0.4)"
             : "rgba(96,200,245,0.2)",
         },
@@ -74,7 +85,7 @@ export function MealPlanCard({
               variant="outlined"
               sx={{ fontSize: 11 }}
             />
-            {isActive && (
+            {plan.isActive && (
               <Chip
                 label="Active"
                 size="small"
@@ -101,7 +112,7 @@ export function MealPlanCard({
             <Tooltip title={plan.isSaved ? "Unsave" : "Save recipe"}>
               <IconButton
                 size="small"
-                onClick={() => toggleSaveMealPlan(plan.id)}
+                onClick={() => toggleSaveMealPlan()}
                 sx={{
                   color: plan.isSaved ? "primary.main" : "text.disabled",
                 }}
@@ -150,16 +161,16 @@ export function MealPlanCard({
         >
           View
         </Button>
-        {!isActive && (
-          <Button
-            size="small"
-            variant="contained"
-            onClick={onSetActive}
-            sx={{ flex: 1 }}
-          >
-            Set Active
-          </Button>
-        )}
+
+        <Button
+          size="small"
+          variant="contained"
+          onClick={toggleActivateMealPlan}
+          disabled={activateMealPlan.isPending || deactivateMealPlan.isPending}
+          sx={{ flex: 1 }}
+        >
+          {plan.isActive ? "Deactivate" : "Set Active"}
+        </Button>
       </CardActions>
       {editDialogOpen && (
         <CreateMealPlanDialog

@@ -46,8 +46,6 @@ export function MealPlans() {
   ? useGetSavedMealPlans()
   : useGetAllMealPlans();
   
-  
-  const activateMealPlan = useActivateMealPlan();
   const deleteMealPlan = useDeleteMealPlan();
   
   const filteredMealPlans = mealPlans.filter((p) => {
@@ -133,11 +131,7 @@ export function MealPlans() {
           <MealPlanCard
             key={p.id}
             plan={p}
-            isActive={p.isActive}
             onView={() => setViewPlanId(p.id)}
-            onSetActive={() => activateMealPlan.mutate(Number(p.id), { onSuccess: () => {
-              toast.success("Meal Plan set as active successfully!")
-            }})}
           />
         ))}
 
