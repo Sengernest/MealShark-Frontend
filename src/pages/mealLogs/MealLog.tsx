@@ -27,6 +27,7 @@ import { useState } from "react";
 import { MealEntryCard } from "./MealEntryCard";
 import { ActiveMealPlanCard } from "@/components/common/ActiveMealPlanCard";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { toast } from "react-toastify";
 
 function addDays(date: Date, n: number): Date {
   const d = new Date(date);
@@ -109,6 +110,7 @@ export function MealLog() {
       { logDate: selectedDateString },
       {
         onSuccess: () => {
+          toast.success("Meals successfully imported!")
           setConfirmImportAllOpen(false);
         },
         onError: (err: any) => {
@@ -125,6 +127,10 @@ export function MealLog() {
   const handledeleteAllEntries = () => {
     deleteAllEntries.mutate({
       logDate: selectedDateString,
+    }, {
+      onSuccess: () => {
+        toast.success("Meal Log Entries successfully deleted!")
+      }
     });
   };
 

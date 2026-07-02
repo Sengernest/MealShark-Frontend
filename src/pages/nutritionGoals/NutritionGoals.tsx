@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   Box,
   Typography,
@@ -17,7 +18,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   useCreateNutritionGoals,
   useDeleteNutritionGoals,
@@ -26,6 +26,7 @@ import {
 } from "@/hooks/nutritionGoals";
 import { useCurrentUser } from "@/hooks/auth";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { Controller, useForm } from "react-hook-form";
 
 const ACTIVITY_LABELS = {
   sedentary: "Sedentary (little or no exercise)",
@@ -74,99 +75,75 @@ function MacroCard({
 export function Goals() {
   const { data: user } = useCurrentUser();
   const [age, setAge] = useState(user?.age ?? "");
-  const [currentWeight, setCurrentWeight] = useState("");
-  const [goalWeight, setGoalWeight] = useState("");
   const [height, setHeight] = useState(user?.height ?? "");
   const [gender, setGender] = useState<"male" | "female" | "">(
     user?.gender ?? "",
   );
-  const [activity, setActivity] = useState<
-    "sedentary" | "light" | "moderate" | "active" | "very_active"
-  >("moderate");
-  const [goal, setGoal] = useState<
-    "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5"
-  >("maintenance");
-  const computedGoalWeight =
-    goal === "maintenance" ? currentWeight : goalWeight;
-  const [saved, setSaved] = useState(false);
-  const [deleted, setDeleted] = useState(false);
+
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [edited, setEdited] = useState(false);
-  const [error, setError] = useState("");
   const createNutritionGoals = useCreateNutritionGoals();
 
   const { data: goals, isLoading } = useGetMyNutritionGoals();
-  const hasGoals = !!goals;
   const deleteNutritionGoals = useDeleteNutritionGoals();
   const updateNutritionGoals = useUpdateNutritionGoals();
 
-  const handleSave = () => {
-    if (!goalWeight || !currentWeight) {
-      setError("Please fill in all fields.");
-      return;
-    }
+  type FormValues = {
+    currentWeight: string;
+    goalWeight: string;
+    activity: "sedentary" | "light" | "moderate" | "active" | "very_active";
+    goal: "bulk_0.25" | "bulk_0.5" | "maintenance" | "cut_0.25" | "cut_0.5";
+  };
 
-    if (
-      +currentWeight < 30 ||
-      +currentWeight > 300 ||
-      +goalWeight < 30 ||
-      +goalWeight > 300
-    ) {
-      setError("Enter a valid weight in kg.");
-      return;
-    }
+  const {
+    register,
+    control,
+    watch,
+    handleSubmit,
+    reset,
+    getValues,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
+    defaultValues: {
+      currentWeight: "",
+      goalWeight: "",
+      activity: "moderate",
+      goal: "maintenance",
+    },
+  });
 
-    if (goal.startsWith("bulk") && +goalWeight <= +currentWeight) {
-      setError("Goal weight must be greater than current weight when bulking.");
-      return;
-    }
-
-    if (goal.startsWith("cut") && +goalWeight >= +currentWeight) {
-      setError("Goal weight must be less than current weight when cutting.");
-      return;
-    }
-    setError("");
-
+  const onSubmit = (data: FormValues) => {
     const payload = {
       age: Number(age),
       gender,
-      currentWeight: Number(currentWeight),
-      goalWeight: Number(goalWeight),
+      currentWeight: Number(data.currentWeight),
+      goalWeight:
+        data.goal === "maintenance"
+          ? Number(data.currentWeight)
+          : Number(data.goalWeight),
       height: Number(height),
-      activityLevel: activity,
-      goal: goal,
+      activityLevel: data.activity,
+      goal: data.goal,
     };
 
-    if (hasGoals) {
+    if (goals) {
       updateNutritionGoals.mutate(payload, {
         onSuccess: () => {
-          setEdited(true);
-          setTimeout(() => setEdited(false), 3000);
+          toast.success("Goals edited successfully!");
         },
       });
     } else {
       createNutritionGoals.mutate(payload, {
         onSuccess: () => {
-          setSaved(true);
-          setTimeout(() => setSaved(false), 3000);
+          toast.success("Goals created successfully!");
         },
       });
     }
   };
 
-  const resetForm = () => {
-    setCurrentWeight("");
-    setGoalWeight("");
-    setActivity("moderate");
-    setGoal("maintenance");
-  };
-
   const handleConfirmDelete = () => {
     deleteNutritionGoals.mutate(undefined, {
       onSuccess: () => {
-        resetForm();
-        setDeleted(true);
-        setTimeout(() => setDeleted(false), 3000);
+        toast.success("Goals deleted successfully!");
         setDeleteOpen(false);
       },
     });
@@ -190,15 +167,25 @@ export function Goals() {
     setHeight(String(user.height ?? ""));
   }, [user]);
 
-  // goals sync
   useEffect(() => {
-    if (!goals) return;
+    if (!goals) {
+      reset({
+        currentWeight: "",
+        goalWeight: "",
+        activity: "moderate",
+        goal: "maintenance",
+      });
+    } else {
+      reset({
+        currentWeight: String(goals.currentWeight ?? ""),
+        goalWeight: String(goals.goalWeight ?? ""),
+        activity: goals.activityLevel ?? "moderate",
+        goal: goals.goal ?? "maintenance",
+      });
+    }
+  }, [goals, reset]);
 
-    setCurrentWeight(String(goals.currentWeight ?? ""));
-    setGoalWeight(String(goals.goalWeight ?? ""));
-    setActivity(goals.activityLevel ?? "moderate");
-    setGoal(goals.goal ?? "maintenance");
-  }, [goals]);
+  const goal = watch("goal");
 
   return (
     <Box sx={{ p: { xs: 3, md: 4 }, maxWidth: 900 }}>
@@ -210,30 +197,6 @@ export function Goals() {
           NUTRITION GOALS
         </Typography>
       </Box>
-
-      {saved && (
-        <Alert icon={<CheckCircleIcon />} severity="success" sx={{ mb: 3 }}>
-          Goals saved successfully!
-        </Alert>
-      )}
-
-      {deleted && (
-        <Alert icon={<CheckCircleIcon />} severity="success" sx={{ mb: 3 }}>
-          Goals deleted successfully!
-        </Alert>
-      )}
-
-      {edited && (
-        <Alert icon={<CheckCircleIcon />} severity="success" sx={{ mb: 3 }}>
-          Goals edited successfully!
-        </Alert>
-      )}
-
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
 
       {missingFields && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -257,132 +220,187 @@ export function Goals() {
         confirmText="Delete"
         confirmColor="error"
       />
-      
+
       <Grid container spacing={3}>
         {/* Form */}
         <Grid size={{ xs: 12, md: 7 }}>
           <Card>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2.5 }}>
-                YOUR STATS
-              </Typography>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <CardContent>
+                <Typography variant="h6" sx={{ mb: 2.5 }}>
+                  YOUR STATS
+                </Typography>
 
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <TextField
-                    label="Age"
-                    value={age}
-                    InputProps={{ readOnly: true }}
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                      label="Age"
+                      value={age}
+                      InputProps={{ readOnly: true }}
+                    />
+                    <TextField
+                      label="Height (cm)"
+                      value={height}
+                      InputProps={{ readOnly: true }}
+                    />
+                    <TextField
+                      label="Gender"
+                      value={gender.charAt(0).toUpperCase() + gender.slice(1)}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Box>
+
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <TextField
+                      label="Current Weight (kg)"
+                      type="number"
+                      error={!!errors.currentWeight}
+                      helperText={errors.currentWeight?.message}
+                      {...register("currentWeight", {
+                        required: "Current weight is required",
+                        min: {
+                          value: 30,
+                          message: "Weight must be at least 30kg",
+                        },
+                        max: {
+                          value: 300,
+                          message: "Weight must not exceed 300kg",
+                        },
+                        validate: (value) => {
+                          const goal = getValues("goal");
+                          const goalWeight = Number(getValues("goalWeight"));
+
+                          if (
+                            goal.startsWith("cut") &&
+                            goalWeight &&
+                            Number(value) <= goalWeight
+                          ) {
+                            return "Current weight must be greater than goal weight when cutting.";
+                          }
+
+                          return true;
+                        },
+                      })}
+                    />
+
+                    {goal !== "maintenance" && (
+                      <TextField
+                        label="Goal Weight (kg)"
+                        type="number"
+                        error={!!errors.goalWeight}
+                        helperText={errors.goalWeight?.message}
+                        {...register("goalWeight", {
+                          validate: (value) => {
+                            const goal = getValues("goal");
+                            const currentWeight = Number(
+                              getValues("currentWeight"),
+                            );
+
+                            if (goal === "maintenance") {
+                              return true;
+                            }
+
+                            if (!value) {
+                              return "Goal weight is required";
+                            }
+
+                            if (+value < 30 || +value > 300) {
+                              return "Weight must be between 30 and 300kg";
+                            }
+
+                            if (
+                              goal.startsWith("bulk") &&
+                              +value <= currentWeight
+                            ) {
+                              return "Goal weight must be greater than current weight.";
+                            }
+
+                            if (
+                              goal.startsWith("cut") &&
+                              +value >= currentWeight
+                            ) {
+                              return "Goal weight must be less than current weight.";
+                            }
+
+                            return true;
+                          },
+                        })}
+                      />
+                    )}
+                  </Box>
+
+                  <Divider />
+
+                  <Typography variant="h6">ACTIVITY & GOAL</Typography>
+
+                  <Controller
+                    name="activity"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Your Activity Level</InputLabel>
+
+                        <Select {...field} label="Your Activity Level">
+                          {Object.entries(ACTIVITY_LABELS).map(
+                            ([key, value]) => (
+                              <MenuItem key={key} value={key}>
+                                {value}
+                              </MenuItem>
+                            ),
+                          )}
+                        </Select>
+                      </FormControl>
+                    )}
                   />
-                  <TextField
-                    label="Height (cm)"
-                    value={height}
-                    InputProps={{ readOnly: true }}
+
+                  <Controller
+                    name="goal"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth size="small">
+                        <InputLabel>Your Goal</InputLabel>
+
+                        <Select {...field} label="Your Goal">
+                          {Object.entries(WEIGHT_GOAL_LABELS).map(
+                            ([key, value]) => (
+                              <MenuItem key={key} value={key}>
+                                {value}
+                              </MenuItem>
+                            ),
+                          )}
+                        </Select>
+                      </FormControl>
+                    )}
                   />
-                  <TextField
-                    label="Gender"
-                    value={gender.charAt(0).toUpperCase() + gender.slice(1)}
-                    InputProps={{ readOnly: true }}
-                  />
-                </Box>
 
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <TextField
-                    label="Current Weight (kg)"
-                    value={currentWeight}
-                    onChange={(e) => setCurrentWeight(e.target.value)}
-                    type="number"
-                    sx={{ flex: 1 }}
-                  />
-
-                  <TextField
-                    label="Goal Weight (kg)"
-                    value={computedGoalWeight}
-                    onChange={(e) => setGoalWeight(e.target.value)}
-                    type="number"
-                    disabled={goal === "maintenance"}
-                    sx={{ flex: 1 }}
-                  />
-                </Box>
-
-                <Divider />
-
-                <Typography variant="h6">ACTIVITY & GOAL</Typography>
-
-                <FormControl fullWidth size="small">
-                  <InputLabel>Activity Level</InputLabel>
-                  <Select
-                    value={activity}
-                    label="Activity Level"
-                    onChange={(e) =>
-                      setActivity(
-                        e.target.value as
-                          | "sedentary"
-                          | "light"
-                          | "moderate"
-                          | "active"
-                          | "very_active",
-                      )
-                    }
-                  >
-                    {Object.keys(ACTIVITY_LABELS).map((k) => (
-                      <MenuItem key={k} value={k}>
-                        {ACTIVITY_LABELS[k as keyof typeof ACTIVITY_LABELS]}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl fullWidth size="small">
-                  <InputLabel>Your Goal</InputLabel>
-                  <Select
-                    value={goal}
-                    label="Your Goal"
-                    onChange={(e) =>
-                      setGoal(
-                        e.target.value as
-                          | "bulk_0.25"
-                          | "bulk_0.5"
-                          | "maintenance"
-                          | "cut_0.25"
-                          | "cut_0.5",
-                      )
-                    }
-                  >
-                    {Object.keys(WEIGHT_GOAL_LABELS).map((k) => (
-                      <MenuItem key={k} value={k}>
-                        {
-                          WEIGHT_GOAL_LABELS[
-                            k as keyof typeof WEIGHT_GOAL_LABELS
-                          ]
-                        }
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <Button
-                  variant="contained"
-                  size="large"
-                  onClick={handleSave}
-                  startIcon={<EditIcon />}
-                >
-                  {hasGoals ? "Edit Goals" : "Create Goals"}
-                </Button>
-                {hasGoals && (
                   <Button
-                    variant="outlined"
-                    color="error"
+                    variant="contained"
                     size="large"
-                    onClick={() => setDeleteOpen(true)}
-                    disabled={deleteNutritionGoals.isPending}
-                    startIcon={<DeleteIcon />}
+                    type="submit"
+                    startIcon={<EditIcon />}
+                    disabled={isSubmitting}
                   >
-                    Delete Goals
+                    {isSubmitting
+                      ? "Saving..."
+                      : goals
+                        ? "Edit Goals"
+                        : "Create Goals"}
                   </Button>
-                )}
-              </Box>
-            </CardContent>
+                  {goals && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="large"
+                      onClick={() => setDeleteOpen(true)}
+                      disabled={deleteNutritionGoals.isPending}
+                      startIcon={<DeleteIcon />}
+                    >
+                      Delete Goals
+                    </Button>
+                  )}
+                </Box>
+              </CardContent>
+            </form>
           </Card>
         </Grid>
 

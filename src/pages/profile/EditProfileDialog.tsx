@@ -22,6 +22,7 @@ import { Controller, useForm } from "react-hook-form";
 
 import { useCurrentUser } from "@/hooks/auth";
 import { useUpdateProfile } from "@/hooks/profile";
+import { toast } from "react-toastify";
 
 type FormValues = {
   name: string;
@@ -39,8 +40,6 @@ export function EditProfileDialog({
   onClose: () => void;
 }) {
   const { data: user } = useCurrentUser();
-
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   const updateProfile = useUpdateProfile();
@@ -50,7 +49,7 @@ export function EditProfileDialog({
     control,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       name: "",
@@ -73,10 +72,11 @@ export function EditProfileDialog({
     });
   }, [user, reset]);
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
+    if (updateProfile.isPending) return;
     setError("");
 
-    updateProfile.mutate(
+    await updateProfile.mutateAsync(
       {
         name: data.name.trim(),
         email: data.email.trim(),
@@ -86,12 +86,8 @@ export function EditProfileDialog({
       },
       {
         onSuccess: () => {
-          setSaved(true);
-
-          setTimeout(() => {
-            setSaved(false);
-            onClose();
-          }, 1200);
+          toast.success("Profile edited successfully!");
+          onClose();
         },
         onError: (err: any) => {
           setError(err?.response?.data?.error ?? "Failed to update profile");
@@ -108,150 +104,135 @@ export function EditProfileDialog({
       fullWidth
       disableRestoreFocus
     >
-      <DialogTitle>
-        <Typography variant="h5" component="div">
-          EDIT PROFILE
-        </Typography>
-      </DialogTitle>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogTitle>
+          <Typography variant="h5" component="div">
+            EDIT PROFILE
+          </Typography>
+        </DialogTitle>
 
-      <DialogContent
-        sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
-      >
-        {saved && (
-          <Alert
-            icon={<CheckCircleIcon />}
-            severity="success"
-            sx={{ fontSize: 13 }}
-          >
-            Profile updated!
-          </Alert>
-        )}
-
-        {error && (
-          <Alert severity="error" sx={{ fontSize: 13 }}>
-            {error}
-          </Alert>
-        )}
-
-        <TextField
-          label="Full Name"
-          fullWidth
-          autoFocus
-          sx={{ mt: 1 }}
-          error={!!errors.name}
-          helperText={errors.name?.message}
-          {...register("name", {
-            required: "Name is required",
-          })}
-        />
-
-        <TextField
-          label="Email"
-          type="email"
-          fullWidth
-          error={!!errors.email}
-          helperText={errors.email?.message}
-          {...register("email", {
-            required: "Email is required",
-            pattern: {
-              value: /^\S+@\S+\.\S+$/,
-              message: "Invalid email address",
-            },
-          })}
-        />
-
-        <Controller
-          name="birthDate"
-          control={control}
-          rules={{
-            validate: (value) => {
-              if (!value) return true;
-
-              const age = dayjs().diff(dayjs(value), "year");
-
-              return (
-                (age >= 10 && age <= 120) ||
-                "Age must be between 10 and 120"
-              );
-            },
-          }}
-          render={({ field }) => (
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Birth Date (DD/MM/YYYY)"
-                value={field.value ? dayjs(field.value) : null}
-                format="DD/MM/YYYY"
-                onChange={(date) =>
-                  field.onChange(
-                    date ? date.format("YYYY-MM-DD") : "",
-                  )
-                }
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    error: !!errors.birthDate,
-                    helperText: errors.birthDate?.message,
-                  },
-                }}
-              />
-            </LocalizationProvider>
-          )}
-        />
-
-        <TextField
-          label="Height/cm"
-          fullWidth
-          type="number"
-          error={!!errors.height}
-          helperText={errors.height?.message}
-          {...register("height", {
-            validate: (value) => {
-              if (!value) return true;
-
-              const height = Number(value);
-
-              return (
-                (height >= 100 && height <= 250) ||
-                "Height must be between 100 and 250 cm"
-              );
-            },
-          })}
-        />
-
-        <Controller
-          name="gender"
-          control={control}
-          render={({ field }) => (
-            <FormControl sx={{ flex: 1 }} size="small">
-              <InputLabel id="gender-label">Gender</InputLabel>
-
-              <Select
-                {...field}
-                labelId="gender-label"
-                id="gender"
-                label="Gender"
-              >
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="female">Female</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose} sx={{ color: "text.secondary" }}>
-          Cancel
-        </Button>
-
-        <Button
-          variant="contained"
-          onClick={handleSubmit(onSubmit)}
-          disabled={updateProfile.isPending}
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
         >
-          Save Changes
-        </Button>
-      </DialogActions>
+          {error && (
+            <Alert severity="error" sx={{ fontSize: 13 }}>
+              {error}
+            </Alert>
+          )}
+
+          <TextField
+            label="Full Name"
+            fullWidth
+            autoFocus
+            sx={{ mt: 1 }}
+            error={!!errors.name}
+            helperText={errors.name?.message}
+            {...register("name", {
+              required: "Name is required",
+            })}
+          />
+
+          <TextField
+            label="Email"
+            type="email"
+            fullWidth
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^\S+@\S+\.\S+$/,
+                message: "Invalid email address",
+              },
+            })}
+          />
+
+          <Controller
+            name="birthDate"
+            control={control}
+            rules={{
+              validate: (value) => {
+                if (!value) return true;
+
+                const age = dayjs().diff(dayjs(value), "year");
+
+                return (
+                  (age >= 10 && age <= 120) || "Age must be between 10 and 120"
+                );
+              },
+            }}
+            render={({ field }) => (
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Birth Date (DD/MM/YYYY)"
+                  value={field.value ? dayjs(field.value) : null}
+                  format="DD/MM/YYYY"
+                  onChange={(date) =>
+                    field.onChange(date ? date.format("YYYY-MM-DD") : "")
+                  }
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!errors.birthDate,
+                      helperText: errors.birthDate?.message,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            )}
+          />
+
+          <TextField
+            label="Height/cm"
+            fullWidth
+            type="number"
+            error={!!errors.height}
+            helperText={errors.height?.message}
+            {...register("height", {
+              validate: (value) => {
+                if (!value) return true;
+
+                const height = Number(value);
+
+                return (
+                  (height >= 100 && height <= 250) ||
+                  "Height must be between 100 and 250 cm"
+                );
+              },
+            })}
+          />
+
+          <Controller
+            name="gender"
+            control={control}
+            render={({ field }) => (
+              <FormControl sx={{ flex: 1 }} size="small">
+                <InputLabel id="gender-label">Gender</InputLabel>
+
+                <Select
+                  {...field}
+                  labelId="gender-label"
+                  id="gender"
+                  label="Gender"
+                >
+                  <MenuItem value="male">Male</MenuItem>
+                  <MenuItem value="female">Female</MenuItem>
+                </Select>
+              </FormControl>
+            )}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={onClose} sx={{ color: "text.secondary" }}>
+            Cancel
+          </Button>
+
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save Changes"}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }

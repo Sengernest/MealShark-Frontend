@@ -9,10 +9,10 @@ import {
   DialogActions,
   Alert,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useForm } from "react-hook-form";
 
 import { useChangePassword } from "@/hooks/auth";
+import { toast } from "react-toastify";
 
 type FormValues = {
   currentPassword: string;
@@ -27,7 +27,6 @@ export function ChangePasswordDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
 
   const changePassword = useChangePassword();
@@ -37,7 +36,7 @@ export function ChangePasswordDialog({
     handleSubmit,
     watch,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       currentPassword: "",
@@ -52,7 +51,6 @@ export function ChangePasswordDialog({
     if (!open) {
       reset();
       setError("");
-      setSaved(false);
     }
   }, [open, reset]);
 
@@ -66,13 +64,9 @@ export function ChangePasswordDialog({
       },
       {
         onSuccess: () => {
-          setSaved(true);
-
-          setTimeout(() => {
-            setSaved(false);
-            reset();
-            onClose();
-          }, 1200);
+          toast.success("Password changed successfully!");
+          reset();
+          onClose();
         },
         onError: (err: any) => {
           setError(err?.response?.data?.error ?? "Failed to change password.");
@@ -83,80 +77,66 @@ export function ChangePasswordDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>
-        <Typography variant="h5">CHANGE PASSWORD</Typography>
-      </DialogTitle>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogTitle>
+          <Typography variant="h5">CHANGE PASSWORD</Typography>
+        </DialogTitle>
 
-      <DialogContent
-        sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}
-      >
-        {saved && (
-          <Alert severity="success" icon={<CheckCircleIcon />}>
-            Password updated!
-          </Alert>
-        )}
-
-        {error && (
-          <Alert severity="error">
-            {error}
-          </Alert>
-        )}
-
-        <TextField
-          label="Current Password"
-          type="password"
-          fullWidth
-          error={!!errors.currentPassword}
-          helperText={errors.currentPassword?.message}
-          {...register("currentPassword", {
-            required: "Current password is required",
-          })}
-          sx={{ mt: 1}}
-        />
-
-        <TextField
-          label="New Password"
-          type="password"
-          fullWidth
-          error={!!errors.newPassword}
-          helperText={errors.newPassword?.message}
-          {...register("newPassword", {
-            required: "New password is required",
-            minLength: {
-              value: 6,
-              message: "New password must be at least 6 characters",
-            },
-          })}
-        />
-
-        <TextField
-          label="Confirm New Password"
-          type="password"
-          fullWidth
-          error={!!errors.confirmPassword}
-          helperText={errors.confirmPassword?.message}
-          {...register("confirmPassword", {
-            required: "Please confirm your password",
-            validate: (value) =>
-              value === newPassword ||
-              "New and Confirm New Passwords do not match",
-          })}
-        />
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 2.5 }}>
-        <Button onClick={onClose}>
-          Cancel
-        </Button>
-
-        <Button
-          variant="contained"
-          onClick={handleSubmit(onSubmit)}
-          disabled={changePassword.isPending}
+        <DialogContent
+          sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 2 }}
         >
-          Change Password
-        </Button>
-      </DialogActions>
+          {error && <Alert severity="error">{error}</Alert>}
+
+          <TextField
+            label="Current Password"
+            type="password"
+            fullWidth
+            error={!!errors.currentPassword}
+            helperText={errors.currentPassword?.message}
+            {...register("currentPassword", {
+              required: "Current password is required",
+            })}
+            sx={{ mt: 1 }}
+          />
+
+          <TextField
+            label="New Password"
+            type="password"
+            fullWidth
+            error={!!errors.newPassword}
+            helperText={errors.newPassword?.message}
+            {...register("newPassword", {
+              required: "New password is required",
+              minLength: {
+                value: 6,
+                message: "New password must be at least 6 characters",
+              },
+            })}
+          />
+
+          <TextField
+            label="Confirm New Password"
+            type="password"
+            fullWidth
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword?.message}
+            {...register("confirmPassword", {
+              required: "Please confirm your password",
+              validate: (value) =>
+                value === newPassword ||
+                "New and Confirm New Passwords do not match",
+            })}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={onClose}>Cancel</Button>
+
+          <Button variant="contained" type="submit" disabled={isSubmitting}>
+            { isSubmitting ? "Changing password...": "Change Password" } 
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 }
