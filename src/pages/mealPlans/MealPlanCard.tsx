@@ -16,6 +16,7 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useState } from "react";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
+import { NutritionRow } from "../recipes/NutritionRow";
 import {
   useActivateMealPlan,
   useDeactivateMealPlan,
@@ -135,53 +136,20 @@ export function MealPlanCard({
           sx={{
             color: "text.secondary",
             fontSize: 12,
-            mb: 2,
             height: 32,
             overflow: "hidden",
           }}
         >
           {plan.description}
         </Typography>
-        <Box sx={{ display: "flex", gap: 3 }}>
-          <Box>
-            <Typography
-              sx={{
-                color: "primary.main",
-                fontFamily: "'Barlow Condensed'",
-                fontWeight: 900,
-                fontSize: 22,
-                lineHeight: 1,
-              }}
-            >
-              {totalCalories}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: "text.disabled", fontSize: 10 }}
-            >
-              TOTAL KCAL
-            </Typography>
-          </Box>
-          <Box>
-            <Typography
-              sx={{
-                color: "#3db5f2",
-                fontFamily: "'Barlow Condensed'",
-                fontWeight: 800,
-                fontSize: 22,
-                lineHeight: 1,
-              }}
-            >
-              {plan.targetCalories}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: "text.disabled", fontSize: 10 }}
-            >
-              TARGET
-            </Typography>
-          </Box>
-        </Box>
+
+        <NutritionRow
+          cal={plan.nutrition.calories}
+          target={plan.targetCalories}
+          prot={plan.nutrition.macros.protein}
+          carbs={plan.nutrition.macros.carbs}
+          fat={plan.nutrition.macros.fat}
+        />
       </CardContent>
       <CardActions sx={{ pt: 0, px: 2, pb: 2, gap: 1 }}>
         <Button

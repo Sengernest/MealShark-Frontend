@@ -34,6 +34,8 @@ import { MealSlotFormView } from "./MealSlotFormView";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "react-toastify";
 import { EditRecipeItemDialog } from "@/components/forms/EditRecipeItemDialog";
+import { calculateMealPlanNutrition } from "@/services/nutritionPreview";
+import { NutritionRow } from "../recipes/NutritionRow";
 
 type MealPlanFormFood = {
   food: Food;
@@ -152,6 +154,11 @@ export function CreateMealPlanDialog({
 
   const foodsFieldArray = useFieldArray({ control, name: "foodItems" });
   const recipesFieldArray = useFieldArray({ control, name: "recipeItems" });
+
+  const nutrition = calculateMealPlanNutrition(
+    foodsFieldArray.fields,
+    recipesFieldArray.fields,
+  );
 
   const handleAddItem = (mealSlot: MealSlot) => {
     setSelectedMealSlot(mealSlot);
@@ -426,6 +433,18 @@ export function CreateMealPlanDialog({
             onEditRecipeItem={handleEditRecipe}
             onRemoveRecipeItem={removeRecipe}
           />
+          <Divider />
+
+          <Box sx={{ pt: 1 }}>
+            <Typography variant="h6">NUTRITION INFO</Typography>
+
+            <NutritionRow
+              cal={nutrition.calories}
+              prot={nutrition.macros.protein}
+              carbs={nutrition.macros.carbs}
+              fat={nutrition.macros.fat}
+            />
+          </Box>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2.5 }}>
           <Button onClick={onClose} sx={{ color: "text.secondary" }}>

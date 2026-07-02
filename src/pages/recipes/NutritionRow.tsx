@@ -2,11 +2,13 @@ import { Box, Typography } from "@mui/material";
 
 export function NutritionRow({
   cal,
+  target,
   prot,
   carbs,
   fat,
 }: {
   cal: number;
+  target?: number;
   prot: number;
   carbs: number;
   fat: number;
@@ -15,9 +17,12 @@ export function NutritionRow({
     <Box sx={{ display: "flex", gap: 2.5, mt: 2.5 }}>
       {[
         { label: "KCAL", value: cal, color: "#60c8f5" },
-        { label: "PROTEIN", value: `${Math.round(prot)}g`, color: "#3df2a8" },
-        { label: "CARB", value: `${Math.round(carbs)}g`, color: "#3db5f2" },
-        { label: "FAT", value: `${Math.round(fat)}g`, color: "#f2c93d" },
+        ...(target !== undefined
+          ? [{ label: "TARGET KCAL", value: target, color: "#60c8f5" }]
+          : []),
+        { label: "PROTEIN/g", value: `${Math.round(prot)}`, color: "#3df2a8" },
+        { label: "CARB/g", value: `${Math.round(carbs)}`, color: "#3db5f2" },
+        { label: "FAT/g", value: `${Math.round(fat)}`, color: "#f2c93d" },
       ].map(({ label, value, color }) => (
         <Box key={label} sx={{ textAlign: "center" }}>
           <Typography

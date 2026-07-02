@@ -38,6 +38,7 @@ import { AddIngredientDialog } from "./AddIngredientsDialog";
 import { NutritionRow } from "./NutritionRow";
 import { RECIPE_CATEGORIES } from "./Recipes";
 import { toast } from "react-toastify";
+import { calculateRecipeNutrition } from "@/services/nutritionPreview";
 
 type CreateRecipeFormData = {
   name: string;
@@ -105,7 +106,29 @@ export function CreateRecipeDialog({
       });
     }
   }, [recipe, reset]);
+
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
+
+  const ingredients = useWatch({
+    control,
+    name: "ingredients",
+  });
+
+  const servings = watch("servings") || 1;
+
+  const previewNutrition =
+    ingredients.length > 0
+      ? calculateRecipeNutrition(ingredients, servings)
+      : (recipe?.nutrition ?? {
+          calories: 0,
+          macros: {
+            protein: 0,
+            carbs: 0,
+            fat: 0,
+          },
+        });
+
+  const nutrition = calculateRecipeNutrition(ingredients ?? [], servings || 1);
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
     if (formData.ingredients.length === 0) {
@@ -147,11 +170,6 @@ export function CreateRecipeDialog({
     }
     onClose();
   };
-
-  const ingredients = useWatch({
-    control,
-    name: "ingredients",
-  });
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -305,7 +323,12 @@ export function CreateRecipeDialog({
           </Box>
           <Box sx={{ pt: 1 }}>
             <Typography variant="h6">NUTRITION INFO</Typography>
-            <NutritionRow cal={900} prot={40} carbs={30} fat={30} />
+            <NutritionRow
+              cal={previewNutrition.calories}
+              prot={previewNutrition.macros.protein}
+              carbs={previewNutrition.macros.carbs}
+              fat={previewNutrition.macros.fat}
+            />
           </Box>
 
           <Divider />
