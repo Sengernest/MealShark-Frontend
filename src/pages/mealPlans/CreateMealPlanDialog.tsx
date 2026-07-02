@@ -29,7 +29,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { AddOrEditItemDialog } from "../mealLogs/AddItemDialog";
+import { AddItemDialog } from "../../components/forms/AddItemDialog";
 import { MealSlotFormView } from "./MealSlotFormView";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "react-toastify";
@@ -432,15 +432,11 @@ export function CreateMealPlanDialog({
         </DialogActions>
       </form>
       {itemDialogOpen && (
-        <AddOrEditItemDialog
+        <AddItemDialog
           open={itemDialogOpen}
           onClose={handleCloseItemDialog}
           onAddFood={addFood}
           onAddRecipe={addRecipe}
-          initialFood={editingFoodItem}
-          initialRecipe={editingRecipeItem}
-          onEditFood={editFood}
-          onEditRecipe={editRecipe}
         />
       )}
 

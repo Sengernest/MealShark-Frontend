@@ -10,18 +10,14 @@ import {
 } from "@mui/material";
 
 import { useState } from "react";
-import { AddFoodForm } from "../../components/forms/AddFoodForm";
-import { AddRecipeForm } from "../../components/forms/AddRecipeForm";
+import { AddFoodForm } from "./AddFoodForm";
+import { AddRecipeForm } from "./AddRecipeForm";
 
-type AddOrEditItemDialogProps = {
+type AddItemDialogProps = {
   open: boolean;
   onClose: () => void;
   onAddFood: (item: FoodItem) => void | Promise<void>;
   onAddRecipe: (item: RecipeItem) => void | Promise<void>;
-  initialFood?: FoodItem;
-  initialRecipe?: RecipeItem;
-  onEditFood?: (item: FoodItem) => void | Promise<void>;
-  onEditRecipe?: (item: RecipeItem) => void | Promise<void>;
 };
 
 type AddMode = "recipe" | "food";
@@ -31,26 +27,19 @@ const MODE_TO_FORM_ID: Record<AddMode, string> = {
   food: "food-form",
 };
 
-export function AddOrEditItemDialog({
+export function AddItemDialog({
   open,
   onClose,
   onAddFood,
   onAddRecipe,
-  initialFood,
-  initialRecipe,
-  onEditFood,
-  onEditRecipe,
-}: AddOrEditItemDialogProps) {
-  const [mode, setMode] = useState<AddMode>(initialFood ? "food" : "recipe");
-  const isEditMode = !!initialFood || !!initialRecipe;
+}: AddItemDialogProps) {
+  const [mode, setMode] = useState<AddMode>("recipe");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Typography variant="h6">
-          {isEditMode ? "EDIT ITEM" : "ADD ITEM"}
-        </Typography>
+        <Typography variant="h6">ADD ITEM</Typography>
       </DialogTitle>
       <DialogContent
         sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 2 }}
@@ -79,17 +68,9 @@ export function AddOrEditItemDialog({
         </Box>
 
         {mode === "food" ? (
-          <AddFoodForm
-            initialFood={initialFood}
-            onAdd={initialFood && onEditFood ? onEditFood : onAddFood}
-            setSubmitState={setIsSubmitting}
-          />
+          <AddFoodForm onAdd={onAddFood} setSubmitState={setIsSubmitting} />
         ) : (
-          <AddRecipeForm
-            initialRecipe={initialRecipe}
-            onAdd={initialRecipe && onEditRecipe ? onEditRecipe : onAddRecipe}
-            setSubmitState={setIsSubmitting}
-          />
+          <AddRecipeForm onAdd={onAddRecipe} setSubmitState={setIsSubmitting} />
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2.5 }}>
@@ -102,7 +83,7 @@ export function AddOrEditItemDialog({
           form={MODE_TO_FORM_ID[mode]}
           disabled={isSubmitting}
         >
-          {isEditMode ? "SAVE" : "ADD"}
+          ADD
         </Button>
       </DialogActions>
     </Dialog>

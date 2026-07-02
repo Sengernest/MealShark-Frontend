@@ -21,12 +21,11 @@ type AddFoodFormData = {
 
 type AddFoodFormProps = {
   onAdd: (food: FoodItem) => void | Promise<void>;
-  initialFood?: FoodItem;
   setSubmitState?: (state: boolean) => void;
 };
 
-export function AddFoodForm({ onAdd, initialFood, setSubmitState }: AddFoodFormProps) {
-  const [foodSearch, setFoodSearch] = useState(initialFood?.food.name ?? "");
+export function AddFoodForm({ onAdd, setSubmitState }: AddFoodFormProps) {
+  const [foodSearch, setFoodSearch] = useState("");
   const { data: foods = [] } = useSearchFoods(foodSearch, 20);
 
   const {
@@ -35,13 +34,7 @@ export function AddFoodForm({ onAdd, initialFood, setSubmitState }: AddFoodFormP
     control,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<AddFoodFormData>({
-    defaultValues: {
-      foodId: initialFood?.food.id,
-      unitId: initialFood?.unit.id,
-      amount: initialFood?.amount,
-    },
-  });
+  } = useForm<AddFoodFormData>();
 
   const onSubmit: SubmitHandler<AddFoodFormData> = async (data) => {
     const food = foods.find((food) => food.id === data.foodId)!;
@@ -52,7 +45,6 @@ export function AddFoodForm({ onAdd, initialFood, setSubmitState }: AddFoodFormP
   const selectedFoodId = watch("foodId");
   const selectedFood = foods.find((f) => f.id === selectedFoodId) ?? null;
 
-  
   useEffect(() => {
     setSubmitState?.(isSubmitting);
   }, [isSubmitting, setSubmitState]);
@@ -70,12 +62,7 @@ export function AddFoodForm({ onAdd, initialFood, setSubmitState }: AddFoodFormP
             return (
               <Autocomplete
                 options={foods}
-                value={
-                  field.value == null
-                    ? null
-                    : (foods.find((f) => f.id === field.value) ??
-                      initialFood?.food)
-                }
+                value={foods.find((f) => f.id === field.value) ?? null}
                 getOptionLabel={(food) => food.name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 onChange={(_, value) => {

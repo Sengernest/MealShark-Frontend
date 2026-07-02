@@ -17,11 +17,10 @@ type AddRecipeFormData = {
 
 type AddRecipeFormProps = {
   onAdd: (recipe: RecipeItem) => void | Promise<void>;
-  initialRecipe?: RecipeItem;
-  setSubmitState?: (state: boolean) => void
+  setSubmitState?: (state: boolean) => void;
 };
 
-export function AddRecipeForm({ onAdd, initialRecipe, setSubmitState }: AddRecipeFormProps) {
+export function AddRecipeForm({ onAdd, setSubmitState }: AddRecipeFormProps) {
   const [recipeSearch, setRecipeSearch] = useState("");
   const { data: recipes = [] } = useGetAllRecipes();
 
@@ -30,12 +29,7 @@ export function AddRecipeForm({ onAdd, initialRecipe, setSubmitState }: AddRecip
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<AddRecipeFormData>({
-    defaultValues: {
-      recipeId: initialRecipe?.recipe.id,
-      servings: initialRecipe?.servings,
-    },
-  });
+  } = useForm<AddRecipeFormData>();
 
   const onSubmit: SubmitHandler<AddRecipeFormData> = async (data) => {
     const recipe = recipes.find((recipe) => recipe.id === data.recipeId)!;
@@ -43,8 +37,8 @@ export function AddRecipeForm({ onAdd, initialRecipe, setSubmitState }: AddRecip
   };
 
   useEffect(() => {
-    setSubmitState?.(isSubmitting)
-  }, [isSubmitting, setSubmitState])
+    setSubmitState?.(isSubmitting);
+  }, [isSubmitting, setSubmitState]);
 
   return (
     <form id="recipe-form" onSubmit={handleSubmit(onSubmit)}>
@@ -57,11 +51,7 @@ export function AddRecipeForm({ onAdd, initialRecipe, setSubmitState }: AddRecip
             render={({ field }) => (
               <Autocomplete
                 options={recipes}
-                value={
-                  recipes.find((r) => r.id === field.value) ??
-                  initialRecipe?.recipe ??
-                  null
-                }
+                value={recipes.find((r) => r.id === field.value) ?? null}
                 getOptionLabel={(recipe) => recipe.name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 onChange={(_, value) => field.onChange(value?.id)}

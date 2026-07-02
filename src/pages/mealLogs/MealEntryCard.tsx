@@ -29,7 +29,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useState } from "react";
 import { useRemoveFoodEntry } from "../../hooks/mealLogs";
-import { AddOrEditItemDialog } from "./AddItemDialog";
+import { AddItemDialog } from "../../components/forms/AddItemDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "react-toastify";
@@ -443,15 +443,11 @@ export function MealEntryCard({
         />
 
         {itemDialogOpen && (
-          <AddOrEditItemDialog
+          <AddItemDialog
             open
             onClose={closeAddItem}
             onAddFood={handleAddFoodEntry}
             onAddRecipe={handleAddRecipeEntry}
-            onEditFood={handleUpdateFoodEntry}
-            onEditRecipe={handleUpdateRecipeEntry}
-            initialFood={editingFoodEntry ?? undefined}
-            initialRecipe={editingRecipeEntry ?? undefined}
           />
         )}
       </CardContent>
