@@ -2,7 +2,8 @@ import { mealLogApi } from "@/api/mealLogs";
 import {
   FoodEntryPost,
   ImportAllFromMealPlanPost,
-  ImportFromMealPlanPost
+  ImportFromMealPlanPost,
+  RecipeEntryPut
 } from "@/types";
 import {
   useMutation,
@@ -54,7 +55,7 @@ export const useUpdateRecipeEntry = () => {
       data,
     }: {
       entryId: number;
-      data: RecipeEntryPost;
+      data: RecipeEntryPut;
     }) => mealLogApi.updateRecipeEntry(entryId, data),
     onSuccess: (data) =>
       queryClient.invalidateQueries({ queryKey: ["meal-logs", data.logDate] }),

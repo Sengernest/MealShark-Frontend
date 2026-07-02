@@ -172,18 +172,24 @@ export type RecipeEntry = {
   userId: number;
   logDate: string;
   mealSlot: MealSlot;
-  recipeId: number;
-  recipe: Recipe;
+  recipeId: number | null;
   servings: number;
   nutrition: Nutrition;
+
+  recipeName: string
+  recipeServings: number
 };
 
 export type RecipeEntryPost = {
   logDate: string;
   mealSlot: MealSlot;
-  recipeId: number;
+  recipeId: number | null;
   servings: number;
 };
+
+export type RecipeEntryPut = {
+  servings: number
+}
 
 export type ImportFromMealPlanPost = {
   logDate: string;

@@ -150,28 +150,20 @@ export function MealEntryCard({
       },
       {
         onSuccess: () => {
-          toast.success("Food item successfully edited!");
+          toast.success("Food entry updated!");
         },
       },
     );
     closeAddItem();
   };
 
-  const handleUpdateRecipeEntry = async (recipeItem: RecipeItem) => {
+  const handleUpdateRecipeEntry = async (servings: number) => {
     if (!editingRecipeEntry) return;
     await updateRecipeEntry.mutateAsync(
-      {
-        entryId: editingRecipeEntry.id,
-        data: {
-          recipeId: recipeItem.recipe.id,
-          servings: recipeItem.servings,
-          logDate,
-          mealSlot,
-        },
-      },
+      { entryId: editingRecipeEntry.id, data: { servings } },
       {
         onSuccess: () => {
-          toast.success("Recipe item successfully edited!");
+          toast.success("Recipe entry updated!");
         },
       },
     );
@@ -240,7 +232,7 @@ export function MealEntryCard({
         ) : (
           <>
             {mealEntry.recipeEntries.map((recipeEntry) => {
-              const name = recipeEntry.recipe?.name;
+              const name = recipeEntry.recipeName;
               const cal = recipeEntry.nutrition.calories;
               return (
                 <Box

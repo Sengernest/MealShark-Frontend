@@ -239,12 +239,13 @@ export function CreateMealPlanDialog({
     handleCloseItemDialog();
   };
 
-  const editRecipe = (recipeItem: RecipeItem) => {
+  const editRecipe = (servings: number) => {
+    if (!editingRecipeItem) return
     const index = recipesFieldArray.fields.findIndex(
       (f) => f.id === editingRecipeId,
     );
     const mealSlot = recipesFieldArray.fields[index].mealSlot;
-    recipesFieldArray.update(index, { ...recipeItem, mealSlot });
+    recipesFieldArray.update(index, { ...editingRecipeItem, servings, mealSlot });
     handleCloseItemDialog();
   };
 

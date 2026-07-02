@@ -7,6 +7,7 @@ import {
   MealLog,
   RecipeEntry,
   RecipeEntryPost,
+  RecipeEntryPut,
 } from "@/types";
 import { api } from "./baseApi";
 
@@ -35,7 +36,7 @@ async function updateFoodEntry(
 
 async function updateRecipeEntry(
   entryId: number,
-  data: RecipeEntryPost,
+  data: RecipeEntryPut,
 ): Promise<RecipeEntry> {
   const res = await api.put(`/meal-logs/recipe-entries/${entryId}`, data);
   return res.data;
