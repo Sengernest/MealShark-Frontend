@@ -34,6 +34,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "react-toastify";
 import { EditRecipeItemDialog } from "@/components/forms/EditRecipeItemDialog";
+import { EditFoodItemDialog, EditFoodItemFormData } from "@/components/forms/EditFoodItemDialog";
 
 export function MealEntryCard({
   mealEntry,
@@ -122,7 +123,7 @@ export function MealEntryCard({
   const [editingFoodEntry, setEditingFoodEntry] = useState<FoodEntry | null>(
     null,
   );
-  
+
   const handleEditFoodEntry = (entry: FoodEntry) => {
     setEditingFoodEntry(entry);
   };
@@ -134,15 +135,15 @@ export function MealEntryCard({
     setEditingRecipeEntry(entry);
   };
 
-  const handleUpdateFoodEntry = async (foodItem: FoodItem) => {
+  const handleUpdateFoodEntry = async (data: EditFoodItemFormData) => {
     if (!editingFoodEntry) return;
     await updateFoodEntry.mutateAsync(
       {
         entryId: editingFoodEntry.id,
         data: {
-          foodId: foodItem.food.id,
-          unitId: foodItem.unit.id,
-          amount: foodItem.amount,
+          foodId: editingFoodEntry.foodId,
+          unitId: data.unitId,
+          amount: data.amount,
           logDate,
           mealSlot,
         },
@@ -279,7 +280,7 @@ export function MealEntryCard({
                       onClick={() => handleEditRecipeEntry(recipeEntry)}
                       sx={{
                         color: "text.disabled",
-                        "&:hover": { color: "error.main" },
+                        "&:hover": { color: "primary" },
                       }}
                     >
                       <EditIcon sx={{ fontSize: 14 }} />
@@ -354,7 +355,7 @@ export function MealEntryCard({
                       onClick={() => handleEditFoodEntry(foodEntry)}
                       sx={{
                         color: "text.disabled",
-                        "&:hover": { color: "error.main" },
+                        "&:hover": { color: "primary" },
                       }}
                     >
                       <EditIcon sx={{ fontSize: 14 }} />
@@ -448,6 +449,14 @@ export function MealEntryCard({
             recipeName={editingRecipeEntry.recipeName}
             initialServings={editingRecipeEntry.servings}
             onSave={handleUpdateRecipeEntry}
+          />
+        )}
+        {editingFoodEntry && (
+          <EditFoodItemDialog
+            open={!!editingFoodEntry}
+            onClose={() => setEditingFoodEntry(null)}
+            initialFoodItem={editingFoodEntry}
+            onSave={handleUpdateFoodEntry}
           />
         )}
       </CardContent>

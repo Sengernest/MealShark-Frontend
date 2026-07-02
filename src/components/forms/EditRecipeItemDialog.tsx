@@ -52,7 +52,7 @@ export function EditRecipeItemDialog({
   }, [isSubmitting, setSubmitState]);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTitle>
           <Typography variant="h6">EDIT RECIPE ITEM</Typography>
