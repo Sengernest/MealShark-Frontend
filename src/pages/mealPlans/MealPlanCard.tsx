@@ -16,7 +16,6 @@ import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useState } from "react";
 import { CreateMealPlanDialog } from "./CreateMealPlanDialog";
-import { useSaveMealPlan, useUnsaveMealPlan } from "@/hooks/mealPlans";
 import { NutritionRow } from "../recipes/NutritionRow";
 import {
   useActivateMealPlan,
