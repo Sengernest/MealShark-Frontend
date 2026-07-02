@@ -33,6 +33,7 @@ import { AddItemDialog } from "../../components/forms/AddItemDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "react-toastify";
+import { EditRecipeItemDialog } from "@/components/forms/EditRecipeItemDialog";
 
 export function MealEntryCard({
   mealEntry,
@@ -122,17 +123,13 @@ export function MealEntryCard({
     null,
   );
   const handleEditFoodEntry = (entry: FoodEntry) => {
-    setEditingRecipeEntry(null);
     setEditingFoodEntry(entry);
-    setItemDialogOpen(true);
   };
 
   const [editingRecipeEntry, setEditingRecipeEntry] =
     useState<RecipeEntry | null>(null);
   const handleEditRecipeEntry = (entry: RecipeEntry) => {
-    setEditingFoodEntry(null);
     setEditingRecipeEntry(entry);
-    setItemDialogOpen(true);
   };
 
   const handleUpdateFoodEntry = async (foodItem: FoodItem) => {
@@ -154,7 +151,7 @@ export function MealEntryCard({
         },
       },
     );
-    closeAddItem();
+    setEditingFoodEntry(null);
   };
 
   const handleUpdateRecipeEntry = async (servings: number) => {
@@ -167,7 +164,7 @@ export function MealEntryCard({
         },
       },
     );
-    closeAddItem();
+    setEditingRecipeEntry(null);
   };
 
   const handleImportMeal = () => {
@@ -440,6 +437,13 @@ export function MealEntryCard({
             onClose={closeAddItem}
             onAddFood={handleAddFoodEntry}
             onAddRecipe={handleAddRecipeEntry}
+          />
+        )}
+        {editingRecipeEntry && (
+          <EditRecipeItemDialog
+            recipeName={editingRecipeEntry.recipeName}
+            initialServings={editingRecipeEntry.servings}
+            onSave={handleUpdateRecipeEntry}
           />
         )}
       </CardContent>

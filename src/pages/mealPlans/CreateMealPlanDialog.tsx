@@ -33,6 +33,7 @@ import { AddItemDialog } from "../../components/forms/AddItemDialog";
 import { MealSlotFormView } from "./MealSlotFormView";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { toast } from "react-toastify";
+import { EditRecipeItemDialog } from "@/components/forms/EditRecipeItemDialog";
 
 type MealPlanFormFood = {
   food: Food;
@@ -240,13 +241,16 @@ export function CreateMealPlanDialog({
   };
 
   const editRecipe = (servings: number) => {
-    if (!editingRecipeItem) return
+    if (!editingRecipeItem) return;
     const index = recipesFieldArray.fields.findIndex(
       (f) => f.id === editingRecipeId,
     );
     const mealSlot = recipesFieldArray.fields[index].mealSlot;
-    recipesFieldArray.update(index, { ...editingRecipeItem, servings, mealSlot });
-    handleCloseItemDialog();
+    recipesFieldArray.update(index, {
+      ...editingRecipeItem,
+      servings,
+      mealSlot,
+    });
   };
 
   const removeFood = (fieldId: string) => {
@@ -438,6 +442,14 @@ export function CreateMealPlanDialog({
           onClose={handleCloseItemDialog}
           onAddFood={addFood}
           onAddRecipe={addRecipe}
+        />
+      )}
+
+      {editingRecipeItem && (
+        <EditRecipeItemDialog
+          recipeName={editingRecipeItem.recipe.name}
+          initialServings={editingRecipeItem.servings}
+          onSave={editRecipe}
         />
       )}
 
