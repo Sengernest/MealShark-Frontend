@@ -237,16 +237,19 @@ export function Goals() {
                       label="Age"
                       value={age}
                       InputProps={{ readOnly: true }}
+                      disabled
                     />
                     <TextField
                       label="Height (cm)"
                       value={height}
                       InputProps={{ readOnly: true }}
+                      disabled
                     />
                     <TextField
                       label="Gender"
                       value={gender.charAt(0).toUpperCase() + gender.slice(1)}
                       InputProps={{ readOnly: true }}
+                      disabled
                     />
                   </Box>
 
