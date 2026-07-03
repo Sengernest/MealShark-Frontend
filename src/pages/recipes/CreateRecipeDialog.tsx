@@ -78,7 +78,7 @@ export function CreateRecipeDialog({
     clearErrors,
   } = useForm<CreateRecipeFormData>({
     defaultValues: {
-      ingredients: recipe?.ingredients,
+      ingredients: recipe?.ingredients ?? [],
     },
   });
 
