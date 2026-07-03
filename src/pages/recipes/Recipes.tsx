@@ -61,7 +61,6 @@ export function Recipes() {
 
   const filteredRecipes = recipes.filter((r) => {
     const matchesCategory = category === "All" || r.category === category;
-
     const matchesSearch =
       search.trim() === "" ||
       r.name.toLowerCase().includes(search.toLowerCase()) ||
