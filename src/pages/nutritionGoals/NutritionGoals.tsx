@@ -415,9 +415,7 @@ export function Goals() {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}
               >
                 <Typography variant="h6">NUTRITION GOALS </Typography>
-                <InfoOutlinedIcon
-                  sx={{ fontSize: 16, color: "text.disabled" }}
-                />
+          
               </Box>
 
               {isLoading ? (
