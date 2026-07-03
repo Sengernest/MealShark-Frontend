@@ -39,6 +39,7 @@ import { NutritionRow } from "./NutritionRow";
 import { RECIPE_CATEGORIES } from "./Recipes";
 import { toast } from "react-toastify";
 import { calculateRecipeNutrition } from "@/services/nutritionPreview";
+import { EditFoodItemDialog } from "@/components/forms/EditFoodItemDialog";
 
 type CreateRecipeFormData = {
   name: string;
@@ -108,14 +109,14 @@ export function CreateRecipeDialog({
   }, [recipe, reset]);
 
   const ingredientsFieldArray = useFieldArray({ control, name: "ingredients" });
-
+  const servings = watch("servings") || 1;
   const ingredients = useWatch({
     control,
     name: "ingredients",
   });
 
-  const servings = watch("servings") || 1;
-
+  const editingIngredient = (editingIndex !== null) ? ingredients[editingIndex] : null;
+  
   const previewNutrition =
     ingredients.length > 0
       ? calculateRecipeNutrition(ingredients, servings)
@@ -128,7 +129,18 @@ export function CreateRecipeDialog({
           },
         });
 
-  const nutrition = calculateRecipeNutrition(ingredients ?? [], servings || 1);
+  const onAddIngredient = (foodItem: FoodItem) => {
+    ingredientsFieldArray.append(foodItem);
+    clearErrors("ingredients");
+    setIngredientDialogOpen(false);
+  };
+
+  const onEditIngredient = (foodItem: FoodItem) => {
+    if (editingIndex == null) return;
+    ingredientsFieldArray.update(editingIndex, foodItem);
+    clearErrors("ingredients");
+    setEditingIndex(null)
+  };
 
   const onSubmit: SubmitHandler<CreateRecipeFormData> = async (formData) => {
     if (formData.ingredients.length === 0) {
@@ -291,7 +303,6 @@ export function CreateRecipeDialog({
                           color="primary"
                           onClick={() => {
                             setEditingIndex(index);
-                            setIngredientDialogOpen(true);
                           }}
                         >
                           <EditIcon />
@@ -361,24 +372,19 @@ export function CreateRecipeDialog({
           setIngredientDialogOpen(false);
           setEditingIndex(null);
         }}
-        title={editingIndex !== null ? "EDIT INGREDIENT" : "ADD INGREDIENT"}
-        buttonText={editingIndex !== null ? "Save" : "Add"}
-        initialValue={
-          editingIndex !== null && ingredients[editingIndex]
-            ? ingredients[editingIndex]
-            : undefined
-        }
-        onAdd={(foodItem: FoodItem) => {
-          if (editingIndex !== null) {
-            ingredientsFieldArray.update(editingIndex, foodItem);
-            setEditingIndex(null);
-          } else {
-            ingredientsFieldArray.append(foodItem);
-          }
-          clearErrors("ingredients");
-          setIngredientDialogOpen(false);
-        }}
+        onAdd={onAddIngredient}
       />
+
+      {editingIngredient && (
+        <EditFoodItemDialog
+          open={!!editingIngredient}
+          onClose={() => {
+            setEditingIndex(null);
+          }}
+          initialFoodItem={editingIngredient}
+          onSave={onEditIngredient}
+        />
+      )}
 
       <ConfirmDialog
         open={deleteIndex !== null}
