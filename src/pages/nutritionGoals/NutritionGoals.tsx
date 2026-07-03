@@ -257,6 +257,7 @@ export function Goals() {
                     <TextField
                       label="Current Weight (kg)"
                       type="number"
+                      slotProps={{ htmlInput: { step: 0.1 } }}
                       error={!!errors.currentWeight}
                       helperText={errors.currentWeight?.message}
                       {...register("currentWeight", {
@@ -415,7 +416,6 @@ export function Goals() {
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}
               >
                 <Typography variant="h6">NUTRITION GOALS </Typography>
-          
               </Box>
 
               {isLoading ? (
