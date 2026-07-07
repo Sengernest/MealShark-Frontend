@@ -1,5 +1,8 @@
 # MealShark
 
+<img width="2876" height="1458" alt="image" src="https://github.com/user-attachments/assets/146d7cfc-aac4-4e28-b8d6-0dbf30d712db" />
+
+
 A full-stack nutrition and meal planning web application built to help users calculate their nutrition goals, create recipes and meal plans, and track their daily nutritional food intake. MealShark demonstrates full-stack software engineering with a focus on scalable architecture, clean code, and real-world design decisions.
 
 > **Tech Stack:** React + Vite • TypeScript • TanStack Query • Material UI • Node.js • Express • PostgreSQL • Drizzle ORM •  Zod
@@ -12,12 +15,14 @@ A full-stack nutrition and meal planning web application built to help users cal
 # Features
 
 ### 1. Authentication
+<img width="2870" height="1450" alt="image" src="https://github.com/user-attachments/assets/083d25ac-01a1-4c94-b0a1-b34f8aaf1b4d" />
 
 - User registration and login
 - Secure cookie-based JWT authentication
 - Protected routes
 
-### 2. Nutrition Goal Calculator
+### 2. Nutrition Goals Calculator
+<img width="2880" height="1460" alt="image" src="https://github.com/user-attachments/assets/8cc844b4-f662-403b-886a-612e82eda478" />
 
   Calculate personalised nutrition goals based on:
 
@@ -36,9 +41,30 @@ MealShark calculates and displays the user's:
 - Daily carbohydrate target
 - Daily fat target
 
-### 3. Recipe Management
+### 3. Food items library
+Search and browse food items from imported USDA food database. 
 
+<img width="2880" height="1448" alt="image" src="https://github.com/user-attachments/assets/758a1b0f-628f-4e65-bf15-ffdf0e39b5ba" />
+
+Each food item contains information aboout:
+
+- Calories
+- Protein
+- Carbohydrates
+- Fat
+
+- Age
+- Gender
+- Height
+- Current Weight
+- Goal Weight 
+- Activity level
+- Weight change goal
+
+### 4. Recipe Management
 Create reusable recipes using food items from the USDA food database.
+
+<img width="2866" height="1454" alt="image" src="https://github.com/user-attachments/assets/c940314f-1e37-4c1a-8240-3a640f0df4e0" />
 
 Each recipe includes:
 
@@ -60,9 +86,11 @@ Users can:
 - Save favourite recipes
 - Sample recipes 
 
-### 4. Meal Planning
+### 5. Meal Planning
 
 Build reusable daily meal plans.
+<img width="2874" height="1464" alt="image" src="https://github.com/user-attachments/assets/88901f09-e2da-4ecb-9162-6c5aaeb21e4e" />
+
 
 Each meal plan includes:
 - Breakfast, Lunch, Dinner and Snack meal slots
@@ -80,9 +108,10 @@ Users can:
 - Save meal plans
 - Sample mean plans
 
-### 5. Meal Logging
-
+### 6. Meal Logging
 Track meals consumed throughout the day.
+<img width="2880" height="1454" alt="image" src="https://github.com/user-attachments/assets/153e53b6-d1fc-4203-a5a8-090a480d3237" />
+
 
 Each meal log includes:
 - Breakfast, Lunch, Dinner and Snack meal slots
@@ -95,16 +124,6 @@ Users can:
 - Log recipes, food items or meals from their active meal plan
 - View their daily nutrition summary
 
-
-### 6. Imported USDA Food Database
-
-Browse foods with nutrition information including:
-
-- Calories
-- Protein
-- Carbohydrates
-- Fat
-
 ---
 
 # Architecture
@@ -112,7 +131,10 @@ Browse foods with nutrition information including:
 The backend follows a layered architecture to separate concerns and keep business logic maintainable.
 
 ```text
-HTTP Request
+HTTP Request from Frontend
+      │
+      ▼
+Zod Validator
       │
       ▼
 Express Handlers
@@ -126,7 +148,7 @@ Data Access Layer
 (Drizzle ORM)
       │
       ▼
-PostgreSQL
+  PostgreSQL
 ```
 
 This architecture improves:
@@ -177,7 +199,7 @@ This architecture improves:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/MealShark.git
+git clone https://github.com/Sengernest/MealShark-Frontend.git
 cd MealShark
 ```
 
@@ -195,19 +217,14 @@ npm run dev
 
 ---
 
-# Environment Variables
-
-Example frontend `.env`
+### 4. Create .env file and include the API url
 
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 ---
 
-# What This Project Demonstrates
-
-This project demonstrates practical experience with:
-
+# Practices and skills demonstrated
 - Full-stack TypeScript development
 - REST API design
 - Layered backend architecture
