@@ -12,7 +12,7 @@ A full-stack nutrition and meal planning web application built to help users cal
 
 ---
 
-# Features
+## Features
 
 ### 1. Authentication
 <img width="2870" height="1450" alt="image" src="https://github.com/user-attachments/assets/083d25ac-01a1-4c94-b0a1-b34f8aaf1b4d" />
@@ -24,7 +24,7 @@ A full-stack nutrition and meal planning web application built to help users cal
 ### 2. Nutrition Goals Calculator
 <img width="2880" height="1460" alt="image" src="https://github.com/user-attachments/assets/8cc844b4-f662-403b-886a-612e82eda478" />
 
-  Calculate personalised nutrition goals based on:
+Calculate personalised nutrition goals based on:
 
 - Age
 - Gender
@@ -126,7 +126,7 @@ Users can:
 
 ---
 
-# Architecture
+## Architecture
 
 The backend follows a layered architecture to separate concerns and keep business logic maintainable.
 
@@ -160,9 +160,9 @@ This architecture improves:
 
 ---
 
-# Tech Stack
+## Tech Stack
 
-## Frontend
+### Frontend
 
 - React
 - TypeScript
@@ -171,7 +171,7 @@ This architecture improves:
 - TanStack Query
 - Axios
 
-## Backend
+### Backend
 
 - Node.js
 - Express
@@ -179,12 +179,12 @@ This architecture improves:
 - Drizzle ORM
 - Zod
 
-## Database
+### Database
 
 - PostgreSQL
 - USDA Food Database
 
-## Deployment
+### Deployment
 
 | Component | Platform |
 |-----------|----------|
@@ -194,37 +194,35 @@ This architecture improves:
 
 ---
 
-# Running Locally
+## Running Locally
 
 ### 1. Clone the repository
 
 ```bash
 git clone https://github.com/Sengernest/MealShark-Frontend.git
-cd MealShark
 ```
+### 2. Go into the directory where the repo was cloned into
 
-### 2. Install dependencies
+### 3. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3. Start the development server
+### 4. Start the development server
 
 ```bash
 npm run dev
 ```
 
----
-
-### 4. Create .env file and include the API url
+### 5. Create .env file and include the API url
 
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 ---
 
-# Practices and skills demonstrated
+## Practices and skills demonstrated
 - Full-stack TypeScript development
 - REST API design
 - Layered backend architecture
