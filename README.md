@@ -208,18 +208,17 @@ git clone https://github.com/Sengernest/MealShark-Frontend.git
 ```bash
 npm install
 ```
+## 4. Create .env file and include the API url
 
-### 4. Start the development server
+```env
+VITE_API_URL=http://localhost:3000
+```
+### 5. Start the development server
 
 ```bash
 npm run dev
 ```
 
-### 5. Create .env file and include the API url
-
-```env
-VITE_API_URL=http://localhost:3000
-```
 ---
 
 ## Practices and skills demonstrated
